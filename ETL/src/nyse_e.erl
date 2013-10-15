@@ -38,7 +38,7 @@ init() ->  pageSelector(1).
 getData(State) ->
 [Symbol,Name,Price,_Change,Percent,_,Volume,_] = 
 State,[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}].
- % io:format("~p~n",[[{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}]]).
+  % io:format("~p~n",[[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}]]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,10 +89,17 @@ case string:chr(SubList,$<) of
 	_-> string:substr(List,N,M-1)
 end.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Sends the data to the transform module
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) ->
-	SingleStockList.
--spec loop(State :: any()) -> any().
+	nyse_t ! SingleStockList.
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,6 +107,7 @@ sendData(SingleStockList) ->
 %%% Loops through the list of stocks from each page.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec loop(State :: any()) -> any().
 loop({StockList,Number,PageNumber}) ->
 
 case Number=<length(StockList) of
