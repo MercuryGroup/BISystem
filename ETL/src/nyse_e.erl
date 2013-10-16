@@ -34,11 +34,7 @@ stop() -> ok.
 -spec init() -> any().
 init() ->  pageSelector(1).
 	
--spec getData(State :: any()) -> {NewState :: any(), Stock :: [{atom(), any()}, ...]}.
-getData(State) ->
-[Symbol,Name,Price,_Change,Percent,_,Volume,_] = 
-State,[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}].
-  % io:format("~p~n",[[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}]]).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,13 +44,15 @@ State,[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume
 %%% is an individual stock.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pageSelector(N) ->  inets:start(),PageNumber= lists:flatten(io_lib:format("~p", [N])),
+pageSelector(N) ->  inets:start(),
+PageNumber = lists:flatten(io_lib:format("~p", [N])),
 {ok, {{_Version, 200, _ReasonPhrase}, _Headers, Body}} =
-      httpc:request(string:concat("http://money.cnn.com/data/markets/nyse/?page=",PageNumber)), 
+      httpc:request(string:concat
+      	("http://money.cnn.com/data/markets/nyse/?page=",PageNumber)), 
       {_,[[{Start,_}],[{Stop,_}]]} = re:run(Body,"tbody",[global]),
       StockData = string:substr(Body, Start+7, (Stop-Start)-8), 
       StockList = re:split(StockData,"<tr>",[{return,list}]),
-      {Pno,_}=string:to_integer(PageNumber),io:format("Pageno ~p~n",[Pno]),
+      {Pno,_}=string:to_integer(PageNumber),
       loop({StockList,2,Pno}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,11 +69,12 @@ findData(SubList,List,N,M,Datalist) ->
 			end;
 			(">") -> Test = string:substr(List,N,M+1), case Test of
 				("><") -> findData(string:substr(List,N+1,M),List,N+1,M,Datalist);
-				_-> Dlist = lists:append(Datalist,[findWord(string:substr(List,N+1,M),List,N+1,M)]), findData(string:substr(List,N+1,M),List,N+1,M,Dlist)
+				_-> Dlist = lists:append(Datalist,
+					[findWord(string:substr(List,N+1,M),List,N+1,M)]), 
+				findData(string:substr(List,N+1,M),List,N+1,M,Dlist)
 			end;
 			_ ->findData(string:substr(List,N+1,M),List,N+1,M,Datalist)
 	end.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -88,6 +87,18 @@ case string:chr(SubList,$<) of
 	(0) -> findWord(string:substr(List,N,M+1),List,N,M+1);
 	_-> string:substr(List,N,M-1)
 end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Arranges the data into a more structured format
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec getData(State :: any()) -> {NewState :: any(), Stock :: [{atom(), any()}, ...]}.
+getData(State) ->
+[Symbol,Name,Price,Change,Percent,_,Volume,_] = 
+State,
+[{symbol,Symbol},{name, Name},{change, Change},{latest, Price}, {percent, Percent}, {volume, Volume},{time,now()}].
+  % io:format("~p~n",[[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}]]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -111,11 +122,12 @@ sendData(SingleStockList) ->
 loop({StockList,Number,PageNumber}) ->
 
 case Number=<length(StockList) of
-	true  -> ListSegment = lists:nth(Number,StockList),sendData(getData(findData(ListSegment,ListSegment,1,1,[]))),
+	true  -> ListSegment = lists:nth(Number,StockList),
+	sendData(getData(findData(ListSegment,ListSegment,1,1,[]))),
 	loop({StockList,Number+1,PageNumber});
 	_ -> case PageNumber=<128 of
 		% true -> pageSelector(PageNumber+1);
-		_-> finished
+		_-> io:format("finished page ~p~n",[PageNumber])
 	end
 end.
 
