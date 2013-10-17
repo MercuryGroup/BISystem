@@ -1,4 +1,11 @@
-% Mercry group transform stock template.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% File: nyse_t.erl
+%%% @author Magnus Hernegren
+%%% @doc
+%%% 
+%%% @end
+%%% Created 15 October 2013 (Tuesday),  by Magnus Hernegren
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 -module(nyse_t).
 -export([start/0, stop/0, init/0, transform/1, sendData/1, loop/1,priceConvert/1]).
@@ -12,6 +19,11 @@ stop() ->
 init() ->
 ok.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Transforms the data in the stock to appropriate values.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 transform(Stock) ->
 		{_,X} = lists:keyfind(name,1,Stock),
 		StockName = lists:keystore(name,1,Stock,{name,string:sub_string(X,7)}),
@@ -22,17 +34,28 @@ transform(Stock) ->
 		{_,Change} = lists:keyfind(change,1,Stock),
 		StockChange = lists:keystore(change,1,StockPrice,{change,priceConvert(Change)}),
 		sendData(StockChange).
-		 % io:format("~p~n",[StockChange]).
+		% io:format("~p~n",[StockVolume]),
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Converts the volume from e.g. "1.6M" to "1600000".
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 volumeConvert(Vol) -> case string:sub_string(Vol,string:len(Vol)) of
 	("M") -> NewVol = re:replace(Vol,"M","0000000",[{return,list}]),re:replace(NewVol,"\\.","",[{return,list}]);
 	("K") -> NewVol = re:replace(Vol,"K","000",[{return,list}]),re:replace(NewVol,"\\.","",[{return,list}]);
 	_-> Vol
 end.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Converts the price/change in price to the appropriate currency
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 priceConvert(Price) ->
-[First,Second] =re:split(Price,"\\.",[{return,list}]),
+PriceDot = re:replace(Price, "\\,", "\\.", [{return, list}]), 
+[First,Second] =re:split(PriceDot,"\\.",[{return,list}]),
 {Firstint,_} = string:to_integer(First),
 {Secondint,_} = string:to_integer(Second),
 TransPrice = io_lib:format("~.2f",[(Firstint+(0.01*Secondint))*0.7]),
@@ -48,10 +71,24 @@ end.
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Sends the transformed data to the loader
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sendData([]) ->
-	ok.
+ok;
 
+
+sendData(List) ->
+List.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Recieves data from the extractor
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop(From) ->
 	receive
 		{stop}-> stopped;

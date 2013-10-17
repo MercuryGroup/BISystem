@@ -19,7 +19,7 @@
 start() ->
 % case whereis(nyseextract) == undefined of
    % true -> 
-   [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)], stopped.
+   PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)], {ok, PidList}.
 %    register(nyseextract, spawn(extractnyse,init,[])),
 %   {ok,whereis(nyseextract)};
 %   _ -> {ok,whereis(nyseextract)}
