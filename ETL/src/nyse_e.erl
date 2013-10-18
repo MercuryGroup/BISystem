@@ -17,13 +17,13 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec start() -> {ok, pid()}.
-start() ->
-   PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)], 
-   {ok, PidList}.
+start() -> init().
+
+
 
 
 -spec init() -> any().
-init() ->  pageSelector(1).
+init() ->    PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,2)],   {ok, PidList} .
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

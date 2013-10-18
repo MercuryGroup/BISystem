@@ -35,7 +35,7 @@ transform(Stock) ->
 		StockChange = lists:keystore(change,1,StockPrice,{change,priceConvert(Change)}),
 		{_,Time} = lists:keyfind(time,1,Stock),
 		StockTime = lists:keystore(time,1,StockChange,{time,timeToString(Time)}),
-		StockOpenVal = lists:keystore(openingvalue,1,StockTime,{openingvalue,openingValCal(Price,Change)}),
+		StockOpenVal = lists:keystore(openVal,1,StockTime,{openVal,openingValCal(Price,Change)}),
 		sendData(StockOpenVal).
 		% io:format("~p~n",[StockVolume]),
 
@@ -104,7 +104,7 @@ ok;
 
 
 sendData(List) ->
-% io:format("~p~n",[List]),
+io:format("~p~n",[List]),
 List.
 
 
