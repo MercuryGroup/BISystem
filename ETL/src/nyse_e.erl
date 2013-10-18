@@ -2,12 +2,13 @@
 %%% File: extractnyse.erl
 %%% @author Magnus Hernegren
 %%% @doc
-%%% 
+%%% Extracts stock information from NYSE via
+%%% http://money.cnn.com/data/markets/nyse/
 %%% @end
-%%% Created :  by Magnus Hernegren
+%%% Created 11 October 2013 (Friday),10:02 by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
--export([start/0, stop/0, init/0, getData/1, sendData/1, loop/1]).
+-export([start/0, init/0, getData/1, sendData/1, loop/1]).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -17,30 +18,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec start() -> {ok, pid()}.
 start() ->
-% case whereis(nyseextract) == undefined of
-   % true -> 
-   PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)], {ok, PidList}.
-%    register(nyseextract, spawn(extractnyse,init,[])),
-%   {ok,whereis(nyseextract)};
-%   _ -> {ok,whereis(nyseextract)}
-% end.
- % PID = register(nyseextract, spawn(?MODULE, init,[])),{ok, PID}.
- % init().
-	
+   PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)], 
+   {ok, PidList}.
 
--spec stop() -> stopped | already_stopped.
-stop() -> ok.
 
 -spec init() -> any().
 init() ->  pageSelector(1).
 	
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Takes an integer which decides which page to load. Cuts off the uneccessary data from the 
-%%% loaded page and splits the remaining data into a list of strings where each string
+%%% Takes an integer which decides which page to load. Cuts off the uneccessary 
+%%% data from the loaded page and splits the remaining data into a list of 
+%%% strings where each string
 %%% is an individual stock.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,6 +44,27 @@ PageNumber = lists:flatten(io_lib:format("~p", [N])),
       StockList = re:split(StockData,"<tr>",[{return,list}]),
       {Pno,_}=string:to_integer(PageNumber),
       loop({StockList,2,Pno}).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Loops through the list of stocks from each page.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec loop(State :: any()) -> any().
+loop({StockList,Number,PageNumber}) ->
+
+case Number=<length(StockList) of
+	true  -> ListSegment = lists:nth(Number,StockList),
+	sendData(getData(findData(ListSegment,ListSegment,1,1,[]))),
+	loop({StockList,Number+1,PageNumber});
+	_ -> case PageNumber=<128 of
+		% true -> pageSelector(PageNumber+1);
+		_-> io:format("finished page ~p~n",[PageNumber])
+	end
+end.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -112,22 +123,4 @@ sendData(SingleStockList) ->
 
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Loops through the list of stocks from each page.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec loop(State :: any()) -> any().
-loop({StockList,Number,PageNumber}) ->
-
-case Number=<length(StockList) of
-	true  -> ListSegment = lists:nth(Number,StockList),
-	sendData(getData(findData(ListSegment,ListSegment,1,1,[]))),
-	loop({StockList,Number+1,PageNumber});
-	_ -> case PageNumber=<128 of
-		% true -> pageSelector(PageNumber+1);
-		_-> io:format("finished page ~p~n",[PageNumber])
-	end
-end.
 
