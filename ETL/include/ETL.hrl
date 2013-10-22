@@ -16,13 +16,10 @@
 %%% CONSTANTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -define(LOAD, stockLoader).						% Name of the Load
--define(TRANSFORM, transform).					% Name of the Transform
+-define(CURRENCY, currency).					% Name of the Currency Converter			
 -define(TO_CURRENCY, "eur").					% Currency we want to use as standard.
--define(TUPPLES_TO_TRANSFORM, [ latest,			% Tupples we want to transform the currency on.
-								openVal,
-								change]).
 -define(TIMESTAMP, milliseconds()).				% Milliseconds since the epoch (1970-01-01 00:00:00)
--define(NUMBER_OF_TRANSFORM_HELPERS, 10).		% The number of helper processes that should be spawned.
+-define(DATABASE, "testdb").					% Name of the database
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FUNCTIONS
