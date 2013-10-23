@@ -144,7 +144,7 @@ formate(market, [H|T], N, Change, Current) ->
 
     7 -> [{openVal, calc_opening(Change, Current)} | formate(market, "null", N+1,  "","")];
 
-    8 -> [{updated, [?TIMESTAMP]} | formate(market, "null", N+1, "","")];
+    8 -> [{updated, ?TIMESTAMP} | formate(market, "null", N+1, "","")];
 
     9 -> [{market, "lse"} | formate(market, "null", N+1, "","")];
 
@@ -171,7 +171,7 @@ formate(stock, [H|T], N, Change, Current) ->
 
     6 -> [{openVal, calc_opening(Change, Current)} | formate(stock, "null", N+1, "","")];
 
-    7 -> [{updated, [?TIMESTAMP]} | formate(stock, "null", N+1, "","")];
+    7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","")];
 
     8 -> [{market, "lse"} | formate(stock, "null", N+1, "","")];
 
