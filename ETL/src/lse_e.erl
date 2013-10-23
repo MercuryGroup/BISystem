@@ -148,7 +148,9 @@ formate(market, [H|T], N, Change, Current) ->
 
     9 -> [{market, "lse"} | formate(market, "null", N+1, "","")];
 
-    10 -> {type, "market"}
+    10 -> [{type, "market"} | formate(market, "null", N+1, "","")];
+
+    11 -> [] 
 
   end;
 
@@ -171,9 +173,11 @@ formate(stock, [H|T], N, Change, Current) ->
 
     7 -> [{updated, [?TIMESTAMP]} | formate(stock, "null", N+1, "","")];
 
-    8 -> [{market, "lse"} , formate(stock, "null", N+1, "","")];
+    8 -> [{market, "lse"} | formate(stock, "null", N+1, "","")];
 
-    9 -> {type, "stock"}
+    9 -> [{type, "stock"} | formate(stock, "null", N+1, "","")];
+
+    10 -> []
 
   end.
 
