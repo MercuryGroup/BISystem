@@ -179,10 +179,10 @@ formate(stock, [H|T], N, Change, Current) ->
 calc_opening([ChangeHead|ChangeTail], Current) -> 
   case ChangeHead of 
     $- -> Value = list_to_float(Current) + list_to_float(ChangeTail), 
-          float_to_list(Value,  [{decimals, 4}, compact]);
+          erlang:float_to_list(Value,  [{decimals, 4}, compact]);
 
     $+ -> Value = list_to_float(Current) - list_to_float(ChangeTail), 
-          float_to_list(Value, [{decimals, 4}, compact]);
+          erlang:float_to_list(Value, [{decimals, 4}, compact]);
 
     $0 -> Current
   end.
