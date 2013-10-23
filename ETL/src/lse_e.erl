@@ -10,6 +10,8 @@
 -module(lse_e).
 -export([start/0]).
 -include("../include/ETL.hrl"). 
+%%-include("ETL.hrl"). 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -92,7 +94,6 @@ getData(stock, [H|[]]) ->
     [] -> ok;
     _  -> Cur = lists:nth(3, Stock), 
           NewStock = lists:delete(Cur, Stock),
-
           FormatedStock = formate(stock, NewStock, 1, 0, 0),
           sendData(stock, FormatedStock)
   end;
@@ -115,7 +116,9 @@ getData(stock, [H|T]) ->
 %%% sendData/1 takes a formated stock and sends it to the transformer process. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sendData(Tag, List)-> ?LOAD ! {Tag, List}.
+sendData(Tag, List)-> 
+%%io:format("~p~n", [{Tag, List}]).
+?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -141,9 +144,13 @@ formate(market, [H|T], N, Change, Current) ->
 
     7 -> [{openVal, calc_opening(Change, Current)} | formate(market, "null", N+1,  "","")];
 
-    8 -> [{updated, ?TIMESTAMP} |formate(market, "null", N+1, "","")];
+    8 -> [{updated, [?TIMESTAMP]} | formate(market, "null", N+1, "","")];
 
-    9 -> {market, "lse"}
+    9 -> [{market, "lse"} | formate(market, "null", N+1, "","")];
+
+    10 -> [{type, "market"} | formate(market, "null", N+1, "","")];
+
+    11 -> [] 
 
   end;
 
@@ -164,9 +171,13 @@ formate(stock, [H|T], N, Change, Current) ->
 
     6 -> [{openVal, calc_opening(Change, Current)} | formate(stock, "null", N+1, "","")];
 
-    7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","")];
+    7 -> [{updated, [?TIMESTAMP]} | formate(stock, "null", N+1, "","")];
 
-    8 -> {market, "lse"}
+    8 -> [{market, "lse"} | formate(stock, "null", N+1, "","")];
+
+    9 -> [{type, "stock"} | formate(stock, "null", N+1, "","")];
+
+    10 -> []
 
   end.
 
@@ -179,13 +190,37 @@ formate(stock, [H|T], N, Change, Current) ->
 calc_opening([ChangeHead|ChangeTail], Current) -> 
   case ChangeHead of 
     $- -> Value = list_to_float(Current) + list_to_float(ChangeTail), 
-          erlang:float_to_list(Value,  [{decimals, 4}, compact]);
+          Temp = float_to_list(Value),
+          cut_decimal(Temp);
 
     $+ -> Value = list_to_float(Current) - list_to_float(ChangeTail), 
-          erlang:float_to_list(Value, [{decimals, 4}, compact]);
+          Temp = float_to_list(Value),
+          cut_decimal(Temp);
 
     $0 -> Current
   end.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% cut_decimal/1 returns a lsit cut at the forth decimal. 
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cut_decimal([$.|T]) ->
+  [$.|decimal(T, 4)];
+
+cut_decimal([H|T]) -> 
+  [H|cut_decimal(T)]. 
+
+decimal([],_) ->
+  [];
+
+decimal(_,0)->
+  [];
+
+decimal([H|T], N) ->
+  [H|decimal(T, N-1)].
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
