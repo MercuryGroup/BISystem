@@ -6,10 +6,9 @@
 %%% @end
 %%% Created 15 October 2013 (Tuesday),  by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 -module(nyse_t).
 -export([start/0, stop/0, init/0, sendData/1, loop/1]).
-
+-include("../include/ETL.hrl").
 start() ->
 	register(nyse_t,spawn(?MODULE,loop,[self()])).
 
@@ -30,9 +29,9 @@ ok;
 
 
 sendData(List) ->
-io:format("~p~n",[List]),
-List.
-
+%io:format("~p~n",[List]),
+%List.
+?LOAD ! {stock, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
