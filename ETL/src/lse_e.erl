@@ -11,6 +11,7 @@
 -export([start/0]).
 -include("../include/ETL.hrl"). 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% start/0, A function for starting the extractor returns {ok, Pid}.
@@ -92,7 +93,6 @@ getData(stock, [H|[]]) ->
     [] -> ok;
     _  -> Cur = lists:nth(3, Stock), 
           NewStock = lists:delete(Cur, Stock),
-
           FormatedStock = formate(stock, NewStock, 1, 0, 0),
           sendData(stock, FormatedStock)
   end;
@@ -115,7 +115,9 @@ getData(stock, [H|T]) ->
 %%% sendData/1 takes a formated stock and sends it to the transformer process. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sendData(Tag, List)-> ?LOAD ! {Tag, List}.
+sendData(Tag, List)-> 
+%%io:format("~p~n", [{Tag, List}]).
+?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -179,13 +181,37 @@ formate(stock, [H|T], N, Change, Current) ->
 calc_opening([ChangeHead|ChangeTail], Current) -> 
   case ChangeHead of 
     $- -> Value = list_to_float(Current) + list_to_float(ChangeTail), 
-          erlang:float_to_list(Value,  [{decimals, 4}, compact]);
+          Temp = float_to_list(Value),
+          cut_decimal(Temp);
 
     $+ -> Value = list_to_float(Current) - list_to_float(ChangeTail), 
-          erlang:float_to_list(Value, [{decimals, 4}, compact]);
+          Temp = float_to_list(Value),
+          cut_decimal(Temp);
 
     $0 -> Current
   end.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% cut_decimal/1 returns a lsit cut at the forth decimal. 
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cut_decimal([$.|T]) ->
+  [$.|decimal(T, 4)];
+
+cut_decimal([H|T]) -> 
+  [H|cut_decimal(T)]. 
+
+decimal([],_) ->
+  [];
+
+decimal(_,0)->
+  [];
+
+decimal([H|T], N) ->
+  [H|decimal(T, N-1)].
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
