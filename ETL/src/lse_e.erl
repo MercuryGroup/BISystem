@@ -115,7 +115,7 @@ getData(stock, [H|T]) ->
 %%% sendData/1 takes a formated stock and sends it to the transformer process. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sendData(Tag, List)-> ?TRANSFORM ! {Tag, List}.
+sendData(Tag, List)-> ?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
