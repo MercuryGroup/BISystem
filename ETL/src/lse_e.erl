@@ -10,6 +10,7 @@
 -module(lse_e).
 -export([start/0]).
 -include("../include/ETL.hrl"). 
+%%-include("ETL.hrl"). 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -143,9 +144,11 @@ formate(market, [H|T], N, Change, Current) ->
 
     7 -> [{openVal, calc_opening(Change, Current)} | formate(market, "null", N+1,  "","")];
 
-    8 -> [{updated, ?TIMESTAMP} |formate(market, "null", N+1, "","")];
+    8 -> [{updated, ?TIMESTAMP} | formate(market, "null", N+1, "","")];
 
-    9 -> {market, "lse"}
+    9 -> [{market, "lse"} | formate(market, "null", N+1, "","")];
+
+    10 -> {type, "market"}
 
   end;
 
@@ -168,7 +171,9 @@ formate(stock, [H|T], N, Change, Current) ->
 
     7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","")];
 
-    8 -> {market, "lse"}
+    8 -> [{market, "lse"} , formate(stock, "null", N+1, "","")];
+
+    9 -> {type, "stock"}
 
   end.
 
