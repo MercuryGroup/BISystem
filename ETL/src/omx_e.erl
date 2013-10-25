@@ -5,9 +5,9 @@
 %%% Extractor module for the OMX stock market.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--include("../include/ETL.hrl").
 -module(omx_e).
 -export([init/0, loop/3]).
+-include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -47,23 +47,10 @@ init() ->
 	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]),
 	spawn(omx_e, loop, [List2, ParseFilters, ?LOAD]),
 	spawn(omx_e, loop, [List3, ParseFilters, ?LOAD]),
-	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]),
-	MarketData = getMarketData(),
+	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]).
+	%MarketData = getMarketData(),
+	%sendData(MarketData, ?LOAD),
 
-
-	%%Temp
-	sendData(MarketData, ?LOAD),
-	temp(0, StockLength-1).
-temp(M, M) -> 
-	receive
-		Pid -> io:format("~p: ~p~n", [M+1, Pid])
-	end;
-temp(N, M) ->
-	receive
-		Pid -> io:format("~p: ~p~n", [N+1, Pid]),
-		temp(N+1, M)
-		
-	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
