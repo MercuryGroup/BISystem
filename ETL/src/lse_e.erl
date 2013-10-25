@@ -9,8 +9,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(lse_e).
 -export([start/0]).
--include("../include/ETL.hrl"). 
-%%-include("ETL.hrl"). 
+%%-include("../include/ETL.hrl"). 
+-include("ETL.hrl"). 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,7 +25,7 @@ start()-> inets:start(), init(1).
 %%% init/1, will recursivly spawn a new pageSelector for each page, i.e recurse 32 times. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-init(33) -> ok; 
+init(32) -> ok; 
 
 init(N)-> 
   spawn(fun() -> pageSelector(N) end),
@@ -37,7 +37,7 @@ init(N)->
 %%% pageSelector/1 takes a number representing a specific page, this page will be requested and then cut.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pageSelector(32) -> 
+pageSelector(35) -> 
 %% send request to the page
   UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0",
   Url = "http://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices.html?index=ASX",
@@ -117,8 +117,8 @@ getData(stock, [H|T]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sendData(Tag, List)-> 
-%%io:format("~p~n", [{Tag, List}]).
-?LOAD ! {Tag, List}.
+io:format("~p~n", [{Tag, List}]).
+%%?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -128,7 +128,7 @@ sendData(Tag, List)->
 formate(market, [H|T], N, Change, Current) -> 
   case N of
 
-    1 -> FormatedNumber = formateNum(H, []),
+    1 -> FormatedNumber = formateNum(H, []), 
     [{value, FormatedNumber} | formate(market, T, N+1, Change, FormatedNumber)];
 
     2 -> FormatedNumber = formateNum(H, []),
