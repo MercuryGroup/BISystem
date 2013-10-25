@@ -62,7 +62,7 @@ loop([], _, _) ->
 loop([[String]|List], ParseFilters, Pid) ->
 	%%Parse each stock
 	Stock = getData(String, ParseFilters),
-	sendData({stock, {Stock}}, Pid),
+	sendData({stock, Stock}, Pid),
 	loop(List, ParseFilters, Pid).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
