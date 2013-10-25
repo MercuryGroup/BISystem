@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(omx_e).
--export([init/0, loop/3]).
+-export([start/0, loop/3]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,7 +15,7 @@
 %%% all raw data from the web page.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-init() ->
+start() ->
 	%%Start inets
 	inets:start(),
 	%%Get data from web page
@@ -75,7 +75,7 @@ loop([], _, _) ->
 loop([[String]|List], ParseFilters, Pid) ->
 	%%Parse each stock
 	Stock = getData(String, ParseFilters),
-	sendData({stock, {Stock}}, Pid),
+	sendData({stock, Stock}, Pid),
 	loop(List, ParseFilters, Pid).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
