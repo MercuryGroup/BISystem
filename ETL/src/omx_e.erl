@@ -49,8 +49,21 @@ init() ->
 	spawn(omx_e, loop, [List3, ParseFilters, ?LOAD]),
 	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]).
 	%MarketData = getMarketData(),
-	%sendData(MarketData, ?LOAD),
 
+
+	%%Temp
+	%sendData(MarketData, ?LOAD),
+%	temp(0, StockLength-1).
+%temp(M, M) -> 
+%	receive
+%		Pid -> io:format("~p: ~p~n", [M+1, Pid])
+%	end;
+%temp(N, M) ->
+%	receive
+%		Pid -> io:format("~p: ~p~n", [N+1, Pid]),
+%		temp(N+1, M)
+%		
+%	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -62,7 +75,7 @@ loop([], _, _) ->
 loop([[String]|List], ParseFilters, Pid) ->
 	%%Parse each stock
 	Stock = getData(String, ParseFilters),
-	sendData({stock, Stock}, Pid),
+	sendData({stock, {Stock}}, Pid),
 	loop(List, ParseFilters, Pid).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -137,5 +150,5 @@ getString(String, Start, Stop) ->
 	Rest = string:sub_string(Trimmed, Pos2),
 	{NewString, Rest}.
 
-sendData(Data, _Pid) ->
-	?LOAD ! Data.
+sendData(Data, Pid) ->
+	Pid ! Data.
