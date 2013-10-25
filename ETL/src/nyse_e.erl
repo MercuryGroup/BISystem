@@ -118,7 +118,7 @@ State,
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) ->
 	% io:format("~p",[SingleStockList]),
-	?LOAD ! {SingleStockList}.
+	?LOAD ! SingleStockList.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
