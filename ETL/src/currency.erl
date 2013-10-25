@@ -36,24 +36,24 @@ loop(Db) ->
 	receive
 		{request, Pid, {Val, "USD"}} ->
 			Rate = element(1, string:to_float(element(1, Db))),
-			reply(Pid, (Rate * element(1, string:to_float(Val)))),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
 			loop(Db);
 		{request, Pid, {Val, "GBP"}} ->
 			Rate = element(1, string:to_float(element(2, Db))),
-			reply(Pid, (Rate * element(1, string:to_float(Val)))),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
 			loop(Db);
 		{request, Pid, {Val, "SEK"}} ->
 			Rate = element(1, string:to_float(element(3, Db))),
-			reply(Pid, (Rate * element(1, string:to_float(Val)))),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
 			loop(Db);
 		{request, Pid, {Val, "JPY"}} ->
 			Rate = element(1, string:to_float(element(4, Db))),
-			reply(Pid, (Rate * element(1, string:to_float(Val)))),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
 			loop(Db);
 		{request, Pid, {Val, "GBX"}} ->
 			Rate = element(1, string:to_float(element(2, Db))),
 			Pounds = element(1, string:to_float(Val)) / 100,
-			reply(Pid, (Rate * Pounds)),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * Pounds)]))),
 			loop(Db);
 		{request, Pid, update} ->
 			reply(Pid, ok),
