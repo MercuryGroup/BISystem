@@ -117,7 +117,8 @@ State,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) ->
-	load ! {SingleStockList}.
+	% io:format("~p",[SingleStockList]),
+	?LOAD ! SingleStockList.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
