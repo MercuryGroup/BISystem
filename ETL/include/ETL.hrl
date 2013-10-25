@@ -15,11 +15,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CONSTANTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--define(LOAD, stockLoader).							% Name of the Load
--define(CURRENCY, currency).						% Name of the Currency Converter			
--define(TO_CURRENCY, "eur").						% Currency we want to use as standard.
+-define(LOAD, stockLoader).								% Name of the Load
+-define(CURRENCY, currency).							% Name of the Currency Converter			
+-define(TO_CURRENCY, "eur").							% Currency we want to use as standard.
 -define(TIMESTAMP, integer_to_list(milliseconds())).	% Milliseconds since the epoch (1970-01-01 00:00:00)
--define(DATABASE, "testdb").						% Name of the database
+-define(DATABASE, "testdb").							% Name of the database
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FUNCTIONS
