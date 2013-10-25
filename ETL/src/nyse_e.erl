@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
 -export([start/0, init/0, getData/1, sendData/1, loop/1]).
--include ("ETL.hrl").
+-include ("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -18,8 +18,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec start() -> {ok, pid()}.
 start() -> init().
-
-
 
 
 -spec init() -> any().
@@ -108,9 +106,10 @@ end.
 getData(State) ->
 [Symbol,Name,Price,Change,Percent,_,Volume,_] = 
 State,
-{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, Change},{latest, Price}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},{updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)}]}.
-  % io:format("~p~n",[[{symbol,Symbol},{name, Name},{latest, Price}, {percent, Percent}, {volume, Volume}]]).
-
+{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, Change},
+{latest, Price}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},
+{updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)},{type,"stock"}]}.
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Sends the data to the transform module
@@ -118,7 +117,7 @@ State,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) ->
-	nyse_t ! {SingleStockList}.
+	load ! {SingleStockList}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
