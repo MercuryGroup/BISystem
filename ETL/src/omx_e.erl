@@ -5,11 +5,9 @@
 %%% Extractor module for the OMX stock market.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
--define(TRANSFORM, trans).
 -module(omx_e).
 -export([init/0, loop/3]).
+-include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -18,13 +16,12 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 init() ->
-	register(trans, self()),
 	%%Start inets
 	inets:start(),
 	%%Get data from web page
-	{ok, {{_Version, _, _ReasonPhrase}, _Headers, _Body}} = httpc:request("http://www.netfonds.se/quotes/peers.php?paper=OMXSPI&exchange=ST"),
+	{ok, {{_Version, _, _ReasonPhrase}, _Headers, _Body}} = httpc:request("http://www.netfonds.is/quotes/peers.php?paper=OMXSPI&exchange=ST"),
 	%%Strip stock data of unnecessary code	
-	{Body,_} = getString(_Body, "<th>Volym</th>\n</tr>\n<tr>\n", "\n</div>\n"),
+	{Body,_} = getString(_Body, "<th>Value</th>\n</tr>\n<tr>\n", "\n</div>\n"),
 	%%Convert the string into a list
 	RawList= re:split(Body, "\n<td class=\"left\">" ,[{return,list},group]),
 	%%Get number of stocks in list
@@ -47,26 +44,13 @@ init() ->
 		{openVal, "<td>", "</td>"},
 		{volume, "\">", "</td>"}],
 
-	spawn(omx_e, loop, [List1, ParseFilters, ?TRANSFORM]),
-	spawn(omx_e, loop, [List2, ParseFilters, ?TRANSFORM]),
-	spawn(omx_e, loop, [List3, ParseFilters, ?TRANSFORM]),
-	spawn(omx_e, loop, [List4, ParseFilters, ?TRANSFORM]),
-	MarketData = getMarketData(),
+	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List2, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List3, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]).
+	%MarketData = getMarketData(),
+	%sendData(MarketData, ?LOAD),
 
-
-	%%Temp
-	sendData(MarketData, ?TRANSFORM),
-	temp(0, StockLength-1).
-temp(M, M) -> 
-	receive
-		Pid -> io:format("~p: ~p~n", [M+1, Pid])
-	end;
-temp(N, M) ->
-	receive
-		Pid -> io:format("~p: ~p~n", [N+1, Pid]),
-		temp(N+1, M)
-		
-	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -78,7 +62,7 @@ loop([], _, _) ->
 loop([[String]|List], ParseFilters, Pid) ->
 	%%Parse each stock
 	Stock = getData(String, ParseFilters),
-	sendData({stock, {Stock,{currency, "SEK"}}}, Pid),
+	sendData({stock, {Stock}}, Pid),
 	loop(List, ParseFilters, Pid).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,9 +71,7 @@ loop([[String]|List], ParseFilters, Pid) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 getData(_, []) ->
-	[{updated, timestampToSeconds()}, {market, "OMX"}];
-
-
+	[{updated, ?TIMESTAMP}, {market, "OMX"}, {type, "Stock"}];
 %%Fix opening value
 getData(Stock, [{openVal, FilterStart, FilterStop}|Filters]) ->
 	{_OpenVal, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
@@ -112,15 +94,6 @@ getData(Stock, [{volume, FilterStart, FilterStop}|Filters]) ->
 getData(Stock, [{ValueName, FilterStart, FilterStop}|Filters]) ->
 	{Value, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
 	[{ValueName, Value}|getData(TrimmedStock, Filters)].
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%%	Convert time stamp to string.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
-timestampToSeconds() ->
-	{Z,X,Y} = now(), 
-	(((Z*1000000)+X)*1000)+Y.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -165,4 +138,4 @@ getString(String, Start, Stop) ->
 	{NewString, Rest}.
 
 sendData(Data, _Pid) ->
-	?TRANSFORM ! Data.
+	?LOAD ! Data.
