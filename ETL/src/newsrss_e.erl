@@ -5,11 +5,10 @@
 %%% Extract server module for extracting stock market news.
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
-%%% Using datetime module from Lars Kiesow
-%%% (https://github.com/lkiesow/erlang-datetime/)
+%%% Supports XML element filtering, and parsing of date time strings.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 24 Oct 2013 by <Robin Larsson@TM5741>
+%%% Modified: 25 Oct 2013 by <Robin Larsson@TM5741>
 %%% TODO: 
 %%% Implementing OTP patterns and behaviour.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,7 +38,7 @@ start() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% *Add stopping inet process if not used by any other process*
+%%% Stops the extracting server.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(stop() -> stopped | already_stopped).
@@ -132,7 +131,8 @@ sendData() ->
 %%% XMLSearchInfo shall contain search info; XML names for XML elements that
 %%% shall be processed.
 %%% 
-%%% XMLSearchInfo = [{childItem, atom()}, {filterItems, [atom(), ...]}, {dateTimeField, atom()}]. To be decided!
+%%% XMLSearchInfo = [{childItem, atom()}, {filterItems, [atom(), ...]},
+%%%					{dateTimeField, atom()}].
 %%%
 %%% ParsedXML = tuple(). Parsed with xmerl_scan:string(string())
 %%% @end
@@ -189,8 +189,10 @@ findingSplitUpChildElements(MultipleChildElements) ->
 -spec(extractChildElementsList([tuple(), ...], [atom(), ...], atom()) -> list()).
 extractChildElementsList(ChildElementsList, FilterElements,
 	DateTimeFieldName) ->
-	lists:delete({null, []}, [filterAndConvertElements(El, FilterElements, DateTimeFieldName)
-	|| El <- ChildElementsList]). % Removing potentially skipped elements
+	ExtractedChildElements = lists:delete({null, []},
+		[filterAndConvertElements(El, FilterElements, DateTimeFieldName)
+		|| El <- ChildElementsList]), % Removing potentially skipped elements
+	lists:append(ExtractedChildElements, {type, "News"}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
