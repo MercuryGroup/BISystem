@@ -6,9 +6,11 @@
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
 %%% Supports XML element filtering, and parsing of date time strings.
+%%% All the retrieved data is stored in the server, until a request
+%%% for sending it is done.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 25 Oct 2013 by <Robin Larsson@TM5741>
+%%% Modified: 26 Oct 2013 by <Robin Larsson@TM5741>
 %%% TODO: 
 %%% Implementing OTP patterns and behaviour.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,6 +68,39 @@ getReply() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
+%%% Sends a request to the server to retrieve news items for each provided
+%%% stock/market symbol. Note that the server handles the request
+%%% synchronously.
+%%% The returned result depends on the Options variable.
+%%% The Options variable shall follow this format:
+%%% {Symbols,ExtractionOptions}.
+%%% Symbols = string() ("yhoo,aapl,^ftse"),
+%%% ExtractionOptions = list() ([{childItem, item},
+%%%								{filterItems,
+%%%								[title, link, description, pubDate]},
+%%% 							{dateTimeField, pubDate}])
+%%%
+%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {dateTimeField, pubDate}]}).
+%%%
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(getData({string(), [tuple(), ...]}) -> ok). % TODO Define correct type specifications.
+getData(Options) ->
+	newsrss_e ! {self(), startGet, Options},
+	getReply().
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Returns the data stored in the server.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(sendData() -> [tuple(), ...]).
+sendData() ->
+	newsrss_e ! {self(), startSend},
+	getReply().
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
 %%% Initialises the main server process for news extracting.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -81,45 +116,75 @@ init() ->
 -spec(loop(list()) -> stopped | term()).
 loop(Data) ->
 	receive 
-		{From, startGet, {Link, XMLSearchInfo}} ->
+		{From, startGet, {Symbols, XMLSearchInfo}} ->
+			% Retrieving and parsing the XML data
 			Parsed = element(1, 
 				parseXML(
-				retrieveXML(Link))),
+				retrieveXML(
+					"http://feeds.finance.yahoo.com/rss/2.0/headline?s=" ++ 
+					Symbols ++ "&region=US&lang=en-US"))),
 			Processed = processXML(Parsed, XMLSearchInfo),
-			From ! ok,
-			loop(Processed);
+			From ! ok, % Returning confirmation of retrival
+			loop(lists:append(Processed, Data));
 		{From, startSend} ->
-			From ! Data;
+			From ! Data, % Sending away the stored data
+			loop([]);
 		stopped ->
 			stopped
 	end.
+% loop(Data) ->
+% 	receive 
+% 		{From, startGet, {Link, XMLSearchInfo}} ->
+% 			Parsed = element(1, 
+% 				parseXML(
+% 				retrieveXML(Link))),
+% 			Processed = processXML(Parsed, XMLSearchInfo),
+% 			From ! ok,
+% 			loop(Processed);
+% 		{From, startSend} ->
+% 			From ! Data;
+% 		stopped ->
+% 			stopped
+% 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Returns an Erlang term (with the appropiate data type) for each news feed.
-%%% The returned result depends on the Options variable.
-%%% Multiple terms can be returned by internal recursive calls.
-%%% The Options variable shall follow this format:
-%%% {{NewsFeedLink1,ExtractionOptions},{NewsFeedLink1,ExtractionOptions}, ...}.
-%%% NewsFeedLinkN = string(),
-%%% ExtractionOptions = tuple()
-%%%
-%%% newsrss_e:getData({"http://feeds.finance.yahoo.com/rss/2.0/headline?s=^ftse&region=US&lang=en-US", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {dateTimeField, pubDate}]}).
+%%% Parses the XML data, and returning a record based format.
+%%% The record based format is defined in the xmerl library.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -spec(getData(Options :: ) -> ). Define correct type specifications.
-getData(Options) ->
-	newsrss_e ! {self(), startGet, Options},
-	getReply().
+-spec(parseXML(string()) -> tuple()).
+parseXML(XMLData) ->
+	ParsedXML = xmerl_scan:string(XMLData).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% 
+%%% Retrieves data from the specified URL, through the HTTP protocol.
+%%% TODO: Correct error retrival handling needs to be implemented.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sendData() ->
-	newsrss_e ! {self(), startSend},
-	getReply().
+-spec(retrieveXML(string() | _) -> string() | {error, atom() | term()}).
+retrieveXML(Link) when is_list(Link) ->
+	% Used for setting up the sockets needed for the HTTP client
+	inets:start(),
+	% Asynchroneous request
+	% http://www.erlang.org/doc/man/httpc.html under receiver
+	% "Defaults to the pid() of the process calling
+	% the request function (self())."
+	case httpc:request(get, {Link, []}, [], [{sync, false}]) of
+		{ok, Val} ->
+			receive
+				{http, {RequestId, Result}} ->
+					{HTTPStatus, HTTPHeader, XMLData} = Result,
+					binary:bin_to_list(XMLData)
+			after 30000 ->
+				{error, no_connection_or_no_data_returned}
+			end;
+		{error, Error} ->
+			{error, Error}
+	end;
+retrieveXML(_) -> % Not a vaild link
+	{error, non_valid_link}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -165,34 +230,22 @@ extractMainElementsList(MainElementsList, LookForChildElement) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Handling if there are XML elements that has been split up by
-%%% quote signs, that Xmerl sees as the end of the XML value.
-%%% And was well, extracting the XML elements name, and their values.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(findingSplitUpChildElements([tuple(), ...]) -> list()).
-findingSplitUpChildElements(MultipleChildElements) ->
-	lists:concat(
-		lists:map(
-			fun(El) ->
-				extract_XMLText([El])
-			end,
-			MultipleChildElements
-		)
-	).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
 %%% Finding the XML child elements in the XML main elements.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(extractChildElementsList([tuple(), ...], [atom(), ...], atom()) -> list()).
+-spec(extractChildElementsList([tuple(), ...], [atom(), ...],
+	atom()) -> list()).
 extractChildElementsList(ChildElementsList, FilterElements,
 	DateTimeFieldName) ->
+	% Checks whether some elements shall be filtered away or converted.
+	% ATM a date time string is the only element that can be converted.
+	% The elements that are filtered are noted as {null, []}, and deleted
+	% when found.
 	ExtractedChildElements = lists:delete({null, []},
 		[filterAndConvertElements(El, FilterElements, DateTimeFieldName)
 		|| El <- ChildElementsList]), % Removing potentially skipped elements
-	lists:append(ExtractedChildElements, {type, "News"}).
+	% Added 'type' for distinction in DB
+	lists:append(ExtractedChildElements, {type, "news"}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -201,7 +254,8 @@ extractChildElementsList(ChildElementsList, FilterElements,
 %%% Otherwise generic.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(filterAndConvertElements(tuple(), [atom(), ...], atom()) -> tuple() | list()).
+-spec(filterAndConvertElements(tuple(), [atom(), ...],
+	atom()) -> tuple() | list()).
 filterAndConvertElements(Element, FilterElements, DateTimeFieldName) ->
 	case Element#xmlElement.name of
 		% For converting date time strings to Epoch timestamps in milliseconds.
@@ -223,12 +277,55 @@ filterAndConvertElements(Element, FilterElements, DateTimeFieldName) ->
 		Other ->
 			% Filtering out the XML elements that shall not be included
 			case lists:member(Other, FilterElements) of
-				true ->
+				true -> % Not to be filtered
 					{Element#xmlElement.name,
 					findingSplitUpChildElements(Element#xmlElement.content)};
-				false ->
+				false -> % To be filtered
 					{null, []}
 			end				
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Handling if there are XML elements that has been split up by
+%%% quote signs, that Xmerl sees as the end of the XML value.
+%%% And was well, extracting the XML elements name, and their values.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(findingSplitUpChildElements([tuple(), ...]) -> list()).
+findingSplitUpChildElements(MultipleChildElements) ->
+	% Concatenates the value(s) of the elements that has been split up.
+	lists:concat(
+		% Extracting the value of each element.
+		lists:map(
+			fun(El) ->
+				extract_XMLText([El])
+			end,
+			MultipleChildElements
+		)
+	).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Extracts the value from a XML element.
+%%% If there is no value in it, a blank Erlang list is returned.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-type(xmlText() :: #xmlText{}).
+-spec(extract_XMLText(xmlText() | []) -> string()).
+extract_XMLText([]) -> % If there is no value for the XML element
+	"";
+extract_XMLText(Content) ->
+	% Taking the head of the list,
+	% used to find the value of a XML element
+	Item = erlang:hd(Content),
+	% Checking whether the XML element, is a Erlang
+	% record type of a XML element that has text as a value
+	case element(1, Item) of
+		xmlText -> % If found
+			Item#xmlText.value;
+		_ -> % If not found
+			""
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -282,65 +379,3 @@ monthNumber(MonthString) when length(MonthString) == 3  ->
 		"Nov" -> 11;
 		"Dec" -> 12
 	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Extracts the value from a XML element.
-%%% If there is no value in it, a blank Erlang list is returned.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--type(xmlText() :: #xmlText{}).
--spec(extract_XMLText(xmlText() | []) -> string()).
-extract_XMLText([]) -> % If there is no value for the XML element
-	"";
-extract_XMLText(Content) ->
-	% Taking the head of the list,
-	% used to find the value of a XML element
-	Item = erlang:hd(Content),
-	% Checking whether the XML element, is a Erlang
-	% record type of a XML element that has text as a value
-	case element(1, Item) of
-		xmlText -> % If found
-			Item#xmlText.value;
-		_ -> % If not found
-			""
-	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Parses the XML data, and returning a record based format.
-%%% The record based format is defined in the xmerl library.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(parseXML(string()) -> tuple()).
-parseXML(XMLData) ->
-	ParsedXML = xmerl_scan:string(XMLData).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Retrieves data from the specified URL, through the HTTP protocol.
-%%% TODO: Correct error retrival handling needs to be implemented.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(retrieveXML(string()) -> string() | tuple()).
-retrieveXML(Link) when is_list(Link) ->
-	% Used for setting up the sockets needed for the HTTP client
-	inets:start(),
-	% Asynchroneous request
-	% http://www.erlang.org/doc/man/httpc.html under receiver
-	% "Defaults to the pid() of the process calling
-	% the request function (self())."
-	case httpc:request(get, {Link, []}, [], [{sync, false}]) of
-		{ok, Val} ->
-			receive
-				{http, {RequestId, Result}} ->
-					{HTTPStatus, HTTPHeader, XMLData} = Result,
-					binary:bin_to_list(XMLData)
-			after 30000 ->
-				{error, no_connection_or_no_data_returned}
-			end;
-		{error, Error} ->
-			{error, Error}
-	end;
-retrieveXML(_) -> % Not a vaild link
-	{error, non_valid_link}.
