@@ -95,7 +95,8 @@ getData(stock, [H|[]]) ->
     _  -> Cur = lists:nth(3, Stock), 
           NewStock = lists:delete(Cur, Stock),
           FormatedStock = formate(stock, NewStock, 1, 0, 0),
-          sendData(stock, FormatedStock)
+          ListWithoutLines = findLines(FormatedStock, []),
+          sendData(stock, ListWithoutLines)
   end;
 
 getData(stock, [H|T]) ->
@@ -107,9 +108,20 @@ getData(stock, [H|T]) ->
       _  -> Cur = lists:nth(3, Stock), 
             NewStock = lists:delete(Cur, Stock),
             FormatedStock = formate(stock, NewStock, 1, 0, 0),
-            sendData(stock, FormatedStock),
+            ListWithoutLines = findLines(FormatedStock, []),
+            sendData(stock, ListWithoutLines),
             getData(stock, T)
     end.
+
+findLines([{Atom, "-"}|T], Acc)->
+  NewAcc = Acc ++[{Atom, "null"}],
+  findLines(T, NewAcc);
+
+findLines([H|T], Acc) ->
+  findLines(T, Acc ++[H]);
+
+findLines([], Acc) ->
+  Acc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -117,7 +129,7 @@ getData(stock, [H|T]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sendData(Tag, List)-> 
-%%¤io:format("~p~n", [{Tag, List}]).
+%%io:format("~p~n", [{Tag, List}]).
 ?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,6 +139,7 @@ sendData(Tag, List)->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 formate(market, [H|T], N, Change, Current) -> 
   case N of
+
 
     1 -> FormatedNumber = formateNum(H, []), 
     [{value, FormatedNumber} | formate(market, T, N+1, Change, FormatedNumber)];
@@ -146,7 +159,7 @@ formate(market, [H|T], N, Change, Current) ->
 
     8 -> [{updated, ?TIMESTAMP} | formate(market, "null", N+1, "","")];
 
-    9 -> [{market, "lse"} | formate(market, "null", N+1, "","")];
+    9 -> [{market, "LSE"} | formate(market, "null", N+1, "","")];
 
     10 -> [{type, "market"} | formate(market, "null", N+1, "","")];
 
@@ -173,7 +186,7 @@ formate(stock, [H|T], N, Change, Current) ->
 
     7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","")];
 
-    8 -> [{market, "lse"} | formate(stock, "null", N+1, "","")];
+    8 -> [{market, "LSE"} | formate(stock, "null", N+1, "","")];
 
     9 -> [{type, "stock"} | formate(stock, "null", N+1, "","")];
 
