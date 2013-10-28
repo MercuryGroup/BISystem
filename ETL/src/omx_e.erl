@@ -44,13 +44,14 @@ start() ->
 		{openVal, "<td>", "</td>"},
 		{volume, "\">", "</td>"}],
 
-	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]).
 	%spawn(omx_e, loop, [List2, ParseFilters, self()]),
 	%spawn(omx_e, loop, [List3, ParseFilters, self()]),
 	%spawn(omx_e, loop, [List4, ParseFilters, self()]),
-	MarketData = getMarketData(),
-	sendData(MarketData, ?LOAD).
-%	temp(0, StockLength-1).
+	%MarketData = getMarketData(),
+	%io:format("~p~n", [MarketData]),
+	%spawn(omx_e, sendData, [{test}, self()]),
+	%temp(0, StockLength-1).
 %temp(M, M) -> 
 %	receive
 %		Pid -> io:format("~p: ~p~n", [M+1, Pid])
