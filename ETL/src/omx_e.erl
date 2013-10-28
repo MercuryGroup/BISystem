@@ -48,11 +48,8 @@ start() ->
 	%spawn(omx_e, loop, [List2, ParseFilters, self()]),
 	%spawn(omx_e, loop, [List3, ParseFilters, self()]),
 	%spawn(omx_e, loop, [List4, ParseFilters, self()]),
-	%MarketData = getMarketData(),
-
-
-	%%Temp
-	%sendData(MarketData, ?LOAD),
+	MarketData = getMarketData(),
+	sendData(MarketData, ?LOAD).
 %	temp(0, StockLength-1).
 %temp(M, M) -> 
 %	receive
