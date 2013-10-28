@@ -127,7 +127,7 @@ loop(Data) ->
 			From ! ok, % Returning confirmation of retrival
 			loop(lists:append(Processed, Data));
 		{From, startSend} ->
-			From ! Data, % Sending away the stored data
+			prepareToSend(From, Data), % Sending away the stored data
 			loop([]);
 		stopped ->
 			stopped
@@ -146,6 +146,17 @@ loop(Data) ->
 % 		stopped ->
 % 			stopped
 % 	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Sends away each element that is stored in a list to the supplied receiver.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+prepareToSend(From, [Last | []]) ->
+	From ! {From, messageSend, Last};
+prepareToSend(From, [H | T]) ->
+	From ! {From, messageSend, H},
+	prepareToSend(From, T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -195,13 +206,16 @@ retrieveXML(_) -> % Not a vaild link
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 checkCallExceeding(DataString) ->
-	ParsedXML = xmerl_scan:string(DataString),
+	ParsedXML = element(1, xmerl_scan:string(DataString)),
 	[MainContent] = ParsedXML#xmlElement.content,
 	[PossibleError] = MainContent#xmlElement.content,
-	case PossibleError#xmlText.value of
+	try PossibleError#xmlText.value of
 		"limit exceeded" -> % A limit message has been received
 			throw({error, yahoo_rss_call_limit_exceeded});
-		_ -> 
+		_ ->
+			DataString
+	catch
+		_:_ ->
 			DataString
 	end.
 
