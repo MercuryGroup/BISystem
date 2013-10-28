@@ -31,12 +31,12 @@ start() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(init() -> any()).
 init() ->
-	process_flad(trap_exit, true),
+	process_flag(trap_exit, true),
 	%spawn the load
 	{ok, PID} = loadstock:start(),
 	link(PID),
 	%spawn the scheduler
-	{ok, S_PID} = Scheduler:start(),
+	{ok, S_PID} = scheduler:start(),
 	link(S_PID),
 
 	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}],
@@ -74,10 +74,10 @@ loop(List) ->
 			scheduler:stop(),
 			ok;
 
-		{'EXIT', FromPid, Reason} ->
+		{'EXIT', FromPid, _Reason} ->
 			%log?
 			%check who FromPid is and restart
-			case whois(FromPid) of
+			case whois(FromPid, List) of
 				?LOAD ->
 					{ok, Pid} = loadstocks:start(),
 					link(Pid),
@@ -103,7 +103,7 @@ loop(List) ->
 whois(_, []) ->
 	undefined;
 
-whois(Pid, [{Pid, Name} | T]) ->
+whois(Pid, [{Pid, Name} | _]) ->
 	Name;
 
 whois(Pid, [_ | T]) ->
@@ -120,5 +120,5 @@ replace(_, _, []) ->
 replace(OldPid, NewPid, [{OldPid, Name} | T]) ->
 	[{NewPid, Name} | T];
 
-replace(OldPid, NewPid, [_, | T]) ->
+replace(OldPid, NewPid, [_ | T]) ->
 	replace(OldPid, NewPid, T).
