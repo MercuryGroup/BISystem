@@ -176,6 +176,7 @@ retrieveXML(Link) when is_list(Link) ->
 			receive
 				{http, {RequestId, Result}} ->
 					{HTTPStatus, HTTPHeader, XMLData} = Result,
+					%checkCallExceeding(binary:bin_to_list(XMLData))
 					binary:bin_to_list(XMLData)
 			after 30000 ->
 				{error, no_connection_or_no_data_returned}
@@ -185,6 +186,25 @@ retrieveXML(Link) when is_list(Link) ->
 	end;
 retrieveXML(_) -> % Not a vaild link
 	{error, non_valid_link}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% *Explicitly for Yahoo Finance API*
+%%% Seeing whether the call limit has been exceeded.
+%%% If not return the supplied data from the argument.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+checkCallExceeding(DataString) ->
+	ParsedXML = xmerl_scan:string(DataString),
+	[MainContent] = ParsedXML#xmlElement.content,
+	[PossibleError] = MainContent#xmlElement.content,
+	case PossibleError#xmlText.value of
+		"limit exceeded" -> % A limit message has been received
+			throw({error, yahoo_rss_call_limit_exceeded});
+		_ -> 
+			DataString
+	end.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -245,7 +265,7 @@ extractChildElementsList(ChildElementsList, FilterElements,
 		[filterAndConvertElements(El, FilterElements, DateTimeFieldName)
 		|| El <- ChildElementsList]), % Removing potentially skipped elements
 	% Added 'type' for distinction in DB
-	lists:append(ExtractedChildElements, {type, "news"}).
+	lists:append(ExtractedChildElements, [{type, "news"}]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
