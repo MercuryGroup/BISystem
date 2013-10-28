@@ -44,10 +44,10 @@ start() ->
 		{openVal, "<td>", "</td>"},
 		{volume, "\">", "</td>"}],
 
-	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]),
-	spawn(omx_e, loop, [List2, ParseFilters, ?LOAD]),
-	spawn(omx_e, loop, [List3, ParseFilters, ?LOAD]),
-	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]).
+	spawn(omx_e, loop, [List1, ParseFilters, self()]),
+	%spawn(omx_e, loop, [List2, ParseFilters, self()]),
+	%spawn(omx_e, loop, [List3, ParseFilters, self()]),
+	%spawn(omx_e, loop, [List4, ParseFilters, self()]),
 	%MarketData = getMarketData(),
 
 
