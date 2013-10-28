@@ -7,7 +7,7 @@
 %%% Created 14 October 2013 (Monday),09:00 by Rickard Bremer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(loadstocks).
--export([start/0, stop/0, init/0, loop/0, sendData/2, convert/1]).
+-export([start/0, stop/0, init/0, loop/0, sendData/2]).
 -include("../include/ETL.hrl").
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -58,7 +58,7 @@ init() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Pattern match the received list and upload it to the database.
+%%% Upload the string to the database.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sendData(_, []) ->
@@ -70,13 +70,16 @@ sendData(_Type, List) ->
 	{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
     Doc = { listToString(List)},
-    
-	io:format("~p",[Doc]),
+    io:format("~p",[Doc]),
     {ok, DocResult} = couchbeam:save_doc(Db, Doc),
     io:format("~p", [DocResult]).
 
-convert([]) ->
-	ok.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn List into a string.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 listToString([]) -> []; 
 
@@ -92,8 +95,9 @@ listToString([{Key, Val}|T]) ->
 loop() ->
 	receive 
 		{stock , List} ->
-			sendData(stock, List);
-		{market, List} ->
-			sendData(market, List)
+			sendData(stock, List)
+	%	{market, List} ->
+	%		sendData(market, List)
+	%	{news, List}
     end,
     loop().
