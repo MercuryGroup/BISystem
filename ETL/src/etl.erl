@@ -33,7 +33,7 @@ start() ->
 init() ->
 	process_flag(trap_exit, true),
 	%spawn the load
-	{ok, PID} = loadstock:start(),
+	{ok, PID} = loadstocks:start(),
 	link(PID),
 	%spawn the scheduler
 	{ok, S_PID} = scheduler:start(),
