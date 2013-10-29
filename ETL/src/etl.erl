@@ -33,7 +33,7 @@ start() ->
 init() ->
 	process_flag(trap_exit, true),
 	%spawn the load
-	{ok, PID} = loadstocks:start(),
+	{ok, PID} = load:start(),
 	link(PID),
 	%spawn the scheduler
 	{ok, S_PID} = scheduler:start(),
@@ -70,7 +70,7 @@ loop(List) ->
 			loop(List);
 
 		{action, stop} ->
-			loadstock:stop(),
+			load:stop(),
 			scheduler:stop(),
 			ok;
 
@@ -79,7 +79,7 @@ loop(List) ->
 			%check who FromPid is and restart
 			case whois(FromPid, List) of
 				?LOAD ->
-					{ok, Pid} = loadstocks:start(),
+					{ok, Pid} = load:start(),
 					link(Pid),
 					NewList = replace(FromPid, Pid, List),
 					loop(NewList);
