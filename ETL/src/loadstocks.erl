@@ -9,6 +9,7 @@
 -module(loadstocks).
 -export([start/0, stop/0, init/0, loop/0, sendData/2]).
 -include("../include/ETL.hrl").
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Start and register the process.
@@ -58,34 +59,33 @@ init() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Upload the string to the database.
+%%% Upload the Bin to the database.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 sendData(_, []) ->
 ok;
 
 sendData(_Type, List) ->
-
+	
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
-	{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
+		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
-    Doc = { listToString(List)},
-    io:format("~p",[Doc]),
-    {ok, DocResult} = couchbeam:save_doc(Db, Doc),
+    Doc = { listToBin(List)},
+ 		{ok, DocResult} = couchbeam:save_doc(Db, Doc),
+    
     io:format("~p", [DocResult]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Turn List into a string.
+%%% Turn List into a Bin.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+listToBin([]) -> []; 
 
-listToString([]) -> []; 
-
-listToString([{Key, Val}|T]) ->
-	[{binary:list_to_bin(atom_to_list(Key)), binary:list_to_bin(Val)}| listToString(T)]. 
-
+listToBin([{Key, Val}|T]) ->
+	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
