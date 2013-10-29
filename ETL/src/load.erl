@@ -6,7 +6,7 @@
 %%% @end
 %%% Created 14 October 2013 (Monday),09:00 by Rickard Bremer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--module(loadstocks).
+-module(load).
 -export([start/0, stop/0, init/0, loop/0, sendData/2]).
 -include("../include/ETL.hrl").
 
