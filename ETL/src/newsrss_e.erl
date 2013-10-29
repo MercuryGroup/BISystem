@@ -78,10 +78,10 @@ getData(Options) ->
 %%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(sendData([tuple(), ...]) -> ok).
+-spec(sendData(term()) -> ok).
 sendData(Data) ->
-	prepareToSend(?LOAD, Data),
-	getReply().
+	?LOAD ! Data,
+	ok.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -144,9 +144,7 @@ loop() ->
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
-			sendData(Result),
-			% Sending a message when the results has been retrieved
-			From ! ok,
+			prepareToSend(Result),
 			loop();
 		% {From, To, startSend} ->
 		% 	% Sending away the stored data
@@ -191,18 +189,16 @@ retrieveResult([Process | Rest]) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Sends away each element that is stored in a list to the supplied receiver.
+%%% Reads through a list and calling a function to send each element away.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(prepareToSend(pid(), list()) -> ok).
-prepareToSend(To, []) ->
-	throw({error, empty_buffer});
-prepareToSend(To, [Last | []]) ->
-	To ! Last,
+-spec(prepareToSend(list()) -> ok).
+prepareToSend([Last | []]) ->
+	sendData(Last),
 	ok;
-prepareToSend(To, [H | T]) ->
-	To ! H,
-	prepareToSend(To, T).
+prepareToSend([H | T]) ->
+	sendData(H),
+	prepareToSend(T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
