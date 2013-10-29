@@ -194,5 +194,5 @@ end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) -> 
-	io:format("~p~n",[SingleStockList]).
-	% ?LOAD ! SingleStockList.
+	% io:format("~p~n",[SingleStockList]).
+	?LOAD ! SingleStockList.
