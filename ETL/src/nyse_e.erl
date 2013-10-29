@@ -8,7 +8,7 @@
 %%% Created 11 October 2013 (Friday),10:02 by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
--export([start/0, init/0, getData/1, sendData/1, loop/1,currencyWrapper/1]).
+-export([start/0]).
 -include ("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,16 +139,6 @@ State,
 {stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, Change},
 {latest,currencyWrapper(Price)}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},
 {updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)},{type,"stock"}]}.
- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Sends the data to the transform module
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec sendData([{atom(), any()}, ...]) -> ok.
-sendData(SingleStockList) -> 
-	% io:format("~p~n",[SingleStockList]).
-	?LOAD ! SingleStockList.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -186,3 +176,13 @@ currencyWrapper(N) ->currency ! {request, self(),{N,"USD"}},
 receive 
 	{reply, R} -> R
 end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Sends the data to the transform module
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec sendData([{atom(), any()}, ...]) -> ok.
+sendData(SingleStockList) -> 
+	% io:format("~p~n",[SingleStockList]).
+	?LOAD ! SingleStockList.
