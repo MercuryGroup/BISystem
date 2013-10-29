@@ -136,9 +136,19 @@ end.
 getData(State) ->
 [Symbol,Name,Price,Change,Percent,_,Volume,_] = 
 State,
-{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, Change},
+{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, changeConv(Change)},
 {latest,currencyWrapper(Price)}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},
 {updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)},{type,"stock"}]}.
+
+
+
+changeConv(Change) -> 
+case string:substr(Change,1) of
+	("+") -> string:concat("+", currencyWrapper(string:substr(Change,2)));
+	("-") -> string:concat("-", currencyWrapper(string:substr(Change,2)));
+	_ -> currencyWrapper(Change)
+end.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -184,5 +194,5 @@ end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) -> 
-	% io:format("~p~n",[SingleStockList]).
-	?LOAD ! SingleStockList.
+	io:format("~p~n",[SingleStockList]).
+	% ?LOAD ! SingleStockList.
