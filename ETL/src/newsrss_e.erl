@@ -6,13 +6,10 @@
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
 %%% Supports XML element filtering, and parsing of date time strings.
-%%% All the retrieved data is stored in the server, until a request
-%%% for sending it is done.
+%%% All the retrieved data is sent to the Load (DB).
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 28 Oct 2013 by <Robin Larsson@TM5741>
-%%% TODO: 
-%%% Implementing OTP patterns and behaviour.
+%%% Modified: 29 Oct 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -32,10 +29,7 @@ start() ->
 	case whereis(newsrss_e) of
 		undefined ->
 			%Pid = spawn(newsrss_e, init, []),
-			Pid = spawn(
-				fun() ->
-					init()
-				end),
+			Pid = spawn(fun init/0),
 			register(newsrss_e, Pid),
 			{ok, Pid};
 		Process ->
@@ -81,12 +75,13 @@ getData(Options) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Returns the data stored in the server to a specified process.
+%%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(sendData(pid()) -> [tuple(), ...]).
-sendData(Process) ->
-	newsrss_e ! {self(), Process, startSend}.
+-spec(sendData([tuple(), ...]) -> ok).
+sendData(Data) ->
+	prepareToSend(?LOAD, Data),
+	getReply().
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -109,15 +104,15 @@ getReply() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(init() -> stopped | term()).
 init() ->
-	loop([]).
+	loop().
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Message receive loop for the extract server.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(loop(list()) -> stopped).
-loop(Data) ->
+-spec(loop() -> stopped).
+loop() ->
 	receive 
 		{From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
@@ -148,14 +143,16 @@ loop(Data) ->
 			% Using lists:append to merge all the lists returned by the
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
+			% Sending away the result
+			sendData(Result),
 			% Sending a message when the results has been retrieved
-			% Caching the result in the loop
 			From ! ok,
-			loop(lists:append(Result, Data));
-		{From, To, startSend} ->
-			% Sending away the stored data
-			prepareToSend(To, Data),
-			loop([]);
+			loop();
+		% {From, To, startSend} ->
+		% 	% Sending away the stored data
+		% 	sendData(To, Data),
+		% 	From ! ok,
+		% 	loop([]);
 		%{result, Result} ->
 		%	% Using lists:concat to concatenate all the sent lists
 		%	% Needed later for sending away the result.
@@ -199,8 +196,7 @@ retrieveResult([Process | Rest]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(prepareToSend(pid(), list()) -> ok).
 prepareToSend(To, []) ->
-	To ! {error, empty_buffer},
-	ok;
+	throw({error, empty_buffer});
 prepareToSend(To, [Last | []]) ->
 	To ! Last,
 	ok;
