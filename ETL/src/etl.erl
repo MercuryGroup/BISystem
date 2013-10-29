@@ -70,7 +70,7 @@ loop(List) ->
 			loop(List);
 
 		{action, stop} ->
-			loadstock:stop(),
+			load:stop(),
 			scheduler:stop(),
 			ok;
 
