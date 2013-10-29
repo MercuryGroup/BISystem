@@ -26,7 +26,7 @@
 -define(LAUNCH_LIST, [									% The default configuration for the scheduler
 	{nyse, fun nyse_e:start/0, [{14,45}, {18,45}, {22, 45}], ?ETL},
 	{omx, fun omx_e:start/0, [{9,05}, {13,15}, {17,25}], ?ETL},
-	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?ETL},
+	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?ETL}%,
 	%{news, fun newsrss_e:start/0, [{0,05}], ?ETL}
 	]).
 
