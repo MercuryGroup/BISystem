@@ -6,17 +6,14 @@
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
 %%% Supports XML element filtering, and parsing of date time strings.
-%%% All the retrieved data is stored in the server, until a request
-%%% for sending it is done.
+%%% All the retrieved data is sent to the Load (DB).
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 26 Oct 2013 by <Robin Larsson@TM5741>
-%%% TODO: 
-%%% Implementing OTP patterns and behaviour.
+%%% Modified: 29 Oct 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
--export([start/0, stop/0, init/0, loop/1, getData/1, sendData/0]).
+-export([start/0, stop/0, getData/1, sendData/1]).
 % http://stackoverflow.com/a/18846096
 -include_lib("../include/ETL.hrl").
 % https://github.com/erlang/otp/blob/maint/lib/xmerl/include/xmerl.hrl
@@ -31,7 +28,8 @@
 start() ->
 	case whereis(newsrss_e) of
 		undefined ->
-			Pid = spawn(newsrss_e, init, []),
+			%Pid = spawn(newsrss_e, init, []),
+			Pid = spawn(fun init/0),
 			register(newsrss_e, Pid),
 			{ok, Pid};
 		Process ->
@@ -50,20 +48,6 @@ stop() ->
 			already_stopped;
 		_ ->
 			newsrss_e ! stopped
-	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Used for receiving a message from a process.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getReply() -> term()).
-getReply() ->
-	receive
-		{From, Command, Any} ->
-			Any;
-		Msg ->
-			Msg
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,13 +75,27 @@ getData(Options) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Returns the data stored in the server.
+%%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(sendData() -> [tuple(), ...]).
-sendData() ->
-	newsrss_e ! {self(), startSend},
-	getReply().
+-spec(sendData(term()) -> ok).
+sendData(Data) ->
+	?LOAD ! Data,
+	ok.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Used for receiving a message from a process.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(getReply() -> term()).
+getReply() ->
+	receive
+		{From, Command, Any} ->
+			Any;
+		Msg ->
+			Msg
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -106,29 +104,57 @@ sendData() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(init() -> stopped | term()).
 init() ->
-	loop([]).
+	loop().
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Message receive loop for the extract server.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(loop(list()) -> stopped | term()).
-loop(Data) ->
+-spec(loop() -> stopped).
+loop() ->
 	receive 
-		{From, startGet, {Symbols, XMLSearchInfo}} ->
-			% Retrieving and parsing the XML data
-			Parsed = element(1, 
-				parseXML(
-				retrieveXML(
-					"http://feeds.finance.yahoo.com/rss/2.0/headline?s=" ++ 
-					Symbols ++ "&region=US&lang=en-US"))),
-			Processed = processXML(Parsed, XMLSearchInfo),
-			From ! ok, % Returning confirmation of retrival
-			loop(lists:append(Processed, Data));
-		{From, startSend} ->
-			From ! Data, % Sending away the stored data
-			loop([]);
+		{From, startGet, {SymbolsPre, XMLSearchInfo}} ->
+			% Used for returning results from spawned processes
+			Pid = self(),
+			% Extracting each symbol into a separate string, stored in a list
+			SymbolsPost = string:tokens(SymbolsPre, ","),
+			% For retrieving and parsing the XML data
+			RetrieveParseXML = fun(Symbol) ->
+				spawn(fun() ->
+					Parsed = element(1,
+						parseXML(
+						retrieveXML(
+						"http://feeds.finance.yahoo.com/rss/2.0/headline?s=" ++
+						Symbol ++ "&region=US&lang=en-US"))),
+					% For testing purposes
+					% Parsed = element(1, 
+					% 	parseXML(
+					% 	retrieveXML(
+					% 		"http://tankmaster.no-ip.org/test/error.xml"))),
+					Pid ! {self(), processXML(Parsed, XMLSearchInfo)}
+				end)
+			end,
+			% Executing the parallel map that retrieves data for each
+			% symbol (each a spawned process).
+			Processes = lists:map(RetrieveParseXML, SymbolsPost),
+			% Reading the results from the spawned processes
+			% Enabling synchronous behaviour.
+			% Using lists:append to merge all the lists returned by the
+			% spawned processes
+			Result = lists:append(retrieveResult(Processes)),
+			% Sending away the result
+			prepareToSend(Result),
+			loop();
+		% {From, To, startSend} ->
+		% 	% Sending away the stored data
+		% 	sendData(To, Data),
+		% 	From ! ok,
+		% 	loop([]);
+		%{result, Result} ->
+		%	% Using lists:concat to concatenate all the sent lists
+		%	% Needed later for sending away the result.
+		%	loop(lists:append(Result, Data));  % Saving the result
 		stopped ->
 			stopped
 	end.
@@ -146,6 +172,33 @@ loop(Data) ->
 % 		stopped ->
 % 			stopped
 % 	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Reads the messages from each of the processes, and combining
+%%% into a list result.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+retrieveResult([]) ->
+	[];
+retrieveResult([Process | Rest]) ->
+	receive
+		{Process, Result} ->
+			[Result | retrieveResult(Rest)]
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Reads through a list and calling a function to send each element away.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(prepareToSend(list()) -> ok).
+prepareToSend([Last | []]) ->
+	sendData(Last),
+	ok;
+prepareToSend([H | T]) ->
+	sendData(H),
+	prepareToSend(T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -176,8 +229,8 @@ retrieveXML(Link) when is_list(Link) ->
 			receive
 				{http, {RequestId, Result}} ->
 					{HTTPStatus, HTTPHeader, XMLData} = Result,
-					%checkCallExceeding(binary:bin_to_list(XMLData))
-					binary:bin_to_list(XMLData)
+					checkCallExceeding(binary:bin_to_list(XMLData))
+					%binary:bin_to_list(XMLData)
 			after 30000 ->
 				{error, no_connection_or_no_data_returned}
 			end;
@@ -194,17 +247,24 @@ retrieveXML(_) -> % Not a vaild link
 %%% If not return the supplied data from the argument.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(checkCallExceeding(string()) -> string() | {error, atom()}).
 checkCallExceeding(DataString) ->
-	ParsedXML = xmerl_scan:string(DataString),
-	[MainContent] = ParsedXML#xmlElement.content,
-	[PossibleError] = MainContent#xmlElement.content,
-	case PossibleError#xmlText.value of
-		"limit exceeded" -> % A limit message has been received
-			throw({error, yahoo_rss_call_limit_exceeded});
-		_ -> 
+	% The parsing is explicitly looking at the XML structure
+	% defined here http://developer.yahoo.com/search/rate.html
+	ParsedXML = element(1, xmerl_scan:string(DataString)),
+	case ParsedXML#xmlElement.expanded_name of
+		'Error' ->
+			MainContent = lists:nth(2, ParsedXML#xmlElement.content),
+			[PossibleError] = MainContent#xmlElement.content,
+			case PossibleError#xmlText.value of
+				"limit exceeded" -> % A limit message has been received
+					throw({error, yahoo_rss_call_limit_exceeded});
+				_ ->
+					DataString
+			end;
+		rss ->
 			DataString
 	end.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc

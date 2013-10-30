@@ -1,11 +1,14 @@
-%%http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.xchange%20where%20pair%20in%20(%22EURUSD%22%2C%22GBPUSD%22)&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys
-%%http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.xchange%20where%20pair%20in%20(%22GBPEUR%22)&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys
 -module(currency).
 -export([start/0, init/0, call/1, stop/0, loop/1, analyze_info/1, get_rates/0, convert/2, update_rates/0]).
 -include_lib("xmerl/include/xmerl.hrl").
 
 start() ->
-	register(currency, spawn(currency, init, [])).
+	Pid = whereis(currency),
+	if Pid == undefined ->
+		register(currency, spawn(currency, init, [])),
+		{ok, whereis(currency)};
+		true -> {ok, already_running}
+	end.
 
 init() ->
 	inets:start(),

@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(scheduler).
--export([start/0, stop/0, update/1, get_config/0, get_config/1]).
+-export([start/0, stop/0, update/1, remove/1, get_config/0, get_config/1]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

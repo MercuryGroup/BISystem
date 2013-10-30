@@ -2,15 +2,15 @@
 %%% File: lse_e.erl
 %%% @author Alexander Ask
 %%% @doc
-%%% A htlm parser specially intended for the retriving stocks data, from the
+%%% A htlm parser specially intended for the retreiving stocks data, from the
 %%% source: London stock exchange, http://www.londonstockexchange.com
 %%% @end
 %%% Created : 10 okt 2013 by Alexander Ask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(lse_e).
 -export([start/0]).
--include("../include/ETL.hrl"). 
-%%-include("ETL.hrl"). 
+-include("../include/ETL.hrl").
+ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,7 +25,7 @@ start()-> inets:start(), init(1).
 %%% init/1, will recursivly spawn a new pageSelector for each page, i.e recurse 32 times. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-init(32) -> ok; 
+init(33) -> ok; 
 
 init(N)-> 
   spawn(fun() -> pageSelector(N) end),
@@ -37,7 +37,7 @@ init(N)->
 %%% pageSelector/1 takes a number representing a specific page, this page will be requested and then cut.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pageSelector(35) -> 
+pageSelector(32) -> 
 %% send request to the page
   UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0",
   Url = "http://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices.html?index=ASX",
@@ -82,8 +82,8 @@ getData(market, List) ->
   Stock = checkValues(List, []),
   case Stock of
 
-    [] -> ok;
-    _  -> FormatedStock = formate(market, Stock, 1, 0, 0),
+    [] -> [];
+    _  -> FormatedStock = formate(market, Stock, 1, 0, 0, "GBX"),
           sendData(market, FormatedStock)
   end;
 
@@ -91,104 +91,101 @@ getData(stock, [H|[]]) ->
   Stock = checkValues(H, []),
   case Stock of
 
-    [] -> ok;
-    _  -> Cur = lists:nth(3, Stock), 
-          NewStock = lists:delete(Cur, Stock),
-          FormatedStock = formate(stock, NewStock, 1, 0, 0),
-          ListWithoutLines = findLines(FormatedStock, []),
-          sendData(stock, ListWithoutLines)
+    [] -> [];
+
+    _  ->   Cur = lists:nth(3, Stock), 
+            NewStock = lists:delete(Cur, Stock),
+            FormatedStock = formate(stock, NewStock, 1, 0, 0, Cur),
+            sendData(stock, FormatedStock)
   end;
 
 getData(stock, [H|T]) ->
   Stock = checkValues(H, []),
     case Stock of
 
-      [] -> ok;
+      [] -> [];
 
       _  -> Cur = lists:nth(3, Stock), 
             NewStock = lists:delete(Cur, Stock),
-            FormatedStock = formate(stock, NewStock, 1, 0, 0),
-            ListWithoutLines = findLines(FormatedStock, []),
-            sendData(stock, ListWithoutLines),
+            %%WithOutIllegalSymbols = removeSymbols(NewStock, []),
+            FormatedStock = formate(stock, NewStock, 1, 0, 0, Cur),
+            sendData(stock, FormatedStock),
             getData(stock, T)
     end.
-
-findLines([{Atom, "-"}|T], Acc)->
-  NewAcc = Acc ++[{Atom, "null"}],
-  findLines(T, NewAcc);
-
-findLines([H|T], Acc) ->
-  findLines(T, Acc ++[H]);
-
-findLines([], Acc) ->
-  Acc.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% sendData/1 takes a formated stock and sends it to the transformer process. 
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sendData(Tag, List)-> 
-%%io:format("~p~n", [{Tag, List}]).
-?LOAD ! {Tag, List}.
+sendData(Tag, List)-> ?LOAD ! {Tag, List}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% formate/5 takes a list with market or stock data and formates it
+%%% formate/6 takes a list with market or stock data and formates it
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-formate(market, [H|T], N, Change, Current) -> 
+formate(market, [H|T], N, Change, Current, Cur) -> 
   case N of
 
+    1 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{value, CurrencyInEUR} | formate(market, T, N+1, Change, CurrencyInEUR, Cur)];
 
-    1 -> FormatedNumber = formateNum(H, []), 
-    [{value, FormatedNumber} | formate(market, T, N+1, Change, FormatedNumber)];
+    2 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{change, CurrencyInEUR} | formate(market, T, N+1, CurrencyInEUR, Current, Cur)];
 
-    2 -> FormatedNumber = formateNum(H, []),
-    [{change, FormatedNumber} | formate(market, T, N+1, FormatedNumber, Current)];
+    3 -> [{percent, formateNum(H, [])} | formate(market, T, N+1, Change, Current, Cur)];
 
-    3 -> [{percent, formateNum(H, [])} | formate(market, T, N+1, Change, Current)];
+    4 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{highest, CurrencyInEUR} | formate(market, T, N+1, Change, Current, Cur)];
 
-    4 -> [{highest, formateNum(H, [])} | formate(market, T, N+1, Change, Current)];
+    5 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{lowest, CurrencyInEUR} | formate(market, T, N+1, Change, Current, Cur)];
 
-    5 -> [{lowest, formateNum(H, [])} | formate(market, T, N+1, Change, Current)];
+    6 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{closingVal, CurrencyInEUR} | formate(market, "null", N+1, Change, Current, Cur)];
 
-    6 -> [{closingVal, formateNum(H, [])} | formate(market, "null", N+1, Change, Current)];
+    7 -> [{openVal, calc_opening(Change, Current)} | formate(market, "null", N+1,  "","", Cur)];
 
-    7 -> [{openVal, calc_opening(Change, Current)} | formate(market, "null", N+1,  "","")];
+    8 -> [{updated, ?TIMESTAMP} | formate(market, "null", N+1, "","", Cur)];
 
-    8 -> [{updated, ?TIMESTAMP} | formate(market, "null", N+1, "","")];
+    9 -> [{market, "LSE"} | formate(market, "null", N+1, "","", Cur)];
 
-    9 -> [{market, "LSE"} | formate(market, "null", N+1, "","")];
-
-    10 -> [{type, "market"} | formate(market, "null", N+1, "","")];
+    10 -> [{type, "market"} | formate(market, "null", N+1, "","", Cur)];
 
     11 -> [] 
 
   end;
 
-formate(stock, [H|T], N, Change, Current) -> 
+formate(stock, [H|T], N, Change, Current, Cur) -> 
   case N of
 
-    1 -> [{symbol, H} | formate(stock, T, N+1, Change, Current)];
+    1 -> [{symbol, H} | formate(stock, T, N+1, Change, Current, Cur)];
 
-    2 -> [{name, H} | formate(stock, T, N+1, Change, Current)];
+    2 -> [{name, H} | formate(stock, T, N+1, Change, Current, Cur)];
 
-    3 -> FormatedNumber = formateNum(H, []), 
-        [{latest, FormatedNumber} | formate(stock, T, N+1, Change, FormatedNumber)];
+    3 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur), 
+         [{latest, CurrencyInEUR} | formate(stock, T, N+1, Change, CurrencyInEUR, Cur)];
 
-    4 -> FormatedNumber = formateNum(H, []), 
-        [{change, FormatedNumber} | formate(stock, T, N+1, FormatedNumber, Current)];
+    4 -> FormatedNum = formateNum(H, []),
+         CurrencyInEUR = currencyWrapper(FormatedNum, Cur),  
+         [{change, CurrencyInEUR} | formate(stock, T, N+1, CurrencyInEUR, Current, Cur)];
 
-    5 -> [{percent, formateNum(H, [])} | formate(stock, "null", N+1, Change, Current)];
+    5 -> [{percent, formateNum(H, [])} | formate(stock, "null", N+1, Change, Current, Cur)];
 
-    6 -> [{openVal, calc_opening(Change, Current)} | formate(stock, "null", N+1, "","")];
+    6 -> [{openVal, calc_opening(Change, Current)} | formate(stock, "null", N+1, "","", Cur)];
 
-    7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","")];
+    7 -> [{updated, ?TIMESTAMP} | formate(stock, "null", N+1, "","", Cur)];
 
-    8 -> [{market, "LSE"} | formate(stock, "null", N+1, "","")];
+    8 -> [{market, "LSE"} | formate(stock, "null", N+1, "","", Cur)];
 
-    9 -> [{type, "stock"} | formate(stock, "null", N+1, "","")];
+    9 -> [{type, "stock"} | formate(stock, "null", N+1, "","", Cur)];
 
     10 -> []
 
@@ -197,52 +194,33 @@ formate(stock, [H|T], N, Change, Current) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Takes two lists of integers, Change and Current, and returns the calculated opening value of the stock
+%%% calc_opening/2 takes two lists of integers, Change and Current
+%%% and returns the calculated opening value of the stock
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 calc_opening([ChangeHead|ChangeTail], Current) -> 
   case ChangeHead of 
     $- -> Value = list_to_float(Current) + list_to_float(ChangeTail), 
-          Temp = float_to_list(Value),
-          cut_decimal(Temp);
+          [StringValue] = io_lib:format("~.2f",[Value]),
+          StringValue;      
 
     $+ -> Value = list_to_float(Current) - list_to_float(ChangeTail), 
-          Temp = float_to_list(Value),
-          cut_decimal(Temp);
+          [StringValue] = io_lib:format("~.2f",[Value]),
+          StringValue;
 
-    $0 -> Current
+    _-> Current
+
   end.
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% cut_decimal/1 returns a lsit cut at the forth decimal. 
+%%% formateNum/2 Takes a list of integers and a empty Acc, 
+%%% returns a list of integers with all spaces and "," removed.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-cut_decimal([$.|T]) ->
-  [$.|decimal(T, 4)];
-
-cut_decimal([H|T]) -> 
-  [H|cut_decimal(T)]. 
-
-decimal([],_) ->
-  [];
-
-decimal(_,0)->
-  [];
-
-decimal([H|T], N) ->
-  [H|decimal(T, N-1)].
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Takes a list of integers and returns a list of integers with all spaces and "," removed.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-formateNum([], Acc) -> Acc;
-%% JUSTINSMODLUE(Acc) ;
+formateNum([], Acc) -> 
+  Acc; 
 
 formateNum([H|T], Acc) -> 
   case H of
@@ -254,7 +232,31 @@ formateNum([H|T], Acc) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Traverses trought the html code and looks for the opening td tag, "<td"
+%%% currencyWrapper/2 takes a list with the value aswell as the currency 
+%%% and sends a request to the currency module, returns the value of the reply
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+currencyWrapper([H|T], Cur) ->
+  if
+    H == $+ -> currency ! {request, self(), {T, Cur}},
+      receive 
+        {reply, Reply} -> lists:append([[$+], Reply]) 
+      end;
+
+    H == $- -> currency ! {request, self(), {T, Cur}},
+      receive 
+        {reply, Reply} -> lists:append([[$-], Reply]) 
+      end;
+
+    true -> currency ! {request, self(), {[$0] ++ T, Cur}},
+      receive 
+        {reply, Reply} -> Reply 
+      end
+  end.
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% CeckBalues/2 Traverses trought the html code and looks for the opening td tag, "<td"
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 checkValues([$<,$t,$d|T], Acc) ->
@@ -271,7 +273,7 @@ checkValues([], Acc) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% returns the stock values within the td tags
+%%% getValues/2 returns the stock values within the td tags
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 getValues([$<,$/,$t,$d,$>|T], Acc)->
@@ -293,7 +295,7 @@ getValues([Val|T], Acc)->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% iterates until the next ">", returns the remaining html code
+%%% iterate/1, steps forward in the list until the next ">", returns the remaining html code
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 iterate([$>|T]) ->

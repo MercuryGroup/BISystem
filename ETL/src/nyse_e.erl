@@ -8,7 +8,7 @@
 %%% Created 11 October 2013 (Friday),10:02 by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
--export([start/0, init/0, getData/1, sendData/1, loop/1]).
+-export([start/0]).
 -include ("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,7 +21,8 @@ start() -> init().
 
 
 -spec init() -> any().
-init() ->   inets:start(), PidList = [spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)],   {ok, PidList} .
+init() ->   inets:start(), spawn(fun()-> extract() end),
+[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)].
 	
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,7 +63,33 @@ case Number=<length(StockList) of
 	end
 end.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Extracts the market data
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+extract() -> 
+{ok, {{_Version, 200, _ReasonPhrase}, _Headers, Body}} = httpc:request("http://www.bloomberg.com/quote/NYA:IND"),
+	{_,[{Start,Length}]} = re:run(Body,"trending_up up"),
+    Change = string:concat("+",string:strip(findWord(string:substr(Body,Start+Length+3,1),Body,Start+Length+3,1))),
+    {_,[{Startsub,Lengthsub}]} = re:run(string:substr(Body,Start+Length+3),"span"),
+    Percent = string:concat("+",findWord(string:substr(Body,Start+Length+Startsub+Lengthsub+4,1),Body,Start+Length+Startsub+Lengthsub+4,1)),
+   
 
+
+    {_,[{Start2,Length2}]} = re:run(Body," price"),
+    Latest = string:strip(findWord(string:substr(Body,Start2+Length2+5,1),Body,Start2+Length2+5,1)),
+
+     {_,[{Start3,Length3}]} = re:run(Body,"Open:"),
+    Open = findWord(string:substr(Body,Start3+Length3+21,1),Body,Start3+Length3+21,1),
+
+     {_,[{Start4,Length4}]} = re:run(Body,"Day Range:"),
+    [Low,High] = re:split(findWord(string:substr(Body,Start4+Length4+21,1),Body,Start4+Length4+21,1)," - ",[{return,list}]),
+
+ {_,[{Start5,Length5}]} = re:run(Body,"Previous Close:"),
+    Close = findWord(string:substr(Body,Start5+Length5+21,1),Body,Start5+Length5+21,1),
+
+     sendData({market,[{latest,currencyWrapper(re:replace(Latest,",","",[{return, list}]))},{change,currencyWrapper(re:replace(Change,",","",[{return, list}]))},{percent,Percent},{highest,currencyWrapper(re:replace(High,",","",[{return, list}]))},{lowest,currencyWrapper(re:replace(Low,",","",[{return, list}]))},{closingVal,currencyWrapper(re:replace(Close,",","",[{return, list}]))},{openVal,currencyWrapper(re:replace(Open,",","",[{return, list}]))},{updated,?TIMESTAMP},{market,"NYSE"},{type,"market"}]}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -93,7 +120,10 @@ findData(SubList,List,N,M,Datalist) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 findWord(SubList,List,N,M) -> 
 case string:chr(SubList,$<) of
-	(0) -> findWord(string:substr(List,N,M+1),List,N,M+1);
+	(0) -> case string:chr(SubList,$\n) of
+		(0) -> findWord(string:substr(List,N,M+1),List,N,M+1);
+		_-> string:substr(List,N,M-1)
+	end;
 	_-> string:substr(List,N,M-1)
 end.
 
@@ -106,19 +136,19 @@ end.
 getData(State) ->
 [Symbol,Name,Price,Change,Percent,_,Volume,_] = 
 State,
-{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, Change},
-{latest, Price}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},
+{stock,[{symbol,Symbol},{name, string:sub_string(Name,7)},{change, changeConv(Change)},
+{latest,currencyWrapper(Price)}, {percent, Percent},{volume, volumeConvert(Volume)},{market,"NYSE"},
 {updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)},{type,"stock"}]}.
- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Sends the data to the transform module
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec sendData([{atom(), any()}, ...]) -> ok.
-sendData(SingleStockList) ->
-	% io:format("~p",[SingleStockList]),
-	?LOAD ! SingleStockList.
+
+
+
+changeConv(Change) -> 
+case string:substr(Change,1) of
+	("+") -> string:concat("+", currencyWrapper(string:substr(Change,2)));
+	("-") -> string:concat("-", currencyWrapper(string:substr(Change,2)));
+	_ -> currencyWrapper(Change)
+end.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -141,7 +171,28 @@ end.
 openingValCal(Price,Change) ->
 {PriceFloat,_} = string:to_float(Price),
 {ChangeFloat,_} = string:to_float(Change),
-TransPrice = io_lib:format("~.2f",[(PriceFloat-ChangeFloat)*0.7]),
-lists:nth(1,TransPrice).
+TransPrice = io_lib:format("~.2f",[(PriceFloat-ChangeFloat)]),
+ConvPrice = lists:nth(1,TransPrice),
+currencyWrapper(ConvPrice).
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Calls the currency converter and recieves the converted value
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+currencyWrapper(N) ->currency ! {request, self(),{N,"USD"}},
+
+receive 
+	{reply, R} -> R
+end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Sends the data to the transform module
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec sendData([{atom(), any()}, ...]) -> ok.
+sendData(SingleStockList) -> 
+	% io:format("~p~n",[SingleStockList]).
+	?LOAD ! SingleStockList.
