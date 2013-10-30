@@ -78,10 +78,11 @@ getData(Options) ->
 %%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-spec(sendData(pid(), term()) -> ok).
 -spec(sendData(term()) -> ok).
+%sendData(Pid, Data) ->
 sendData(Data) ->
-	?LOAD ! Data,
-	ok.
+	?LOAD ! Data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -144,6 +145,7 @@ loop() ->
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
+			%prepareToSend(From, Result),
 			prepareToSend(Result),
 			loop();
 		% {From, To, startSend} ->
@@ -192,7 +194,14 @@ retrieveResult([Process | Rest]) ->
 %%% Reads through a list and calling a function to send each element away.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-spec(prepareToSend(pid(), list()) -> ok).
 -spec(prepareToSend(list()) -> ok).
+% prepareToSend(Pid, [Last | []]) ->
+% 	sendData(Pid, Last),
+% 	ok;
+% prepareToSend(Pid, [H | T]) ->
+% 	sendData(Pid, H),
+% 	prepareToSend(Pid, T).
 prepareToSend([Last | []]) ->
 	sendData(Last),
 	ok;
