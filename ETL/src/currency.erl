@@ -58,6 +58,10 @@ loop(Db) ->
 			Pounds = element(1, string:to_float(Val)) / 100,
 			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * Pounds)]))),
 			loop(Db);
+		{request, Pid, {Val, "EUR"}} ->
+			%reply(Pid, derp),
+			reply(Pid, lists:nth(1, io_lib:format("~.2f", [element(1, string:to_float(Val))]))),
+			loop(Db);
 		{request, Pid, update} ->
 			reply(Pid, ok),
 			loop(get_rates()); 
