@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(scheduler).
--export([start/0, stop/0, update/1, remove/1, get_config/0, get_config/1]).
+-export([start/0, stop/0, update/1, remove/1, get_config/0, get_config/1, init/0]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,6 +59,8 @@ loop(ConfigList) ->
 	receive
 		{action, stop} ->
 			ok;
+		{action, reload} ->
+			scheduler:loop(ConfigList);
 		{update, Config} ->
 			NewConfigList = updateConfig(Config, ConfigList),
 			loop(NewConfigList);
@@ -86,8 +88,8 @@ loop(ConfigList) ->
 -spec(check([{atom(), fun(), [{pos_integer()} | {pos_integer(), pos_integer()} | {pos_integer(), pos_integer(), pos_integer()}, ...], atom()}, ...]) -> ok).
 check([]) -> ok;
 
-check([{_, _, [], _} | T]) ->
-	check(T);
+check([{_, _, [], _} | Tail]) ->
+	check(Tail);
 
 check([{Tag, Fun, [Time | TimeTail], Receiver} | Tail]) ->
 	{H, M, S} = time(),

@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(etl).
--export([start/0, stop/0]).
+-export([start/0, stop/0, reload/0, loop/1]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -51,12 +51,22 @@ init() ->
 stop() ->
 	case whereis(?ETL) of
 		undefined ->
-			?ETL ! {action, stop},
-			stopped;
+			already_stopped;
 		_ ->
-			already_stopped
+			?ETL ! {action, stop},
+			stopped
 	end.
-	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% reload/0 - Reloads the codebase in the ETL.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(reload() -> ok).
+reload() ->
+	?ETL ! {action, reload},
+	ok.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% loop/1 - 	Loops the ETL. The argument is a list of tuples with two elements
@@ -65,7 +75,7 @@ stop() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop(List) ->
 	receive
-		{start, Fun} -> 
+		{start, Fun} ->
 			Fun(),
 			loop(List);
 
@@ -73,6 +83,9 @@ loop(List) ->
 			load:stop(),
 			scheduler:stop(),
 			ok;
+
+		{action, reload} ->
+			etl:loop(List);
 
 		{'EXIT', FromPid, _Reason} ->
 			%log?
@@ -106,8 +119,8 @@ whois(_, []) ->
 whois(Pid, [{Pid, Name} | _]) ->
 	Name;
 
-whois(Pid, [_ | T]) ->
-	whois(Pid, T).
+whois(Pid, [_ | Tail]) ->
+	whois(Pid, Tail).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -117,8 +130,8 @@ whois(Pid, [_ | T]) ->
 replace(_, _, []) ->
 	[];
 
-replace(OldPid, NewPid, [{OldPid, Name} | T]) ->
-	[{NewPid, Name} | T];
+replace(OldPid, NewPid, [{OldPid, Name} | Tail]) ->
+	[{NewPid, Name} | Tail];
 
-replace(OldPid, NewPid, [_ | T]) ->
-	replace(OldPid, NewPid, T).
+replace(OldPid, NewPid, [Head | Tail]) ->
+	[Head | replace(OldPid, NewPid, Tail)].
