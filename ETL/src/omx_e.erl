@@ -2,7 +2,7 @@
 %%% File: omx_c.erl
 %%% @author Joel Berghé
 %%% @doc
-%%% Extractor module for the OMX stock market.
+%%% Extractor module for the OMX stock exchange.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(omx_e).
@@ -23,9 +23,9 @@ start() ->
 	%%Strip stock data of unnecessary code	
 	{Body,_} = getString(_Body, "<th>Value</th>\n</tr>\n<tr>\n", "\n</div>\n"),
 	%%Convert the string into a list
-	RawList= re:split(Body, "\n<td class=\"left\">" ,[{return,list},group]),
+	RawList = re:split(Body, "\n<td class=\"left\">" ,[{return,list},group]),
 	%%Get number of stocks in list
-	StockLength = length(RawList),
+	_StockLength = length(RawList),
 	%%Split list into four parts in order to distrubute work 
 	%%Split to two lists
 	{_TempList1, _TempList2} = lists:split(length(RawList) div 2, RawList),
@@ -43,15 +43,17 @@ start() ->
 		{closingVal, "<td>", "</td>"},
 		{openVal, "<td>", "</td>"},
 		{volume, "\">", "</td>"}],
+	%%Spawn processes which will send individual parts of the stock data.
+	spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List2, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List3, ParseFilters, ?LOAD]),
+	spawn(omx_e, loop, [List4, ParseFilters, ?LOAD]),
+	%%Send market data to database
+	sendData(getMarketData(), ?LOAD).
 
-	%spawn(omx_e, loop, [List1, ParseFilters, ?LOAD]).
-	spawn(omx_e, loop, [List2, ParseFilters, ?LOAD]).
-	%spawn(omx_e, loop, [List3, ParseFilters, self()]),
-	%spawn(omx_e, loop, [List4, ParseFilters, self()]),
-	%MarketData = getMarketData(),
-	%io:format("~p~n", [MarketData]),
-	%spawn(omx_e, sendData, [{test}, self()]),
-	%temp(0, StockLength-1).
+%
+%	%%TEMP
+%	temp(0, StockLength-1).
 %temp(M, M) -> 
 %	receive
 %		Pid -> io:format("~p: ~p~n", [M+1, Pid])
@@ -81,18 +83,35 @@ loop([[String]|List], ParseFilters, Pid) ->
 %%%	Parses the string containing stock data and converts it to a list of tuples.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Empty/end of list
 getData(_, []) ->
 	[{updated, ?TIMESTAMP}, {market, "OMX"}, {type, "Stock"}];
-%%Fix opening value
+%%Fix opening value (and change to euro)
 getData(Stock, [{openVal, FilterStart, FilterStop}|Filters]) ->
 	{_OpenVal, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
+	%%If the opening value doesn't show on the web page, the value within  the
+	%%the source code will be "&nbsp". This will then be replaced with "-".
 	case _OpenVal of
 		"&nbsp;" ->
 			OpenVal = "-";
 		_ ->
-			OpenVal = _OpenVal
+			OpenVal = currencyWrapper(_OpenVal)
 	end,
 	[{openVal, OpenVal}|getData(TrimmedStock, Filters)];
+%%Latest (change value to euro)
+getData(Stock, [{latest, FilterStart, FilterStop}|Filters]) ->
+	{_Latest, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
+	case _Latest of
+		"-" ->
+			Latest = _Latest;
+		_ ->
+			Latest = currencyWrapper(_Latest)
+	end,
+	[{latest, Latest}|getData(TrimmedStock, Filters)];
+%%Change (change value to euro)
+getData(Stock, [{change, FilterStart, FilterStop}|Filters]) ->
+	{Change, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
+	[{change, currencyWrapper(Change)}|getData(TrimmedStock, Filters)];
 %%Skip closing value
 getData(Stock, [{closingVal, FilterStart, FilterStop}|Filters]) ->
 	{_ClosingVal, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
@@ -102,6 +121,7 @@ getData(Stock, [{volume, FilterStart, FilterStop}|Filters]) ->
 	{_Volume, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
 	Volume = re:replace(_Volume, "\\s+", "", [global,{return,list}]),
 	[{volume, Volume}|getData(TrimmedStock, Filters)];
+%%All other stock values
 getData(Stock, [{ValueName, FilterStart, FilterStop}|Filters]) ->
 	{Value, TrimmedStock} = getString(Stock, FilterStart, FilterStop),
 	[{ValueName, Value}|getData(TrimmedStock, Filters)].
@@ -115,7 +135,8 @@ getMarketData() ->
 	{ok, {{_, 200, _}, _, Csv}} = httpc:request("http://download.finance.yahoo.com/d/quotes.csv?s=^OMXSPI&f=l1c1p2opgh"),
 	TrimmedCsv = re:replace(Csv, "(\"|\r|\n)", "", [global,{return,list}]),
 	SplitCsv = re:split(TrimmedCsv, "[,]",[{return,list}]),
-	MarketTuples = [{latest}, {change}, {percent}, {openVal}, {closingVal}, {lowest}, {highest}],
+	MarketTuples = [{latest}, {change}, {percent}, 
+	{openVal}, {closingVal}, {lowest}, {highest}],
 	{market, parseMarketData(SplitCsv, MarketTuples)}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -126,8 +147,11 @@ getMarketData() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 %%End of tuples list, add an extra tuple containing market name.
 parseMarketData(_, []) -> [{market, "OMX"}];
+parseMarketData([Value|Csv], [{percent}|Rest]) ->
+	[{percent, Value}|parseMarketData(Csv, Rest)];
+%%Iterate through the list and extract convert the CSV file into a list.
 parseMarketData([Value|Csv], [{CurrentTuple}|Rest]) ->
-	[{CurrentTuple, Value}|parseMarketData(Csv, Rest)].
+	[{CurrentTuple, currencyWrapper(Value)}|parseMarketData(Csv, Rest)].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -148,5 +172,15 @@ getString(String, Start, Stop) ->
 	Rest = string:sub_string(Trimmed, Pos2),
 	{NewString, Rest}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%%	Send data to the specified Pid.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 sendData(Data, Pid) ->
 	Pid ! Data.
+
+currencyWrapper(N) -> currency ! {request, self(), {N, "SEK"}},
+	receive
+		{reply, R} -> R
+	end.
