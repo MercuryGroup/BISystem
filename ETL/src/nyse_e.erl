@@ -8,7 +8,7 @@
 %%% Created 11 October 2013 (Friday),10:02 by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
--export([start/0]).
+-export([start/0,changeConv/1]).
 -include ("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,8 +22,8 @@ start() -> init().
 
 -spec init() -> any().
 init() ->   inets:start(), spawn(fun()-> extract() end),
-[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)].
-	
+[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,1)].
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -36,13 +36,13 @@ init() ->   inets:start(), spawn(fun()-> extract() end),
 pageSelector(N) ->  
 PageNumber = lists:flatten(io_lib:format("~p", [N])),
 {ok, {{_Version, 200, _ReasonPhrase}, _Headers, Body}} =
-      httpc:request(string:concat
-      	("http://money.cnn.com/data/markets/nyse/?page=",PageNumber)), 
-      {_,[[{Start,_}],[{Stop,_}]]} = re:run(Body,"tbody",[global]),
-      StockData = string:substr(Body, Start+7, (Stop-Start)-8), 
-      StockList = re:split(StockData,"<tr>",[{return,list}]),
-      {Pno,_}=string:to_integer(PageNumber),
-      loop({StockList,2,Pno}).
+httpc:request(string:concat
+	("http://money.cnn.com/data/markets/nyse/?page=",PageNumber)), 
+{_,[[{Start,_}],[{Stop,_}]]} = re:run(Body,"tbody",[global]),
+StockData = string:substr(Body, Start+7, (Stop-Start)-8), 
+StockList = re:split(StockData,"<tr>",[{return,list}]),
+{Pno,_}=string:to_integer(PageNumber),
+loop({StockList,2,Pno}).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,26 +70,37 @@ end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 extract() -> 
 {ok, {{_Version, 200, _ReasonPhrase}, _Headers, Body}} = httpc:request("http://www.bloomberg.com/quote/NYA:IND"),
-	{_,[{Start,Length}]} = re:run(Body,"trending_up up"),
-    Change = string:concat("+",string:strip(findWord(string:substr(Body,Start+Length+3,1),Body,Start+Length+3,1))),
-    {_,[{Startsub,Lengthsub}]} = re:run(string:substr(Body,Start+Length+3),"span"),
-    Percent = string:concat("+",findWord(string:substr(Body,Start+Length+Startsub+Lengthsub+4,1),Body,Start+Length+Startsub+Lengthsub+4,1)),
-   
+case re:run(Body,"trending_up up") of
+	nomatch -> {_,[{Start,Length}]} = re:run(Body,"trending_down down"),
+	Change = string:concat("-",string:strip(findWord(string:substr(Body,Start+Length+3,1),Body,Start+Length+3,1))),
+	{_,[{Startsub,Lengthsub}]} = re:run(string:substr(Body,Start+Length+3),"span"),
+	Percent = string:concat("-",findWord(string:substr(Body,Start+Length+Startsub+Lengthsub+4,1),Body,Start+Length+Startsub+Lengthsub+4,1));
+	_ -> {_,[{Start,Length}]} = re:run(Body,"trending_up up"),
+	Change = string:concat("+",string:strip(findWord(string:substr(Body,Start+Length+3,1),Body,Start+Length+3,1))),
+	{_,[{Startsub,Lengthsub}]} = re:run(string:substr(Body,Start+Length+3),"span"),
+	Percent = string:concat("+",findWord(string:substr(Body,Start+Length+Startsub+Lengthsub+4,1),Body,Start+Length+Startsub+Lengthsub+4,1))
+end,
 
 
-    {_,[{Start2,Length2}]} = re:run(Body," price"),
-    Latest = string:strip(findWord(string:substr(Body,Start2+Length2+5,1),Body,Start2+Length2+5,1)),
+{_,[{Start2,Length2}]} = re:run(Body," price"),
+Latest = string:strip(findWord(string:substr(Body,Start2+Length2+5,1),Body,Start2+Length2+5,1)),
 
-     {_,[{Start3,Length3}]} = re:run(Body,"Open:"),
-    Open = findWord(string:substr(Body,Start3+Length3+21,1),Body,Start3+Length3+21,1),
+{_,[{Start3,Length3}]} = re:run(Body,"Open:"),
+Open = findWord(string:substr(Body,Start3+Length3+21,1),Body,Start3+Length3+21,1),
 
-     {_,[{Start4,Length4}]} = re:run(Body,"Day Range:"),
-    [Low,High] = re:split(findWord(string:substr(Body,Start4+Length4+21,1),Body,Start4+Length4+21,1)," - ",[{return,list}]),
+{_,[{Start4,Length4}]} = re:run(Body,"Day Range:"),
+[Low,High] = re:split(findWord(string:substr(Body,Start4+Length4+21,1),Body,Start4+Length4+21,1)," - ",[{return,list}]),
 
- {_,[{Start5,Length5}]} = re:run(Body,"Previous Close:"),
-    Close = findWord(string:substr(Body,Start5+Length5+21,1),Body,Start5+Length5+21,1),
+{_,[{Start5,Length5}]} = re:run(Body,"Previous Close:"),
+Close = findWord(string:substr(Body,Start5+Length5+21,1),Body,Start5+Length5+21,1),
 
-     sendData({market,[{latest,currencyWrapper(re:replace(Latest,",","",[{return, list}]))},{change,currencyWrapper(re:replace(Change,",","",[{return, list}]))},{percent,Percent},{highest,currencyWrapper(re:replace(High,",","",[{return, list}]))},{lowest,currencyWrapper(re:replace(Low,",","",[{return, list}]))},{closingVal,currencyWrapper(re:replace(Close,",","",[{return, list}]))},{openVal,currencyWrapper(re:replace(Open,",","",[{return, list}]))},{updated,?TIMESTAMP},{market,"NYSE"},{type,"market"}]}).
+sendData({market,[{latest,currencyWrapper(re:replace(Latest,",","",[{return, list}]))},
+	{change,currencyWrapper(re:replace(Change,",","",[{return, list}]))},{percent,Percent},
+	{highest,currencyWrapper(re:replace(High,",","",[{return, list}]))},
+	{lowest,currencyWrapper(re:replace(Low,",","",[{return, list}]))},
+	{closingVal,currencyWrapper(re:replace(Close,",","",[{return, list}]))},
+	{openVal,currencyWrapper(re:replace(Open,",","",[{return, list}]))},
+	{updated,?TIMESTAMP},{market,"NYSE"},{type,"market"}]}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -98,19 +109,19 @@ extract() ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 findData(SubList,List,N,M,Datalist) ->
-	case SubList of
-			("<") -> Test = string:substr(List,N,M+4), case Test of
-				("</tr>") -> Datalist;
-				_->findData(string:substr(List,N+1,M),List,N+1,M,Datalist)
-			end;
-			(">") -> Test = string:substr(List,N,M+1), case Test of
-				("><") -> findData(string:substr(List,N+1,M),List,N+1,M,Datalist);
-				_-> Dlist = lists:append(Datalist,
-					[findWord(string:substr(List,N+1,M),List,N+1,M)]), 
-				findData(string:substr(List,N+1,M),List,N+1,M,Dlist)
-			end;
-			_ ->findData(string:substr(List,N+1,M),List,N+1,M,Datalist)
-	end.
+case SubList of
+	("<") -> Test = string:substr(List,N,M+4), case Test of
+		("</tr>") -> Datalist;
+		_->findData(string:substr(List,N+1,M),List,N+1,M,Datalist)
+	end;
+	(">") -> Test = string:substr(List,N,M+1), case Test of
+		("><") -> findData(string:substr(List,N+1,M),List,N+1,M,Datalist);
+		_-> Dlist = lists:append(Datalist,
+			[findWord(string:substr(List,N+1,M),List,N+1,M)]), 
+		findData(string:substr(List,N+1,M),List,N+1,M,Dlist)
+	end;
+	_ ->findData(string:substr(List,N+1,M),List,N+1,M,Datalist)
+end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -141,12 +152,16 @@ State,
 {updated,?TIMESTAMP},{openVal,openingValCal(Price,Change)},{type,"stock"}]}.
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Transforms a float with + or - in front of it to Euro.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 changeConv(Change) -> 
-case string:substr(Change,1) of
-	("+") -> string:concat("+", currencyWrapper(string:substr(Change,2)));
-	("-") -> string:concat("-", currencyWrapper(string:substr(Change,2)));
-	_ -> currencyWrapper(Change)
+case string:substr(Change,1,1) of
+	("+") ->string:concat("+", currencyWrapper(string:substr(Change,2)));
+	("-") ->string:concat("-", currencyWrapper(string:substr(Change,2)));
+	_ -> Change
 end.
 
 
@@ -194,5 +209,5 @@ end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec sendData([{atom(), any()}, ...]) -> ok.
 sendData(SingleStockList) -> 
-	% io:format("~p~n",[SingleStockList]).
+% io:format("~p~n",[SingleStockList]).
 	?LOAD ! SingleStockList.
