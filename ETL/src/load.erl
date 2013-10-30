@@ -100,10 +100,8 @@ loop() ->
 		{market , List} ->
 			sendData(market, List),
 			loop();
-		List ->
-			io:format("~p~n load ~n", [List]),
-        	%sendData(news, List),
-        	loop()
+		{news, List} ->
+			sendData(news, List)
 
     end,
     loop().
