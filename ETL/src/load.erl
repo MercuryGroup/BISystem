@@ -101,7 +101,8 @@ loop() ->
 			sendData(market, List),
 			loop();
 		{news, List} ->
-			sendData(news, List)
+			sendData(news, List),
+			loop()
 
     end,
     loop().
