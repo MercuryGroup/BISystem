@@ -7,13 +7,13 @@ start() ->
 	if Pid == undefined ->
 		register(currency, spawn(currency, init, [])),
 		{ok, whereis(currency)};
-		true -> {ok, already_running}
+		true -> {ok, Pid}
 	end.
 
 init() ->
-	inets:start(),
 	timer:apply_interval(86400000, currency, update_rates, []),
-	loop(get_rates()).
+	loop(get_rates()),
+	reply(self(), ok).
 
 
 call(Msg) ->
@@ -59,15 +59,13 @@ loop(Db) ->
 			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * Pounds)]))),
 			loop(Db);
 		{request, Pid, {Val, "EUR"}} ->
-			%reply(Pid, derp),
 			reply(Pid, lists:nth(1, io_lib:format("~.2f", [element(1, string:to_float(Val))]))),
 			loop(Db);
 		{request, Pid, update} ->
 			reply(Pid, ok),
 			loop(get_rates()); 
 		{request, Pid, stop} ->
-			inets:stop(),
-			reply(Pid, stopped);
+			reply(Pid, stopping);
 		{request, Pid, _} ->
 			reply(Pid, error),
 			loop(Db)
