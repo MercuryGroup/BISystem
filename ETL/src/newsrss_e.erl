@@ -70,8 +70,7 @@ stop() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(getData({string(), [tuple(), ...]}) -> ok). % TODO Define correct type specifications.
 getData(Options) ->
-	newsrss_e ! {self(), startGet, Options},
-	getReply().
+	newsrss_e ! {self(), startGet, Options}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -81,7 +80,9 @@ getData(Options) ->
 %-spec(sendData(pid(), term()) -> ok).
 -spec(sendData(term()) -> ok).
 %sendData(Pid, Data) ->
+%	Pid ! Data.
 sendData(Data) ->
+	%io:format("~p~n", [Data]).
 	?LOAD ! Data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -203,8 +204,7 @@ retrieveResult([Process | Rest]) ->
 % 	sendData(Pid, H),
 % 	prepareToSend(Pid, T).
 prepareToSend([Last | []]) ->
-	sendData(Last),
-	ok;
+	sendData(Last);
 prepareToSend([H | T]) ->
 	sendData(H),
 	prepareToSend(T).
