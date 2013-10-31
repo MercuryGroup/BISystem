@@ -8,7 +8,7 @@
 %%% Created 11 October 2013 (Friday),10:02 by Magnus Hernegren
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(nyse_e).
--export([start/0,changeConv/1]).
+-export([start/0]).
 -include ("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,7 +22,7 @@ start() -> init().
 
 -spec init() -> any().
 init() ->   inets:start(), spawn(fun()-> extract() end),
-[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,1)].
+[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)].
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
