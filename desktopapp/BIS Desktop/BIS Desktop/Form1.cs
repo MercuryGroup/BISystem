@@ -17,9 +17,18 @@ namespace BIS_Desktop
             InitializeComponent();
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
+        private void menu_Paint(object sender, PaintEventArgs e)
         {
 
         }
+        
+            
     }
+    public class Temp : Panel
+        {
+            public Temp()
+            {
+                
+            }
+        }
 }
