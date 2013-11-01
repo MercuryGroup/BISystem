@@ -13,7 +13,7 @@ namespace BIS_Desktop
     public partial class MainWindow : Form
     {
         private Boolean marketClicked, stocksClicked, newsClicked, portfolioClicked;
-        Class1 leftPanelValue;
+        ResultList leftPanelValue;
         public MainWindow()
         {
             //Set all button values
@@ -54,19 +54,22 @@ namespace BIS_Desktop
             {
                     //Market
                 case "market":
+                    leftPanelValue = new ResultList("market");
                     marketButton.BackColor = buttonColor;
                     break;
                     //Stocks
                 case "stocks":
+                    leftPanelValue = new ResultList("stocks");
                     stocksButton.BackColor = buttonColor;
                     break;
                     //News
                 case "news":
-                    leftPanelValue = new Class1();
+                    leftPanelValue = new ResultList("news");
                     newsButton.BackColor = buttonColor;
                     break;
                     //Portfolio
                 case "portfolio":
+                    leftPanelValue = new ResultList("portfolio");
                     portfolioButton.BackColor = buttonColor;
                     break;
                 default:
@@ -74,7 +77,7 @@ namespace BIS_Desktop
             }
             //Add 
             leftPanel.Controls.Add(leftPanelValue);
-            leftPanelValue.Size = leftPanel.Size;
+            leftPanelValue.setSize(leftPanel.Width, leftPanel.Height);
             
         }
         private void resetMenuButtons()
