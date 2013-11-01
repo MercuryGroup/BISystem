@@ -18,6 +18,8 @@ namespace BIS_Desktop
         {
             marketClicked = false;
             stocksClicked = false;
+
+            //TEMP
             leftPanelValue = new Class1();
             InitializeComponent();
         }
@@ -33,16 +35,13 @@ namespace BIS_Desktop
             {
                 resetMenuButtons();
                 buttonColor = Color.CornflowerBlue;
-                leftPanel.Controls.Add(leftPanelValue);
-                leftPanelValue.Size = leftPanel.Size;
-                //Temp
-
             }
             if(leftPanel.Contains(leftPanelValue))
             {
                 leftPanel.Controls.Remove(leftPanelValue);
             }
             leftPanel.Controls.Add(leftPanelValue);
+            leftPanelValue.Size = leftPanel.Size;
             switch (button)
             {
                 case "market":
