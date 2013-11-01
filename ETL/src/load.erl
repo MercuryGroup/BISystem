@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% File: loadnyse.erl
 %%% @author Rickard Bremer
 %%% @doc
@@ -94,15 +94,19 @@ listToBin([{Key, Val}|T]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop() ->
 	receive 
+		
 		{stock , List} ->
 			sendData(stock, List),
 			loop();
+		
 		{market , List} ->
 			sendData(market, List),
 			loop();
+		
 		{news, List} ->
 			sendData(news, List),
-			loop()
+			loop();
+		
+		{action, reload} -> load:loop()
 
-    end,
-    loop().
+    end.
