@@ -38,8 +38,11 @@ init() ->
 	%spawn the scheduler
 	{ok, S_PID} = scheduler:start(),
 	link(S_PID),
+	%spawn the currency converter
+	{ok, C_PID} = currency:start(),
+	link(C_PID),
 
-	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}],
+	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, currency}],
 	loop(List).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
