@@ -10,17 +10,18 @@ using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
-        private Boolean marketClicked, stocksClicked;
+        private Boolean marketClicked, stocksClicked, newsClicked, portfolioClicked;
         Class1 leftPanelValue;
-        public Form1()
+        public MainWindow()
         {
+            //Set all button values
             marketClicked = false;
             stocksClicked = false;
-
-            //TEMP
-            leftPanelValue = new Class1();
+            newsClicked = false;
+            portfolioClicked = false;
+            
             InitializeComponent();
         }
 
@@ -28,42 +29,64 @@ namespace BIS_Desktop
         {
 
         }
+        /*
+         * Function that triggers whenever a button is clicked
+         */
         private void menuClick(String button, Boolean toggled)
         {
-            Color buttonColor = Color.LightGray;
+            //Color used for button that has been clicked
+            Color buttonColor = Color.CornflowerBlue;
+            /*
+             * If the button clicked wasn't earlier,
+             * set all other buttons to unclicked.
+             */
             if (!toggled)
             {
                 resetMenuButtons();
-                buttonColor = Color.CornflowerBlue;
             }
+            //Remove earlier content in left and right panel
             if(leftPanel.Contains(leftPanelValue))
             {
                 leftPanel.Controls.Remove(leftPanelValue);
             }
-            leftPanel.Controls.Add(leftPanelValue);
-            leftPanelValue.Size = leftPanel.Size;
+            //Check which button that was clicked
             switch (button)
             {
+                    //Market
                 case "market":
                     marketButton.BackColor = buttonColor;
                     break;
+                    //Stocks
                 case "stocks":
                     stocksButton.BackColor = buttonColor;
                     break;
+                    //News
                 case "news":
+                    leftPanelValue = new Class1();
+                    newsButton.BackColor = buttonColor;
                     break;
+                    //Portfolio
                 case "portfolio":
+                    portfolioButton.BackColor = buttonColor;
                     break;
                 default:
                     break;
             }
+            //Add 
+            leftPanel.Controls.Add(leftPanelValue);
+            leftPanelValue.Size = leftPanel.Size;
+            
         }
         private void resetMenuButtons()
         {
             marketClicked = false;
             stocksClicked = false;
+            newsClicked = false;
+            portfolioClicked = false;
             marketButton.BackColor = Color.LightGray;
+            newsButton.BackColor = Color.LightGray;
             stocksButton.BackColor = Color.LightGray;
+            portfolioButton.BackColor = Color.LightGray;
         }
 
         private void stocksButton_Click(object sender, EventArgs e)
@@ -82,6 +105,24 @@ namespace BIS_Desktop
             {
                 menuClick("market", marketClicked);
                 marketClicked = true;
+            }
+        }
+
+        private void newsButton_Click(object sender, EventArgs e)
+        {
+            if (!newsClicked)
+            {
+                menuClick("news", newsClicked);
+                newsClicked = true;
+            }
+        }
+
+        private void portfolioButton_Click(object sender, EventArgs e)
+        {
+            if (!portfolioClicked)
+            {
+                menuClick("portfolio", portfolioClicked);
+                portfolioClicked = true;
             }
         }
     }

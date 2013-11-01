@@ -1,6 +1,6 @@
 ﻿namespace BIS_Desktop
 {
-    partial class Form1
+    partial class MainWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -29,17 +29,21 @@
         private void InitializeComponent()
         {
             this.menu = new System.Windows.Forms.Panel();
+            this.portfolioButton = new System.Windows.Forms.Button();
+            this.newsButton = new System.Windows.Forms.Button();
+            this.stocksButton = new System.Windows.Forms.Button();
             this.marketButton = new System.Windows.Forms.Button();
             this.settings = new System.Windows.Forms.Panel();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.rightPanel = new System.Windows.Forms.Panel();
-            this.stocksButton = new System.Windows.Forms.Button();
             this.menu.SuspendLayout();
             this.SuspendLayout();
             // 
             // menu
             // 
             this.menu.BackColor = System.Drawing.Color.White;
+            this.menu.Controls.Add(this.portfolioButton);
+            this.menu.Controls.Add(this.newsButton);
             this.menu.Controls.Add(this.stocksButton);
             this.menu.Controls.Add(this.marketButton);
             this.menu.Location = new System.Drawing.Point(4, 35);
@@ -48,11 +52,47 @@
             this.menu.TabIndex = 0;
             this.menu.Paint += new System.Windows.Forms.PaintEventHandler(this.menu_Paint);
             // 
+            // portfolioButton
+            // 
+            this.portfolioButton.BackColor = System.Drawing.Color.LightGray;
+            this.portfolioButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.portfolioButton.Location = new System.Drawing.Point(-1, 343);
+            this.portfolioButton.Name = "portfolioButton";
+            this.portfolioButton.Size = new System.Drawing.Size(154, 82);
+            this.portfolioButton.TabIndex = 0;
+            this.portfolioButton.Text = "Portfolio";
+            this.portfolioButton.UseVisualStyleBackColor = false;
+            this.portfolioButton.Click += new System.EventHandler(this.portfolioButton_Click);
+            // 
+            // newsButton
+            // 
+            this.newsButton.BackColor = System.Drawing.Color.LightGray;
+            this.newsButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.newsButton.Location = new System.Drawing.Point(-1, 262);
+            this.newsButton.Name = "newsButton";
+            this.newsButton.Size = new System.Drawing.Size(154, 82);
+            this.newsButton.TabIndex = 0;
+            this.newsButton.Text = "News";
+            this.newsButton.UseVisualStyleBackColor = false;
+            this.newsButton.Click += new System.EventHandler(this.newsButton_Click);
+            // 
+            // stocksButton
+            // 
+            this.stocksButton.BackColor = System.Drawing.Color.LightGray;
+            this.stocksButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.stocksButton.Location = new System.Drawing.Point(-1, 181);
+            this.stocksButton.Name = "stocksButton";
+            this.stocksButton.Size = new System.Drawing.Size(154, 82);
+            this.stocksButton.TabIndex = 0;
+            this.stocksButton.Text = "Stocks";
+            this.stocksButton.UseVisualStyleBackColor = false;
+            this.stocksButton.Click += new System.EventHandler(this.stocksButton_Click);
+            // 
             // marketButton
             // 
             this.marketButton.BackColor = System.Drawing.Color.LightGray;
             this.marketButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.marketButton.Location = new System.Drawing.Point(0, 100);
+            this.marketButton.Location = new System.Drawing.Point(-1, 100);
             this.marketButton.Name = "marketButton";
             this.marketButton.Size = new System.Drawing.Size(154, 82);
             this.marketButton.TabIndex = 0;
@@ -85,18 +125,6 @@
             this.rightPanel.Size = new System.Drawing.Size(511, 634);
             this.rightPanel.TabIndex = 3;
             // 
-            // stocksButton
-            // 
-            this.stocksButton.BackColor = System.Drawing.Color.LightGray;
-            this.stocksButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.stocksButton.Location = new System.Drawing.Point(0, 182);
-            this.stocksButton.Name = "stocksButton";
-            this.stocksButton.Size = new System.Drawing.Size(154, 82);
-            this.stocksButton.TabIndex = 0;
-            this.stocksButton.Text = "Stocks";
-            this.stocksButton.UseVisualStyleBackColor = false;
-            this.stocksButton.Click += new System.EventHandler(this.stocksButton_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -123,6 +151,8 @@
         private System.Windows.Forms.Panel rightPanel;
         private System.Windows.Forms.Button marketButton;
         private System.Windows.Forms.Button stocksButton;
+        private System.Windows.Forms.Button newsButton;
+        private System.Windows.Forms.Button portfolioButton;
     }
 }
 
