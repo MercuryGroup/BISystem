@@ -10,10 +10,12 @@ using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
-    public class Class1 : Panel
+    public class ResultList : Panel
     {
     
-        public Class1(){
+        public ResultList(String Source){
+
+            // List = JsonHandler(Source) 
 
 
             List<String> Listoftexts = new List<string>();
@@ -25,7 +27,9 @@ namespace BIS_Desktop
             Listoftexts.Add("LAW.DEB.CORP");
             Listoftexts.Add("LAVENDON GROUP");
             Listoftexts.Add("LAND SECS");
-            
+
+            this.AutoScroll = true;
+           
 
             for (int i = 0; i < Listoftexts.Count; i++)
             {
@@ -63,6 +67,13 @@ namespace BIS_Desktop
         {
 
         }
+
+        public void setSize(int Width, int Height)
+        {
+            this.Width = Width;
+            this.Height = Height;
+        }
+
        
     }
 }
