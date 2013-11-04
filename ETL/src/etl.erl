@@ -125,6 +125,12 @@ loop(List) ->
 					NewList = replace(FromPid, Pid, List),
 					loop(NewList);
 
+				?CURRENCY ->
+					{ok, Pid} = currency:start(),
+					link(Pid),
+					NewList = replace(FromPid, Pid, List),
+					loop(NewList);
+
 				undefined ->
 					ok
 			end
