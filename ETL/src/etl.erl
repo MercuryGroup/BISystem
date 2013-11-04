@@ -94,6 +94,10 @@ loop(List) ->
 			?CURRENCY ! {action, reload},
 			etl:loop(List);
 
+		{action, 'force extract'} ->
+			Config = scheduler:get_config(),
+			forceExtract(Config);
+
 		{'EXIT', FromPid, _Reason} ->
 			%log?
 			%check who FromPid is and restart
@@ -144,3 +148,16 @@ replace(OldPid, NewPid, [{OldPid, Name} | Tail]) ->
 
 replace(OldPid, NewPid, [Head | Tail]) ->
 	[Head | replace(OldPid, NewPid, Tail)].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% forceExtract/1 - Starts every fun in a config from the scheduler
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(forceExtract(list()) -> ok).
+forceExtract([]) ->
+	ok;
+
+forceExtract([{_, Fun, _, _} | Tail]) ->
+	Fun() ->
+	forceExtract(Tail).
