@@ -106,7 +106,8 @@ loop(List) ->
 
 		{action, 'force extract'} ->
 			{ok, Config} = scheduler:get_config(),
-			forceExtract(Config);
+			forceExtract(Config),
+			loop(List);
 
 		{'EXIT', FromPid, _Reason} ->
 			%log?
