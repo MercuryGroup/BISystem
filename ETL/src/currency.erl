@@ -2,22 +2,26 @@
 -export([start/0, init/0, call/1, stop/0, loop/1, analyze_info/1, get_rates/0, convert/2, update_rates/0]).
 -include_lib("xmerl/include/xmerl.hrl").
 
+-include("../include/ETL.hrl").
+
+
+
 start() ->
-	Pid = whereis(currency),
+	Pid = whereis(?CURRENCY),
 	if Pid == undefined ->
-		register(currency, spawn(currency, init, [])),
-		{ok, whereis(currency)};
+		register(?CURRENCY, spawn(?CURRENCY, init, [])),
+		{ok, whereis(?CURRENCY)};
 		true -> {ok, Pid}
 	end.
 
 init() ->
-	timer:apply_interval(86400000, currency, update_rates, []),
+	timer:apply_interval(86400000, ?CURRENCY, update_rates, []),
 	loop(get_rates()),
 	reply(self(), ok).
 
 
 call(Msg) ->
-	currency ! {request, self(), Msg},
+	?CURRENCY ! {request, self(), Msg},
 		receive 
 			{reply, Reply} ->
 				Reply
@@ -68,7 +72,9 @@ loop(Db) ->
 			reply(Pid, stopping);
 		{request, Pid, _} ->
 			reply(Pid, error),
-			loop(Db)
+			loop(Db);
+		{action, reload} ->
+			currency:loop(Db)
 	end.
 
 
