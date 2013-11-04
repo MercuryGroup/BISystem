@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(etl).
--export([start/0, stop/0, reload/0, loop/1]).
+-export([start/0, stop/0, reload/0, loop/1, force/0]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,6 +73,16 @@ reload() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
+%%% force/0 - Forces the functions inside the scheduler config to extecute.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(force() -> ok).
+force() ->
+	?ETL ! {action, 'force extract'},
+	ok.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
 %%% loop/1 - 	Loops the ETL. The argument is a list of tuples with two elements
 %%%				where the first is a pid and the second is the name of that pid.
 %%% @end
@@ -94,6 +104,11 @@ loop(List) ->
 			?CURRENCY ! {action, reload},
 			etl:loop(List);
 
+		{action, 'force extract'} ->
+			{ok, Config} = scheduler:get_config(),
+			forceExtract(Config),
+			loop(List);
+
 		{'EXIT', FromPid, _Reason} ->
 			%log?
 			%check who FromPid is and restart
@@ -106,6 +121,12 @@ loop(List) ->
 
 				?SCHEDULER ->
 					{ok, Pid} = scheduler:start(),
+					link(Pid),
+					NewList = replace(FromPid, Pid, List),
+					loop(NewList);
+
+				?CURRENCY ->
+					{ok, Pid} = currency:start(),
 					link(Pid),
 					NewList = replace(FromPid, Pid, List),
 					loop(NewList);
@@ -144,3 +165,16 @@ replace(OldPid, NewPid, [{OldPid, Name} | Tail]) ->
 
 replace(OldPid, NewPid, [Head | Tail]) ->
 	[Head | replace(OldPid, NewPid, Tail)].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% forceExtract/1 - Starts every fun in a config from the scheduler
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(forceExtract(list()) -> ok).
+forceExtract([]) ->
+	ok;
+
+forceExtract([{_, Fun, _, _} | Tail]) ->
+	Fun(),
+	forceExtract(Tail).

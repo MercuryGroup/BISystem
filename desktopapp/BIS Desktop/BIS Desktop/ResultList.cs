@@ -10,15 +10,16 @@ using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
-    public class ResultList : Panel
+    public class ResultList : FlowLayoutPanel
     {
-    
+        private Button[] btns; // Array of buttons
+
         public ResultList(String Source){
 
             // List = JsonHandler(Source) 
+          
 
-
-            List<String> Listoftexts = new List<string>();
+            List<String> Listoftexts = new List<String>();
 
             Listoftexts.Add("LON.STK.EXCH");
             Listoftexts.Add("LMS CAPITAL");
@@ -28,52 +29,63 @@ namespace BIS_Desktop
             Listoftexts.Add("LAVENDON GROUP");
             Listoftexts.Add("LAND SECS");
 
-            this.AutoScroll = true;
-           
-
-            for (int i = 0; i < Listoftexts.Count; i++)
+ 
+            btns = new Button[Listoftexts.Count];
+            for(int i = 0; i < Listoftexts.Count; i++)
             {
+                btns[i] = new Button();
+                btns[i].Text = Listoftexts[i];
+                btns[i].AutoSize = false;
+                btns[i].Width = this.Width;
+                btns[i].TabStop = false;
+                btns[i].FlatStyle = FlatStyle.Flat;
+                btns[i].FlatAppearance.BorderSize = 0;
+                btns[i].Margin = new Padding(0);
 
-                Button fieldButton = new Button();
-                fieldButton.Location = new Point(160, (40 + ((i - 2) * 20)));
-                fieldButton.Tag = 2;
-                fieldButton.Text = Listoftexts[i];
-                fieldButton.AutoSize = false;
-                fieldButton.FlatStyle = FlatStyle.Flat;
-                this.Controls.Add(fieldButton);
-         
+                // add event handler
+                btns[i].Click += new EventHandler(this.button_Click);
+
+
                 if (i % 2 == 1)
                 {
-                    fieldButton.BackColor = Color.LightBlue;
+                    btns[i].BackColor = Color.SkyBlue;
                 }
                 else
                 {
-                    fieldButton.BackColor = Color.White;
+                    btns[i].BackColor = Color.WhiteSmoke;
                 }
 
+               
+                this.Controls.Add(btns[i]);
+                this.AutoScroll = true;
+                this.HorizontalScroll.Enabled = false;
+                this.HorizontalScroll.Visible = false;
+                this.AutoScrollPosition = new Point(this.VerticalScroll.Maximum);
+
             }
-
-
+            
         }
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            this.ResumeLayout(false);
+       private void button_Click(object sender, System.EventArgs e)
+       {
+           Button b = sender as Button;
+           String text = b.Text;
+           Console.WriteLine(text);
+       }
 
-        }
+       public void setSize(int W, int H)
+       {
+           this.Height = H;
+           this.Width = W;
+           updateButton();
+       }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        public void setSize(int Width, int Height)
-        {
-            this.Width = Width;
-            this.Height = Height;
-        }
-
-       
+       private void updateButton()
+       {
+           foreach(Button b in btns)
+           {
+               b.Width = this.Width; 
+           }
+       }
     }
 }
