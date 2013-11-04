@@ -73,6 +73,16 @@ reload() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
+%%% force/0 - Forces the functions inside the scheduler config to extecute.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(force() -> ok).
+force() ->
+	?ETL ! {action, 'force extract'},
+	ok.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
 %%% loop/1 - 	Loops the ETL. The argument is a list of tuples with two elements
 %%%				where the first is a pid and the second is the name of that pid.
 %%% @end
