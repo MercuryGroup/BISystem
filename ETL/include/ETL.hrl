@@ -19,7 +19,7 @@
 -define(CURRENCY, currency).							% Name of the Currency Converter			
 -define(TO_CURRENCY, "eur").							% Currency we want to use as standard.
 -define(TIMESTAMP, integer_to_list(milliseconds())).	% Milliseconds since the epoch (1970-01-01 00:00:00)
--define(DATABASE, "testdb").							% Name of the database
+-define(DATABASE, "mercury").							% Name of the database
 -define(ETL, etl).										% Name of the ETL-controller
 -define(SCHEDULER, schedule).							% Name of the scheduler
 -define(UPDATE_INTERVAL, 60000).						% Update interval for the scheduler, time is in milliseconds

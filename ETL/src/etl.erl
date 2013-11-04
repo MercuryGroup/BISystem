@@ -32,6 +32,7 @@ start() ->
 -spec(init() -> any()).
 init() ->
 	process_flag(trap_exit, true),
+	inets:start(),
 	%spawn the load
 	{ok, PID} = load:start(),
 	link(PID),
@@ -42,7 +43,7 @@ init() ->
 	{ok, C_PID} = currency:start(),
 	link(C_PID),
 
-	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, currency}],
+	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, ?CURRENCY}],
 	loop(List).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,6 +77,7 @@ reload() ->
 %%%				where the first is a pid and the second is the name of that pid.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(loop(list()) -> any()).
 loop(List) ->
 	receive
 		{start, Fun} ->
@@ -88,6 +90,8 @@ loop(List) ->
 			ok;
 
 		{action, reload} ->
+			?LOAD ! {action, reload},
+			?CURRENCY ! {action, reload},
 			etl:loop(List);
 
 		{'EXIT', FromPid, _Reason} ->
@@ -116,6 +120,7 @@ loop(List) ->
 %%% whois/2 - Looks after the pid in the list of tuples
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(whois(pid(), list()) -> undefined | atom()).
 whois(_, []) ->
 	undefined;
 
@@ -130,6 +135,7 @@ whois(Pid, [_ | Tail]) ->
 %%% replace/3 - replaces the old pid with the new pid in the list.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(replace(OldPid :: pid(), NewPid :: pid(), list()) -> list()).
 replace(_, _, []) ->
 	[];
 
