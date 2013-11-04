@@ -32,6 +32,7 @@ start() ->
 -spec(init() -> any()).
 init() ->
 	process_flag(trap_exit, true),
+	inets:start(),
 	%spawn the load
 	{ok, PID} = load:start(),
 	link(PID),
@@ -42,7 +43,7 @@ init() ->
 	{ok, C_PID} = currency:start(),
 	link(C_PID),
 
-	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, currency}],
+	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, ?CURRENCY}],
 	loop(List).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,6 +77,7 @@ reload() ->
 %%%				where the first is a pid and the second is the name of that pid.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(loop(list()) -> any()).
 loop(List) ->
 	receive
 		{start, Fun} ->
@@ -88,7 +90,13 @@ loop(List) ->
 			ok;
 
 		{action, reload} ->
+			?LOAD ! {action, reload},
+			?CURRENCY ! {action, reload},
 			etl:loop(List);
+
+		{action, 'force extract'} ->
+			Config = scheduler:get_config(),
+			forceExtract(Config);
 
 		{'EXIT', FromPid, _Reason} ->
 			%log?
@@ -116,6 +124,7 @@ loop(List) ->
 %%% whois/2 - Looks after the pid in the list of tuples
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(whois(pid(), list()) -> undefined | atom()).
 whois(_, []) ->
 	undefined;
 
@@ -130,6 +139,7 @@ whois(Pid, [_ | Tail]) ->
 %%% replace/3 - replaces the old pid with the new pid in the list.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(replace(OldPid :: pid(), NewPid :: pid(), list()) -> list()).
 replace(_, _, []) ->
 	[];
 
@@ -138,3 +148,16 @@ replace(OldPid, NewPid, [{OldPid, Name} | Tail]) ->
 
 replace(OldPid, NewPid, [Head | Tail]) ->
 	[Head | replace(OldPid, NewPid, Tail)].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% forceExtract/1 - Starts every fun in a config from the scheduler
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(forceExtract(list()) -> ok).
+forceExtract([]) ->
+	ok;
+
+forceExtract([{_, Fun, _, _} | Tail]) ->
+	Fun(),
+	forceExtract(Tail).
