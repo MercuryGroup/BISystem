@@ -159,5 +159,5 @@ forceExtract([]) ->
 	ok;
 
 forceExtract([{_, Fun, _, _} | Tail]) ->
-	Fun() ->
+	Fun(),
 	forceExtract(Tail).
