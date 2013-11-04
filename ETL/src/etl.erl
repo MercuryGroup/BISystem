@@ -95,7 +95,7 @@ loop(List) ->
 			etl:loop(List);
 
 		{action, 'force extract'} ->
-			Config = scheduler:get_config(),
+			{ok, Config} = scheduler:get_config(),
 			forceExtract(Config);
 
 		{'EXIT', FromPid, _Reason} ->
