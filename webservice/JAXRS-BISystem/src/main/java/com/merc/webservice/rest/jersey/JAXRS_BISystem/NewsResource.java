@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("/news")
 @Produces(MediaType.APPLICATION_JSON)
-public class News {
+public class NewsResource {
     /**
      * Returns the available news for "symbol".
      *

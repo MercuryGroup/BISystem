@@ -1,7 +1,7 @@
 package com.merc.webservice.rest.jersey.JAXRS_BISystem;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,31 +10,31 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
- * Root resource (exposed at "stocks" path)
+ * Root resource (exposed at "markets" path)
  */
-@Path("/stocks")
+@Path("/markets")
 @Produces(MediaType.APPLICATION_JSON)
-public class Stocks {
+public class MarketsResource {
 	/**
-     * Returns the available stock symbols.
+     * Returns the available market symbols.
      *
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("symbols")
     public String getAvailableStockSymbols() {
-        return "{\"StockSymbols\": \"Got it!\"}";
+        return "{\"MarketSymbols\": \"Got it!\"}";
     }
-    
+
 	/**
-     * Returns the available stock data for "symbol".
+     * Returns the available market data for "symbol".
      *
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("{symbol}")
-    public String getAvailableStockData(@PathParam("symbol") String symbol) {
+    public String getAvailableMarketData(@PathParam("symbol") String symbol) {
     	List<String> symbols = Arrays.asList(symbol.split(","));
-        return "{\"StockData\":" + symbols.toString() + "}";
+        return "{\"MarketData\":" + symbols.toString() + "}";
     }
 }
