@@ -24,9 +24,6 @@ namespace BIS_Desktop
         private Boolean marketClicked, 
             stocksClicked, newsClicked, 
             portfolioClicked, maximized;
-        private int minimizeButtonX, 
-            maximizeButtonX, closeButtonX,
-            labelButtonWidth, labelButtonMargin;
         ResultList leftPanelContent;
         public MainWindow()
         {
@@ -36,14 +33,27 @@ namespace BIS_Desktop
             newsClicked = false;
             portfolioClicked = false;
             maximized = false;
-
-            labelButtonWidth = 20;
-            labelButtonMargin = 6;
-
             InitializeComponent();
+
+            refreshContentPanes();
             dragPanel.MouseDown += new MouseEventHandler(dragPanel_MouseDown);
             dragPanel.MouseMove += new MouseEventHandler(dragPanel_MouseMove);
             dragPanel.MouseUp += new MouseEventHandler(dragPanel_MouseUp);
+            this.SizeChanged += MainWindow_SizeChanged;
+        }
+
+        private void MainWindow_SizeChanged(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Maximized)
+            {
+                //Change color of maximize button
+                maximizeLabel.ForeColor = Color.Firebrick;
+                //set drag panel width
+                dragPanel.Width = MainWindow.ActiveForm.Width;
+                //Set maximized boolean to true
+                maximized = true;
+                refreshContentPanes();
+            }
         }
 
         private void menu_Paint(object sender, PaintEventArgs e)
@@ -170,11 +180,6 @@ namespace BIS_Desktop
                 Location = new Point(p.X - this.startPoint.X, p.Y - this.startPoint.Y);
             }
         }
-
-        private void maximizeLabel_Click(object sender, EventArgs e)
-        {
-            toggleMaximize();
-        }
         private void closeLabel_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -186,9 +191,6 @@ namespace BIS_Desktop
         {
             if (!maximized)
             {
-                minimizeButtonX = minimizeLabel.Location.X;
-                maximizeButtonX = maximizeLabel.Location.X;
-                closeButtonX = closeLabel.Location.X;
                 //Set window state to full screen
                 WindowState = FormWindowState.Maximized;
                 //Change color of maximize button
@@ -197,10 +199,6 @@ namespace BIS_Desktop
                 dragPanel.Width = MainWindow.ActiveForm.Width;
                 //Set maximized boolean to true
                 maximized = true;
-                //Change location of close button
-                closeLabel.Location = new Point(MainWindow.ActiveForm.Width - (labelButtonWidth + labelButtonMargin), closeLabel.Location.Y);
-                maximizeLabel.Location = new Point(closeLabel.Location.X - (labelButtonWidth + labelButtonMargin*2), maximizeLabel.Location.Y);
-                minimizeLabel.Location = new Point(maximizeLabel.Location.X - (labelButtonWidth + labelButtonMargin), minimizeLabel.Location.Y);
             }
             //Window is already maximized
             else
@@ -208,17 +206,46 @@ namespace BIS_Desktop
                 //Change state to window
                 WindowState = FormWindowState.Normal;
                 //Change color of maximize button
-                maximizeLabel.ForeColor = Color.Silver;
+                maximizeLabel.ForeColor = Color.DarkGray;
                 //Set maximized boolean to false
                 maximized = false;
             }
-            //get close box current position
-            
-            
-            //set close box position
-
+            refreshContentPanes();
+        }
+        private void maximizeLabel_Click(object sender, EventArgs e)
+        {
+            toggleMaximize();
         }
 
+        private void minimizeLabel_Click(object sender, EventArgs e)
+        {
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private void controlLabel_MouseEnter(object sender, EventArgs e)
+        {
+            Label label = sender as Label;
+            label.ForeColor = Color.Black;
+        }
+
+        private void controlLabel_MouseLeave(object sender, EventArgs e)
+        {
+            Label label = sender as Label;
+            if (label.Text == "M" && maximized)
+            {
+                label.ForeColor = Color.Firebrick;
+            }
+            else
+            {
+                label.ForeColor = Color.DarkGray;
+            }
+        }
+        private void refreshContentPanes()
+        {
+            leftParentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 10;
+            rightContentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 10;
+            leftPanel.Height = mainContentPanel.Height - settings.Height;
+        }
         
     }
     
