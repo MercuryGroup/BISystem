@@ -25,6 +25,14 @@
         android:title="Info"
    		android:showAsAction="never"
    		android:id="@+id/settings" >
+	
+<!--  	<item
+	    android:title="test"
+	    android:icon="@drawable/ic_search"
+	    android:showAsAction="collapseActionView" -->
+		
+	
 	</item>
+	
         
 </menu>
