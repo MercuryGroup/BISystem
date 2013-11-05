@@ -1,10 +1,15 @@
 package com.example.mercbisandroid;
 
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
 
 public class MainActivity extends Activity {
 
@@ -12,6 +17,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        checkInternetConnection();	
+    
     }
 
 
@@ -40,6 +48,16 @@ public class MainActivity extends Activity {
     	}
     }
 
+    private void checkInternetConnection() {
+    	ConnectivityManager connMgr = (ConnectivityManager) 
+    	        getSystemService(Context.CONNECTIVITY_SERVICE);
+    	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+    	    if (networkInfo != null && networkInfo.isConnected()) {
+    	    	new httpThread().execute();
+    	    } else {
+    	        System.out.println("A Internet connection is not available!");
+    	    }
+    	}
    
 
 
