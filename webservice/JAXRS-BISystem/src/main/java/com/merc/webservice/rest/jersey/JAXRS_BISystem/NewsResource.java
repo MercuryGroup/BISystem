@@ -17,13 +17,13 @@ import javax.ws.rs.core.MediaType;
 public class NewsResource {
     /**
      * Returns the available news for "symbol".
-     *
+     * 
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("{symbol}")
     public String getAvailableNewsData(@PathParam("symbol") String symbol) {
-    	List<String> symbols = Arrays.asList(symbol.split(","));
-        return "{\"NewsData\":" + symbols.toString() + "}";
+	List<String> symbols = Arrays.asList(symbol.split(","));
+	return "{\"NewsData\":" + symbols.toString() + "}";
     }
 }

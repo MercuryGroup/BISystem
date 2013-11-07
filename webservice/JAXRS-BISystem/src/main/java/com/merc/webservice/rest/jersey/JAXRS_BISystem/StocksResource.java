@@ -15,26 +15,26 @@ import javax.ws.rs.core.MediaType;
 @Path("/stocks")
 @Produces(MediaType.APPLICATION_JSON)
 public class StocksResource {
-	/**
+    /**
      * Returns the available stock symbols.
-     *
+     * 
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("symbols")
     public String getAvailableStockSymbols() {
-        return "{\"StockSymbols\": \"Got it!\"}";
+	return "{\"StockSymbols\": \"Got it!\"}";
     }
-    
-	/**
+
+    /**
      * Returns the available stock data for "symbol".
-     *
+     * 
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("{symbol}")
     public String getAvailableStockData(@PathParam("symbol") String symbol) {
-    	List<String> symbols = Arrays.asList(symbol.split(","));
-        return "{\"StockData\":" + symbols.toString() + "}";
+	List<String> symbols = Arrays.asList(symbol.split(","));
+	return "{\"StockData\":" + symbols.toString() + "}";
     }
 }

@@ -31,17 +31,17 @@ start() ->
 			%Pid = spawn(newsrss_e, init, []),
 			Pid = spawn(fun init/0),
 			register(newsrss_e, Pid),
-			% Starting the retrival of news
-			getData({"yhoo,aapl,^ftse",
-			[{childItem, item}, {filterItems, [title, link, description, pubDate]},
-			{dateTimeField, pubDate}]}),
+			% *OLD* Starting the retrival of news
+			% getData({"yhoo,aapl,^ftse",
+			% [{childItem, item}, {filterItems, [title, link, description, pubDate]},
+			% {dateTimeField, pubDate}]}),
 			{ok, Pid};
 		Process ->
-			% Starting the retrival of news
-			getData({"yhoo,aapl,^ftse",
-			[{childItem, item},
-			{filterItems, [title, link, description, pubDate]},
-			{dateTimeField, pubDate}]}),
+			% *OLD* Starting the retrival of news
+			% getData({"yhoo,aapl,^ftse",
+			% [{childItem, item},
+			% {filterItems, [title, link, description, pubDate]},
+			% {dateTimeField, pubDate}]}),
 			{ok, Process}
 	end.
 
@@ -125,6 +125,12 @@ init() ->
 -spec(loop() -> stopped).
 loop() ->
 	receive 
+		{_From, symbol, Symbol} when is_list(Symbol)  ->
+			% Start the news retrival for a single specified symbol
+			getData(Symbol,
+				[{childItem, item},
+				{filterItems, [title, link, description, pubDate]},
+				{dateTimeField, pubDate}]}));
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
 			Pid = self(),
