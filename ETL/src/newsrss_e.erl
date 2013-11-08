@@ -9,7 +9,7 @@
 %%% All the retrieved data is sent to the Load (DB).
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 01 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 08 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -73,11 +73,11 @@ stop() ->
 %%%								[title, link, description, pubDate]},
 %%% 							{dateTimeField, pubDate}])
 %%%
-%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {dateTimeField, pubDate}]}).
+%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}).
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getData({string(), [tuple(), ...]}) -> ok). % TODO Define correct type specifications.
+-spec(getData({string(), [tuple(), ...]}) -> ok).
 getData(Options) ->
 	newsrss_e ! {self(), startGet, Options}.
 
@@ -102,8 +102,6 @@ sendData(Data) ->
 % -spec(getReply() -> term()).
 % getReply() ->
 % 	receive
-% 		{From, Command, Any} ->
-% 			Any;
 % 		Msg ->
 % 			Msg
 % 	end.
@@ -125,13 +123,13 @@ init() ->
 -spec(loop() -> stopped).
 loop() ->
 	receive 
-		{_From, symbol, Symbol} ->
-			% Start the news retrival for a single specified symbol
-			getData({Symbol,
-				[{childItem, item},
-				{filterItems, [title, link, description, guid, pubDate]},
-				{dateTimeField, pubDate}]}),
-			loop();
+		% {_From, symbol, Symbol} ->
+		% 	% Start the news retrival for a single specified symbol
+		% 	getData({Symbol,
+		% 		[{childItem, item},
+		% 		{filterItems, [title, link, description, guid, pubDate]},
+		% 		{dateTimeField, pubDate}]}),
+		% 	loop();
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
 			Pid = self(),
@@ -162,7 +160,7 @@ loop() ->
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
-			%prepareToSend(From, Result),
+			%prepareToSend(From, Result), % From used to send confirmation
 			prepareToSend(Result),
 			loop();
 		% {From, To, startSend} ->
