@@ -125,12 +125,12 @@ init() ->
 -spec(loop() -> stopped).
 loop() ->
 	receive 
-		{_From, symbol, Symbol} when is_list(Symbol)  ->
+		{_From, symbol, Symbol} when is_list(Symbol) ->
 			% Start the news retrival for a single specified symbol
-			getData(Symbol,
+			getData({Symbol,
 				[{childItem, item},
 				{filterItems, [title, link, description, pubDate]},
-				{dateTimeField, pubDate}]}));
+				{dateTimeField, pubDate}]});
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
 			Pid = self(),
