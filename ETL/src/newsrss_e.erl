@@ -129,7 +129,7 @@ loop() ->
 			% Start the news retrival for a single specified symbol
 			getData({Symbol,
 				[{childItem, item},
-				{filterItems, [title, link, description, pubDate]},
+				{filterItems, [title, link, description, guid, pubDate]},
 				{dateTimeField, pubDate}]});
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
