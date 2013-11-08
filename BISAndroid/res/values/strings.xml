@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MercBisAndroid</string>
+    <string name="action_settings">Settings</string>
+    <string name="stocksTV">stocks</string>
+    <string name="stocksTB">Stocks</string>
+    <string name="marketTB">Market</string>
+    <string name="portfolioTB">Portfolio</string>
+    <string name="title_activity_stocks">StocksActivity</string>
+    <string name="markettest">This is the market window</string>
+    <string name="portfoliotest">This is the portfolio window</string>
+    <string name="stockstest">This is the stocks window</string>
+    <string name="title_activity_portfolio">PortfolioActivity</string>
+
+
+</resources>
