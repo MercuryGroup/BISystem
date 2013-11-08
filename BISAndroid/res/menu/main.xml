@@ -1,9 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">    
-    <item
-        android:title="Info"
-   		android:showAsAction="never"
-   		android:id="@+id/settings" />
-			
-	
-        
-</menu>
