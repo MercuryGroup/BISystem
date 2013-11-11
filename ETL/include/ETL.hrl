@@ -16,7 +16,8 @@
 %%% CONSTANTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -define(LOAD, stockLoader).								% Name of the Load
--define(CURRENCY, currency).							% Name of the Currency Converter			
+-define(CURRENCY, currency).							% Name of the Currency Converter
+-define(NEWS, newsrss_e).								% Name of the News extractor
 -define(TO_CURRENCY, "eur").							% Currency we want to use as standard.
 -define(TIMESTAMP, integer_to_list(milliseconds())).	% Milliseconds since the epoch (1970-01-01 00:00:00)
 -define(DATABASE, "mercury").							% Name of the database
@@ -26,8 +27,7 @@
 -define(LAUNCH_LIST, [									% The default configuration for the scheduler
 	{nyse, fun nyse_e:start/0, [{14,45}, {18,45}, {22, 45}], ?ETL},
 	{omx, fun omx_e:start/0, [{9,05}, {13,15}, {17,25}], ?ETL},
-	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?ETL}%,
-	%{news, fun newsrss_e:start/0, [{0,05}], ?ETL}
+	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?ETL}
 	]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

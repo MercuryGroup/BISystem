@@ -28,6 +28,13 @@ namespace BIS_Desktop
             Listoftexts.Add("LAW.DEB.CORP");
             Listoftexts.Add("LAVENDON GROUP");
             Listoftexts.Add("LAND SECS");
+            Listoftexts.Add("LON.STK.EXCH");
+            Listoftexts.Add("LMS CAPITAL");
+            Listoftexts.Add("LLOYDS GRP");
+            Listoftexts.Add("LEGAL&GEN");
+            Listoftexts.Add("LAW.DEB.CORP");
+            Listoftexts.Add("LAVENDON GROUP");
+            Listoftexts.Add("LAND SECS");
 
  
             btns = new Button[Listoftexts.Count];

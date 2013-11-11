@@ -68,13 +68,23 @@ ok;
 
 sendData(_Type, List) ->
 	
+
+	case _Type of 
+	stock -> [A|T] = List,
+			 {Key, Val} = A,
+    %           io:format("~p~n", [Val]);
+	%			?NEWS ! {self(), symbol, Val};			
+				?NEWS ! {self(), startGet, {Val, [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}};
+
+	    _ -> 	 ok
+	end,
+		
+	
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
 		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
     Doc = { listToBin(List)},
- 		{ok, DocResult} = couchbeam:save_doc(Db, Doc),
-    
-    io:format("~p", [DocResult]).
+ 		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -86,6 +96,10 @@ listToBin([]) -> [];
 
 listToBin([{Key, Val}|T]) ->
 	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
+
+%toNews([{Key, Val|T}]) ->
+%		[{binary:bin_to_list(Key)}]
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc

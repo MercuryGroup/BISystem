@@ -9,7 +9,7 @@
 %%% All the retrieved data is sent to the Load (DB).
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 29 Oct 2013 by <Robin Larsson@TM5741>
+%%% Modified: 08 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -26,13 +26,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(start() -> {ok, pid()}).
 start() ->
-	case whereis(newsrss_e) of
+	case whereis(?NEWS) of
 		undefined ->
-			%Pid = spawn(newsrss_e, init, []),
+			%Pid = spawn(?NEWS, init, []),
 			Pid = spawn(fun init/0),
-			register(newsrss_e, Pid),
+			register(?NEWS, Pid),
+			% *OLD* Starting the retrival of news
+			% getData({"yhoo,aapl,^ftse",
+			% [{childItem, item}, {filterItems, [title, link, description, pubDate]},
+			% {dateTimeField, pubDate}]}),
 			{ok, Pid};
 		Process ->
+			% *OLD* Starting the retrival of news
+			% getData({"yhoo,aapl,^ftse",
+			% [{childItem, item},
+			% {filterItems, [title, link, description, pubDate]},
+			% {dateTimeField, pubDate}]}),
 			{ok, Process}
 	end.
 
@@ -43,11 +52,11 @@ start() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(stop() -> stopped | already_stopped).
 stop() ->
-	case whereis(newsrss_e) of
+	case whereis(?NEWS) of
 		undefined ->
 			already_stopped;
 		_ ->
-			newsrss_e ! stopped
+			?NEWS ! stopped
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,13 +73,13 @@ stop() ->
 %%%								[title, link, description, pubDate]},
 %%% 							{dateTimeField, pubDate}])
 %%%
-%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {dateTimeField, pubDate}]}).
+%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}).
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getData({string(), [tuple(), ...]}) -> ok). % TODO Define correct type specifications.
+-spec(getData({string(), [tuple(), ...]}) -> ok).
 getData(Options) ->
-	newsrss_e ! {self(), startGet, Options}.
+	?NEWS ! {self(), startGet, Options}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -90,14 +99,12 @@ sendData(Data) ->
 %%% Used for receiving a message from a process.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getReply() -> term()).
-getReply() ->
-	receive
-		{From, Command, Any} ->
-			Any;
-		Msg ->
-			Msg
-	end.
+% -spec(getReply() -> term()).
+% getReply() ->
+% 	receive
+% 		Msg ->
+% 			Msg
+% 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -116,7 +123,14 @@ init() ->
 -spec(loop() -> stopped).
 loop() ->
 	receive 
-		{From, startGet, {SymbolsPre, XMLSearchInfo}} ->
+		% {_From, symbol, Symbol} ->
+		% 	% Start the news retrival for a single specified symbol
+		% 	getData({Symbol,
+		% 		[{childItem, item},
+		% 		{filterItems, [title, link, description, guid, pubDate]},
+		% 		{dateTimeField, pubDate}]}),
+		% 	loop();
+		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
 			Pid = self(),
 			% Extracting each symbol into a separate string, stored in a list
@@ -146,7 +160,7 @@ loop() ->
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
-			%prepareToSend(From, Result),
+			%prepareToSend(From, Result), % From used to send confirmation
 			prepareToSend(Result),
 			loop();
 		% {From, To, startSend} ->
@@ -217,12 +231,11 @@ prepareToSend([H | T]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(parseXML(string()) -> tuple()).
 parseXML(XMLData) ->
-	ParsedXML = xmerl_scan:string(XMLData).
+	xmerl_scan:string(XMLData).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Retrieves data from the specified URL, through the HTTP protocol.
-%%% TODO: Correct error retrival handling needs to be implemented.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(retrieveXML(string() | _) -> string() | {error, atom() | term()}).
@@ -234,10 +247,10 @@ retrieveXML(Link) when is_list(Link) ->
 	% "Defaults to the pid() of the process calling
 	% the request function (self())."
 	case httpc:request(get, {Link, []}, [], [{sync, false}]) of
-		{ok, Val} ->
+		{ok, _Val} ->
 			receive
-				{http, {RequestId, Result}} ->
-					{HTTPStatus, HTTPHeader, XMLData} = Result,
+				{http, {_RequestId, Result}} ->
+					{_HTTPStatus, _HTTPHeader, XMLData} = Result,
 					checkCallExceeding(binary:bin_to_list(XMLData))
 					%binary:bin_to_list(XMLData)
 			after 30000 ->
