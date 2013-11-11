@@ -73,8 +73,8 @@ sendData(_Type, List) ->
 	stock -> [A|T] = List,
 			 {Key, Val} = A,
     %           io:format("~p~n", [Val]);
-	%			newsrss_e ! {self(), symbol, Val};			
-				newsrss_e ! {self(), startGet, {Val, [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}};
+	%			?NEWS ! {self(), symbol, Val};			
+				?NEWS ! {self(), startGet, {Val, [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}};
 
 	    _ -> 	 ok
 	end,

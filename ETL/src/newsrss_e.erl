@@ -26,11 +26,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(start() -> {ok, pid()}).
 start() ->
-	case whereis(newsrss_e) of
+	case whereis(?NEWS) of
 		undefined ->
-			%Pid = spawn(newsrss_e, init, []),
+			%Pid = spawn(?NEWS, init, []),
 			Pid = spawn(fun init/0),
-			register(newsrss_e, Pid),
+			register(?NEWS, Pid),
 			% *OLD* Starting the retrival of news
 			% getData({"yhoo,aapl,^ftse",
 			% [{childItem, item}, {filterItems, [title, link, description, pubDate]},
@@ -52,11 +52,11 @@ start() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(stop() -> stopped | already_stopped).
 stop() ->
-	case whereis(newsrss_e) of
+	case whereis(?NEWS) of
 		undefined ->
 			already_stopped;
 		_ ->
-			newsrss_e ! stopped
+			?NEWS ! stopped
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,7 +79,7 @@ stop() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(getData({string(), [tuple(), ...]}) -> ok).
 getData(Options) ->
-	newsrss_e ! {self(), startGet, Options}.
+	?NEWS ! {self(), startGet, Options}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
