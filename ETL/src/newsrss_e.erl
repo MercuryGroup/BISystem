@@ -2,18 +2,21 @@
 %%% File: newsrss_e.erl
 %%% @author Robin Larsson <Robin Larsson@TM5741>
 %%% @doc
-%%% Extract server module for extracting stock market news.
+%%% Server extract module for extracting stock market news.
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
-%%% Supports XML element filtering, and parsing of date time strings.
+%%% Supports XML element filtering, and parsing of date & time strings.
 %%% All the retrieved data is sent to the Load (DB).
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 08 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 11 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
--export([start/0, stop/0, getData/1, sendData/1]).
+% getData and sendData are deprecated since 2013-11-11, but exists for
+% future changes
+-compile({nowarn_unused_function, [{getData, 1}, {sendData, 1}]}).
+-export([start/0, stop/0]).
 % http://stackoverflow.com/a/18846096
 -include_lib("../include/ETL.hrl").
 % https://github.com/erlang/otp/blob/maint/lib/xmerl/include/xmerl.hrl
@@ -28,20 +31,10 @@
 start() ->
 	case whereis(?NEWS) of
 		undefined ->
-			%Pid = spawn(?NEWS, init, []),
 			Pid = spawn(fun init/0),
 			register(?NEWS, Pid),
-			% *OLD* Starting the retrival of news
-			% getData({"yhoo,aapl,^ftse",
-			% [{childItem, item}, {filterItems, [title, link, description, pubDate]},
-			% {dateTimeField, pubDate}]}),
 			{ok, Pid};
 		Process ->
-			% *OLD* Starting the retrival of news
-			% getData({"yhoo,aapl,^ftse",
-			% [{childItem, item},
-			% {filterItems, [title, link, description, pubDate]},
-			% {dateTimeField, pubDate}]}),
 			{ok, Process}
 	end.
 
@@ -61,21 +54,22 @@ stop() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Sends a request to the server to retrieve news items for each provided
-%%% stock/market symbol. Note that the server handles the request
-%%% synchronously.
+%%% Sends a request to the server to retrieve news items (concurrently)
+%%% for each provided stock/market symbol.
 %%% The returned result depends on the Options variable.
 %%% The Options variable shall follow this format:
 %%% {Symbols,ExtractionOptions}.
-%%% Symbols = string() ("yhoo,aapl,^ftse"),
-%%% ExtractionOptions = list() ([{childItem, item},
+%%% Symbols = string() e.g. "yhoo,aapl,^ftse",
+%%% ExtractionOptions = list() [{childItem, item},
 %%%								{filterItems,
 %%%								[title, link, description, pubDate]},
 %%%								{databaseID, guid},
-%%% 							{dateTimeField, pubDate}])
+%%% 							{dateTimeField, pubDate}]
 %%%
 %%% Example call setup:
-%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {databaseID, guid}, {dateTimeField, pubDate}]}).
+%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item},
+%%% {filterItems, [title, link, description, pubDate]}, {databaseID, guid},
+%%% {dateTimeField, pubDate}]}).
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -88,25 +82,10 @@ getData(Options) ->
 %%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%-spec(sendData(pid(), term()) -> ok).
 -spec(sendData(term()) -> ok).
-%sendData(Pid, Data) ->
-%	Pid ! Data.
 sendData(Data) ->
-	io:format("~p~n", [Data]).
-	%?LOAD ! Data.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Used for receiving a message from a process.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% -spec(getReply() -> term()).
-% getReply() ->
-% 	receive
-% 		Msg ->
-% 			Msg
-% 	end.
+	%io:format("~p~n", [Data]). % For testing purposes
+	?LOAD ! Data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -126,6 +105,12 @@ init() ->
 loop() ->
 	receive
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
+			% ***
+			% See getData/1 methods for more code info.
+			% Adapted for supporting multiple retrivals for
+			% news symbols, but unused ATM and remaining for
+			% future changes.
+			% ***
 			% Used for returning results from spawned processes
 			Pid = self(),
 			% Extracting each symbol into a separate string, stored in a list
@@ -155,35 +140,11 @@ loop() ->
 			% spawned processes
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
-			%prepareToSend(From, Result), % From used to send confirmation
 			prepareToSend(Result),
 			loop();
-		% {From, To, startSend} ->
-		% 	% Sending away the stored data
-		% 	sendData(To, Data),
-		% 	From ! ok,
-		% 	loop([]);
-		%{result, Result} ->
-		%	% Using lists:concat to concatenate all the sent lists
-		%	% Needed later for sending away the result.
-		%	loop(lists:append(Result, Data));  % Saving the result
 		stopped ->
 			stopped
 	end.
-% loop(Data) ->
-% 	receive 
-% 		{From, startGet, {Link, XMLSearchInfo}} ->
-% 			Parsed = element(1, 
-% 				parseXML(
-% 				retrieveXML(Link))),
-% 			Processed = processXML(Parsed, XMLSearchInfo),
-% 			From ! ok,
-% 			loop(Processed);
-% 		{From, startSend} ->
-% 			From ! Data;
-% 		stopped ->
-% 			stopped
-% 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -204,14 +165,7 @@ retrieveResult([Process | Rest]) ->
 %%% Reads through a list and calling a function to send each element away.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%-spec(prepareToSend(pid(), list()) -> ok).
 -spec(prepareToSend(list()) -> ok).
-% prepareToSend(Pid, [Last | []]) ->
-% 	sendData(Pid, Last),
-% 	ok;
-% prepareToSend(Pid, [H | T]) ->
-% 	sendData(Pid, H),
-% 	prepareToSend(Pid, T).
 prepareToSend([Last | []]) ->
 	sendData(Last);
 prepareToSend([H | T]) ->
@@ -247,7 +201,6 @@ retrieveXML(Link) when is_list(Link) ->
 				{http, {_RequestId, Result}} ->
 					{_HTTPStatus, _HTTPHeader, XMLData} = Result,
 					checkCallExceeding(binary:bin_to_list(XMLData))
-					%binary:bin_to_list(XMLData)
 			after 30000 ->
 				{error, no_connection_or_no_data_returned}
 			end;
@@ -293,7 +246,9 @@ checkCallExceeding(DataString) ->
 %%% XMLSearchInfo shall contain search info; XML names for XML elements that
 %%% shall be processed.
 %%% 
-%%% XMLSearchInfo = [{childItem, atom()}, {filterItems, [atom(), ...]},
+%%% XMLSearchInfo = [{childItem, atom()},
+%%%					{filterItems, [atom(), ...]},
+%%%					{databaseID, guid},
 %%%					{dateTimeField, atom()}].
 %%%
 %%% ParsedXML = tuple(). Parsed with xmerl_scan:string(string())
@@ -317,19 +272,21 @@ processXML(ParsedXML, XMLSearchInfo) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Finding the XML main elements.
+%%% Finding the XML main elements (those that are located under
+%%%	the root XML node, and as well containing child elements).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(extractMainElementsList([tuple(), ...], atom()) -> list()).
 extractMainElementsList(MainElementsList, LookForChildElement) ->
 	[El#xmlElement.content || El <- MainElementsList,
 	erlang:element(1, El) == xmlElement,
-	% The element name to find
+	% The child element names to look for
 	El#xmlElement.name == LookForChildElement].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Finding the XML child elements in the XML main elements.
+%%% Support for filtering, converting and adding XML elements.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(extractChildElementsList([tuple(), ...], [atom(), ...],
@@ -338,7 +295,7 @@ extractChildElementsList(ChildElementsList, FilterElements, DatabaseID,
 	DateTimeFieldName) ->
 	% Checking whether some elements shall be filtered away or converted,
 	% as well even added (latter specific for Yahoo Finance News Feed).
-	% ATM a date time string is the only element that can be converted.
+	% ATM a date & time string is the only element that can be converted.
 	% For adding the only element is a news item ID.
 	% The elements that are filtered are noted as {null, []}, and deleted
 	% when found.
@@ -359,7 +316,7 @@ extractChildElementsList(ChildElementsList, FilterElements, DatabaseID,
 	atom(), atom()) -> tuple() | list()).
 processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 	case Element#xmlElement.name of
-		% For adding the unique news item ID, specifid for
+		% For adding the unique news item ID, specific for
 		% Yahoo Finance News Feed
 		DatabaseID ->
 			% Removing unecessary characters from the result.
@@ -367,8 +324,8 @@ processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 				length("yahoo_finance/"),
 				extract_XMLText(Element#xmlElement.content)),
 			{'_id', Result};
-		% *OPTIONAL, therefore lists:member*
-		% Converting date time strings to Epoch timestamps in milliseconds.
+		% *OPTIONAL*
+		% Converting date & time strings to Epoch timestamps, in milliseconds.
 		% Though not done when included in FilterElements.
 		DateTimeFieldName ->
 			case lists:member(DateTimeFieldName, FilterElements) of
@@ -380,11 +337,7 @@ processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 								)
 							)
 						),
-					% Padding the number with four zeros,
-					% so that the timestamp is in milliseconds.
-					{DateTimeFieldName,
-					Timestamp};
-					%string:left(Timestamp, length(Timestamp) + 4, $0)};
+					{DateTimeFieldName, Timestamp};
 				false -> % To be filtered
 					{null, []}
 			end;
@@ -403,7 +356,7 @@ processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 %%% @doc
 %%% Handling if there are XML elements that has been split up by
 %%% quote signs, that Xmerl sees as the end of the XML value.
-%%% And was well, extracting the XML elements name, and their values.
+%%% And as well extracting the XML elements name, and their values.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(findingSplitUpChildElements([tuple(), ...]) -> list()).
@@ -422,7 +375,7 @@ findingSplitUpChildElements(MultipleChildElements) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Extracts the value from a XML element.
-%%% If there is no value in it, a blank Erlang list is returned.
+%%% If there is no value in it, a blank list is returned.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -type(xmlText() :: #xmlText{}).
@@ -433,7 +386,7 @@ extract_XMLText(Content) ->
 	% Taking the head of the list,
 	% used to find the value of a XML element
 	Item = erlang:hd(Content),
-	% Checking whether the XML element, is a Erlang
+	% Checking whether the XML element, is a
 	% record type of a XML element that has text as a value
 	case element(1, Item) of
 		xmlText -> % If found
@@ -444,32 +397,32 @@ extract_XMLText(Content) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Converts a date time string (explicitly with time zone GMT/UTC) into a
-%%% into a timestamp string. The timestamp will be in seconds, and follow
-%%% the Epoch time standard. The date time string shall follow an English
+%%% Converts a date & time string (explicitly with time zone GMT/UTC)
+%%% into a timestamp string. The timestamp will be in milliseconds, and follow
+%%% the Epoch time standard. The date & time string shall follow an English
 %%% standard.
-%%% Example of a date time string "Wed, 22 Oct 2013 15:53:37 GMT".
+%%% Example of a date & time string "Wed, 22 Oct 2013 15:53:37 GMT".
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(timestampConverter(string()) -> integer()).
 timestampConverter(DateTimeString) ->
-	% lists:last removes the weekday from the date time string.
+	% lists:last removes the weekday from the date & time string.
 	% string:tokens returns tokens based on a delimiter.
 	[Day, Month, Year, Time, _] =
 		string:tokens(lists:last(string:tokens(DateTimeString, ",")), " "),
 	[Hour, Minutes, Seconds] = string:tokens(Time, ":"),
-	% First converts the date time to gregorian seconds
+	% First converts the date & time to gregorian seconds
 	GregSeconds = calendar:datetime_to_gregorian_seconds(
 		{{erlang:list_to_integer(Year), monthNumber(Month),
 		erlang:list_to_integer(Day)},
 		{erlang:list_to_integer(Hour), erlang:list_to_integer(Minutes),
 		erlang:list_to_integer(Seconds)}}),
-	% Seconds convert from gregorian seconds to Epoch time
+	% Seconds convert from gregorian seconds to Epoch time in milliseconds
 	% http://www.epochconverter.com ,
 	% under "How to get the current epoch time in ..."
 	% http://stackoverflow.com/questions/8805832/number-of-seconds-from-
 	% 1st-january-1900-to-start-of-unix-epoch
-	GregSeconds - 719528*24*3600+1000. % +1000 for milliseconds
+	(GregSeconds - (719528*24*3600)) * 1000. %% *1000 for milliseconds
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
