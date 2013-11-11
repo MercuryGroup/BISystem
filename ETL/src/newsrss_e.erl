@@ -71,9 +71,11 @@ stop() ->
 %%% ExtractionOptions = list() ([{childItem, item},
 %%%								{filterItems,
 %%%								[title, link, description, pubDate]},
+%%%								{databaseID, guid},
 %%% 							{dateTimeField, pubDate}])
 %%%
-%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}).
+%%% Example call setup:
+%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {databaseID, guid}, {dateTimeField, pubDate}]}).
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,8 +93,8 @@ getData(Options) ->
 %sendData(Pid, Data) ->
 %	Pid ! Data.
 sendData(Data) ->
-	%io:format("~p~n", [Data]).
-	?LOAD ! Data.
+	io:format("~p~n", [Data]).
+	%?LOAD ! Data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -122,14 +124,7 @@ init() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(loop() -> stopped).
 loop() ->
-	receive 
-		% {_From, symbol, Symbol} ->
-		% 	% Start the news retrival for a single specified symbol
-		% 	getData({Symbol,
-		% 		[{childItem, item},
-		% 		{filterItems, [title, link, description, guid, pubDate]},
-		% 		{dateTimeField, pubDate}]}),
-		% 	loop();
+	receive
 		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
 			% Used for returning results from spawned processes
 			Pid = self(),
@@ -264,7 +259,7 @@ retrieveXML(_) -> % Not a vaild link
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% *Explicitly for Yahoo Finance API*
+%%% *Explicitly for responses from Yahoo Finance API*
 %%% Seeing whether the call limit has been exceeded.
 %%% If not return the supplied data from the argument.
 %%% @end
@@ -309,13 +304,15 @@ processXML(ParsedXML, XMLSearchInfo) ->
 	% Extracting the search info
 	{_, LookForChildElement} = lists:keyfind(childItem, 1, XMLSearchInfo),
 	{_, FilterElements} = lists:keyfind(filterItems, 1, XMLSearchInfo),
+	{_, DatabaseID} = lists:keyfind(databaseID, 1, XMLSearchInfo),
 	{_, DateTimeFieldName} = lists:keyfind(dateTimeField, 1, XMLSearchInfo),
 	% Contains all the child elements
 	[MainContent] = ParsedXML#xmlElement.content,
 	ItemListContent = MainContent#xmlElement.content,
 	% Using a list comprehension, which goes through each found
 	% XML element node.
-	[{news, extractChildElementsList(El, FilterElements, DateTimeFieldName)}
+	[{news, extractChildElementsList(El, FilterElements, DatabaseID,
+		DateTimeFieldName)}
 	|| El <- extractMainElementsList(ItemListContent, LookForChildElement)].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -336,43 +333,58 @@ extractMainElementsList(MainElementsList, LookForChildElement) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(extractChildElementsList([tuple(), ...], [atom(), ...],
-	atom()) -> list()).
-extractChildElementsList(ChildElementsList, FilterElements,
+	atom(), atom()) -> list()).
+extractChildElementsList(ChildElementsList, FilterElements, DatabaseID,
 	DateTimeFieldName) ->
-	% Checks whether some elements shall be filtered away or converted.
+	% Checking whether some elements shall be filtered away or converted,
+	% as well even added (latter specific for Yahoo Finance News Feed).
 	% ATM a date time string is the only element that can be converted.
+	% For adding the only element is a news item ID.
 	% The elements that are filtered are noted as {null, []}, and deleted
 	% when found.
 	ExtractedChildElements = lists:delete({null, []},
-		[filterAndConvertElements(El, FilterElements, DateTimeFieldName)
+		[processElements(El, FilterElements, DatabaseID, DateTimeFieldName)
 		|| El <- ChildElementsList]), % Removing potentially skipped elements
 	% Added 'type' for distinction in DB
 	lists:append(ExtractedChildElements, [{type, "news"}]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Filters and converts XML elements.
-%%% Converting is specifically for Yahoo Finance News Feed.
-%%% Otherwise generic.
+%%% Processing XML elements; filter, convert and add.
+%%% Converting and adding is specifically for Yahoo Finance News Feed.
+%%% Otherwise made to be generic.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(filterAndConvertElements(tuple(), [atom(), ...],
-	atom()) -> tuple() | list()).
-filterAndConvertElements(Element, FilterElements, DateTimeFieldName) ->
+-spec(processElements(tuple(), [atom(), ...],
+	atom(), atom()) -> tuple() | list()).
+processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 	case Element#xmlElement.name of
-		% For converting date time strings to Epoch timestamps in milliseconds.
+		% For adding the unique news item ID, specifid for
+		% Yahoo Finance News Feed
+		DatabaseID ->
+			% Removing unecessary characters from the result.
+			{_, Result} = lists:split(
+				length("yahoo_finance/"),
+				extract_XMLText(Element#xmlElement.content)),
+			{'_id', Result};
+		% *OPTIONAL, therefore lists:member*
+		% Converting date time strings to Epoch timestamps in milliseconds.
 		% Though not done when included in FilterElements.
 		DateTimeFieldName ->
 			case lists:member(DateTimeFieldName, FilterElements) of
 				true -> % Not to be filtered
-					{DateTimeFieldName,
-					integer_to_list(
+					Timestamp = integer_to_list(
 						timestampConverter(
-							findingSplitUpChildElements(
-								Element#xmlElement.content
+								findingSplitUpChildElements(
+									Element#xmlElement.content
+								)
 							)
-						)
-					)};
+						),
+					% Padding the number with four zeros,
+					% so that the timestamp is in milliseconds.
+					{DateTimeFieldName,
+					Timestamp};
+					%string:left(Timestamp, length(Timestamp) + 4, $0)};
 				false -> % To be filtered
 					{null, []}
 			end;
@@ -433,7 +445,7 @@ extract_XMLText(Content) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Converts a date time string (explicitly with time zone GMT/UTC) into a
-%%% into a timestamp. The timestamp will be in milliseconds, and follow
+%%% into a timestamp string. The timestamp will be in seconds, and follow
 %%% the Epoch time standard. The date time string shall follow an English
 %%% standard.
 %%% Example of a date time string "Wed, 22 Oct 2013 15:53:37 GMT".
@@ -457,7 +469,7 @@ timestampConverter(DateTimeString) ->
 	% under "How to get the current epoch time in ..."
 	% http://stackoverflow.com/questions/8805832/number-of-seconds-from-
 	% 1st-january-1900-to-start-of-unix-epoch
-	GregSeconds - 719528*24*3600.
+	GregSeconds - 719528*24*3600+1000. % +1000 for milliseconds
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
