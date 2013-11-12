@@ -1,4 +1,4 @@
-package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resource.Utilities;
+package com.merc.webservice.rest.jersey.JAXRS_BISystem.Utilities;
 
 /**
  * Miscellaneous functions that is needed.

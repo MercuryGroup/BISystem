@@ -1,13 +1,11 @@
-/**
- * 
- */
-package com.merc.webservice.rest.jersey.JAXRS_BISystem;
+package com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler;
 
 import java.net.MalformedURLException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.ektorp.*;
 import org.ektorp.http.StdHttpClient;
@@ -17,11 +15,12 @@ import org.ektorp.impl.StdCouchDbInstance;
 
 /**
  * Handles connections with a CouchDB database. Supports retrieval of data from
- * views. Using Ektorp to achieve this.
+ * views, with specific options. Using Ektorp to achieve this.
  * 
- * Created: 2013-11-07. Modified: 2013-11-07.
+ * Created: 2013-11-07. Modified: 2013-11-12.
  * 
  * @author Robin Larsson
+ * @version 0.5
  * @see https://github.com/helun/Ektorp
  */
 public class DatabaseHandler {
@@ -39,7 +38,8 @@ public class DatabaseHandler {
 	/* Standard HTTP connection to the DB interface */
 	try {
 	    httpClient = new StdHttpClient.Builder().url(DB_IP).build();
-	} catch (MalformedURLException e) {
+	}
+	catch (MalformedURLException e) {
 	    e.printStackTrace();
 	}
 
@@ -64,8 +64,28 @@ public class DatabaseHandler {
     }
 
     /**
-     * Returns raw JSON data from the specified view (located in a design
-     * document). Reached via the provided CouchDB database connector object.
+     * 
+     * @param db
+     * @param desigDocPath
+     * @param viewName
+     * @param keyOptions
+     * @return
+     */
+    public String retrieveJSONData(CouchDbConnector db, String designDocPath,
+	    String viewName, String startKey, String endKey) {
+	/*
+	 * Executing a query against the database to retrieve data from a view,
+	 * located in the specified design document path.
+	 */
+	ViewQuery query = new ViewQuery().designDocId(designDocPath)
+		.viewName(viewName).startKey(startKey).endKey(endKey);
+
+	return "";
+    }
+
+    /**
+     * Returns raw JSON data from the specified {@code viewName} (located in a
+     * {@code designDocPath}). Reached via the provided {@code db}.
      * 
      * @param db
      *            A CouchDB database connector object.
@@ -85,6 +105,7 @@ public class DatabaseHandler {
 		viewName);
 	/* Retrieving the result of the query as a InputStream object */
 	InputStream resultStream = db.queryForStream(query);
+	/* Preparing the InputStream to be read */
 	BufferedReader resultReader = new BufferedReader(new InputStreamReader(
 		resultStream));
 	StringBuilder sb = new StringBuilder();
@@ -97,16 +118,19 @@ public class DatabaseHandler {
 	    while ((line = resultReader.readLine()) != null) {
 		sb.append(line + "\n");
 	    }
-	} catch (IOException e1) {
+	}
+	catch (IOException e1) {
 	    e1.printStackTrace();
 	}
-	
+
 	/* Releasing the resources for the stream */
 	try {
 	    resultStream.close();
-	} catch (IOException e) {
+	}
+	catch (IOException e) {
 	    e.printStackTrace();
 	}
+
 	/* Return the result as a String object */
 	return sb.toString();
     }
