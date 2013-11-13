@@ -11,6 +11,8 @@ import javax.ws.rs.core.MediaType;
 
 import org.ektorp.CouchDbConnector;
 
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Stocks;
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Markets;
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
 
 /**
@@ -58,8 +60,14 @@ public class MarketsResource {
 	 * Retrieves and returns data from the CouchDB database based on the
 	 * supplied parameters.
 	 */
-	return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
-		"_design/bi", symbol.toLowerCase());
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase(),
+		Long.toString( // Start time, a day before current time
+			System.currentTimeMillis() - (86400 * 1000)),
+		Long.toString( // End time, current time
+			System.currentTimeMillis()), Stocks.class);
+	// return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
+	// "_design/bi", symbol.toLowerCase());
     }
 
     /**
@@ -79,7 +87,13 @@ public class MarketsResource {
 	 * Retrieves and returns data from the CouchDB database based on the
 	 * supplied parameters.
 	 */
-	return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
-		"_design/bi", symbol.toLowerCase().concat("_market"));
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase().concat("_market"),
+		Long.toString( // Start time, a day before current time
+			System.currentTimeMillis() - (86400 * 1000)),
+		Long.toString( // End time, current time
+			System.currentTimeMillis()), Markets.class);
+//	return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
+//		"_design/bi", symbol.toLowerCase().concat("_market"));
     }
 }

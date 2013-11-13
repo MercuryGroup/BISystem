@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.ektorp.CouchDbConnector;
 
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Stocks;
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
 
 /**
@@ -50,8 +51,18 @@ public class StocksResource {
     @GET
     @Path("day/{symbol}")
     public String getDayStockData(@PathParam("symbol") String symbol) {
-	List<String> symbols = Arrays.asList(symbol.split(","));
-	return "{\"StockData\":" + symbols.toString() + "}";
+//	List<String> symbols = Arrays.asList(symbol.split(","));
+//	return "{\"StockData\":" + symbols.toString() + "}";
+	/*
+	 * Retrieves and returns data from the CouchDB database based on the
+	 * supplied parameters.
+	 */
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase(),
+		Long.toString( // Start time, a day before current time
+			System.currentTimeMillis() - (86400 * 1000)),
+		Long.toString( // End time, current time
+			System.currentTimeMillis()), Stocks.class);
     }
     
     /**
@@ -63,8 +74,18 @@ public class StocksResource {
     @GET
     @Path("week/{symbol}")
     public String getWeekStockData(@PathParam("symbol") String symbol) {
-	List<String> symbols = Arrays.asList(symbol.split(","));
-	return "{\"StockData\":" + symbols.toString() + "}";
+//	List<String> symbols = Arrays.asList(symbol.split(","));
+//	return "{\"StockData\":" + symbols.toString() + "}";
+	/*
+	 * Retrieves and returns data from the CouchDB database based on the
+	 * supplied parameters.
+	 */
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase(),
+		Long.toString( // Start time, a day before current time
+			System.currentTimeMillis() - (14515200 * 1000)),
+		Long.toString( // End time, current time
+			System.currentTimeMillis()), Stocks.class);
     }
     
     /**
@@ -76,7 +97,17 @@ public class StocksResource {
     @GET
     @Path("month/{symbol}")
     public String getMonthStockData(@PathParam("symbol") String symbol) {
-	List<String> symbols = Arrays.asList(symbol.split(","));
-	return "{\"StockData\":" + symbols.toString() + "}";
+//	List<String> symbols = Arrays.asList(symbol.split(","));
+//	return "{\"StockData\":" + symbols.toString() + "}";
+	/*
+	 * Retrieves and returns data from the CouchDB database based on the
+	 * supplied parameters.
+	 */
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase(),
+		Long.toString( // Start time, a day before current time
+			System.currentTimeMillis() - (58060800 * 1000)),
+		Long.toString( // End time, current time
+			System.currentTimeMillis()), Stocks.class);
     }
 }

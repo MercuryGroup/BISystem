@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.ektorp.CouchDbConnector;
 
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.News;
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
 
 /**
@@ -34,27 +35,19 @@ public class NewsResource {
     /**
      * Returns the available stock news for {@code symbol}.
      * 
-     * @param symbol Stock market exchange symbol.
+     * @param symbol Stock market exchange- or stock market index symbol.
      * @return String that will be returned as a application/json response.
      */
     @GET
     @Path("all/stocks/{symbol}")
     public String getAvailableStockNewsData(@PathParam("symbol") String symbol) {
-	List<String> symbols = Arrays.asList(symbol.split(","));
-	return "{\"NewsData\":" + symbols.toString() + "}";
-    }
-
-    /**
-     * Returns the available stock market index news for {@code symbol}.
-     * 
-     * @param symbol Stock market exchange index symbol.
-     * @return String that will be returned as a application/json response.
-     */
-    @GET
-    @Path("all/index/{symbol}")
-    public String getAvailableStockMarketIndexNewsData(
-	    @PathParam("symbol") String symbol) {
-	List<String> symbols = Arrays.asList(symbol.split(","));
-	return "{\"NewsData\":" + symbols.toString() + "}";
+//	List<String> symbols = Arrays.asList(symbol.split(","));
+//	return "{\"NewsData\":" + symbols.toString() + "}";
+	/*
+	 * Retrieves and returns data from the CouchDB database based on the
+	 * supplied parameters.
+	 */
+	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
+		symbol.toLowerCase(), News.class);
     }
 }
