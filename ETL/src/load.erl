@@ -72,10 +72,11 @@ sendData(_Type, List) ->
 	% case _Type of 
 	% stock -> [A|T] = List,
 	%		 {Key, Val} = A,
-    %           io:format("~p~n", [Val]);
+    %            io:format("~p~n", [Val]),
+    %            ?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
 	%			?NEWS ! {self(), symbol, Val};			
-	%			?NEWS ! {self(), startGet, {Val, [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}};
-
+	%			
+    % 
 	%    _ -> 	 ok
 	% end,
 		
@@ -107,8 +108,8 @@ listToBin([{Key, Val}|T]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop() ->
-	receive 
-		
+	receive
+
 		{stock , List} ->
 			sendData(stock, List),
 			loop();
@@ -118,6 +119,7 @@ loop() ->
 			loop();
 		
 		{news, List} ->
+			io:format("~p~n", [List]),
 			sendData(news, List),
 			loop();
 		
