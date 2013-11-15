@@ -43,9 +43,10 @@ init() ->
 	{ok, C_PID} = currency:start(),
 	link(C_PID),
 
-	{ok, N_PID} = newsrss_e:start(),
+	%{ok, N_PID} = newsrss_e:start(),
+	%link(N_PID),
 
-	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, ?CURRENCY}, {N_PID, ?NEWS}],
+	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, ?CURRENCY}], %{N_PID, ?NEWS}],
 	loop(List).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,11 +134,11 @@ loop(List) ->
 					NewList = replace(FromPid, Pid, List),
 					loop(NewList);
 
-				?NEWS ->
-					{ok, Pid} = newsrss_e:start(),
-					link(Pid),
-					NewList = replace(FromPid, Pid, List),
-					loop(NewList);
+				% ?NEWS ->
+				% 	{ok, Pid} = newsrss_e:start(),
+				% 	link(Pid),
+				% 	NewList = replace(FromPid, Pid, List),
+				% 	loop(NewList);
 
 
 				undefined ->
