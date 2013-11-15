@@ -79,7 +79,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	        getSystemService(Context.CONNECTIVITY_SERVICE);
     	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     	    if (networkInfo != null && networkInfo.isConnected()) {
-    	    	new httpThread().execute();
+    	    	new StockThread().execute();
     	    } else {
     	        System.out.println("A Internet connection is not available!");
     	    }
