@@ -71,7 +71,7 @@ sendData(_Type, List) ->
 
 	% case _Type of 
 	% stock -> [A|T] = List,
-			 {Key, Val} = A,
+	%		 {Key, Val} = A,
     %           io:format("~p~n", [Val]);
 	%			?NEWS ! {self(), symbol, Val};			
 	%			?NEWS ! {self(), startGet, {Val, [{childItem, item}, {filterItems, [title, link, description, guid, pubDate]}, {dateTimeField, pubDate}]}};
