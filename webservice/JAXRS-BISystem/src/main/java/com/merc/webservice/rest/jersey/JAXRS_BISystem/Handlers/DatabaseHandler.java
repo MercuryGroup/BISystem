@@ -1,4 +1,4 @@
-package com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler;
+package com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers;
 
 import java.net.MalformedURLException;
 import java.io.BufferedReader;
@@ -63,7 +63,34 @@ public class DatabaseHandler {
     public CouchDbConnector getConnector() {
 	return db;
     }
-    
+
+    /**
+     * Returns a list of {@link org.ektorp.ViewResult.Row} as a result of the
+     * query. Queried from {@code db} with the specified {@code viewName}
+     * (located in a {@code designDocPath}).
+     * 
+     * @param db
+     *            A CouchDB database connector object.
+     * @param designDocPath
+     *            Name of the CouchDB design document.
+     * @param viewName
+     *            Name of the CouchDB view.
+     * @return A list of {@link org.ektorp.ViewResult.Row}.
+     */
+    public static List<Row> retrieveDataAsRows(CouchDbConnector db,
+	    String designDocPath, String viewName) {
+	/*
+	 * Executing a query against the database to retrieve data from a view,
+	 * located in the specified design document path.
+	 */
+	ViewQuery query = new ViewQuery().designDocId(designDocPath).viewName(
+		viewName);
+	/*
+	 * Returns the result as a list of {@link org.ektorp.ViewResult.Row}.
+	 */
+	return db.queryView(query).getRows();
+    }
+
     /**
      * Returns entity mapped objects in a list, where the objects are based on
      * {@code modelClass}. Queried from {@code db} with the specified
@@ -85,14 +112,13 @@ public class DatabaseHandler {
 	 * Executing a query against the database to retrieve data from a view,
 	 * located in the specified design document path.
 	 */
-	ViewQuery query = new ViewQuery()
-		.designDocId(designDocPath)
-		.viewName(viewName);
-//	List<T> result = db.queryView(query, modelClass);
+	ViewQuery query = new ViewQuery().designDocId(designDocPath).viewName(
+		viewName);
+	// List<T> result = db.queryView(query, modelClass);
 	List<Row> result = db.queryView(query).getRows();
 
 	return result.toString();
-//	return result.toString();
+	// return result.toString();
     }
 
     /**
@@ -123,68 +149,65 @@ public class DatabaseHandler {
 	 * Executing a query against the database to retrieve data from a view,
 	 * located in the specified design document path.
 	 */
-	ViewQuery query = new ViewQuery()
-		.designDocId(designDocPath)
-		.viewName(viewName)
-		.startKey(startKey)
-		.endKey(endKey);
-//	List<T> result = db.queryView(query, modelClass);
+	ViewQuery query = new ViewQuery().designDocId(designDocPath)
+		.viewName(viewName).startKey(startKey).endKey(endKey);
+	// List<T> result = db.queryView(query, modelClass);
 	List<Row> result = db.queryView(query).getRows();
 
 	return result.toString();
-//	return result.toString();
+	// return result.toString();
     }
 
-//    ***Deprecated method***
-//    /**
-//     * Returns raw JSON data from the specified {@code viewName} (located in a
-//     * {@code designDocPath}). Reached via the provided {@code db}.
-//     * 
-//     * @param db
-//     *            A CouchDB database connector object.
-//     * @param designDocPath
-//     *            Name of the CouchDB design document.
-//     * @param viewName
-//     *            Name of the CouchDB view.
-//     * @return String Raw JSON data.
-//     */
-//    public static String retrieveRawJSONData(CouchDbConnector db,
-//	    String designDocPath, String viewName) {
-//	/*
-//	 * Executing a query against the database to retrieve data from a view,
-//	 * located in the specified design document path.
-//	 */
-//	ViewQuery query = new ViewQuery().designDocId(designDocPath).viewName(
-//		viewName);
-//	/* Retrieving the result of the query as a InputStream object */
-//	InputStream resultStream = db.queryForStream(query);
-//	/* Preparing the InputStream to be read */
-//	BufferedReader resultReader = new BufferedReader(new InputStreamReader(
-//		resultStream));
-//	StringBuilder sb = new StringBuilder();
-//	String line = null; // Used for temporary storage
-//	/*
-//	 * Reading each line (ends with \n) and concatenating it into a result
-//	 * String object.
-//	 */
-//	try {
-//	    while ((line = resultReader.readLine()) != null) {
-//		sb.append(line + "\n");
-//	    }
-//	}
-//	catch (IOException e1) {
-//	    e1.printStackTrace();
-//	}
-//
-//	/* Releasing the resources for the stream */
-//	try {
-//	    resultStream.close();
-//	}
-//	catch (IOException e) {
-//	    e.printStackTrace();
-//	}
-//
-//	/* Return the result as a String object */
-//	return sb.toString();
-//    }
+    // ***Deprecated method***
+    // /**
+    // * Returns raw JSON data from the specified {@code viewName} (located in a
+    // * {@code designDocPath}). Reached via the provided {@code db}.
+    // *
+    // * @param db
+    // * A CouchDB database connector object.
+    // * @param designDocPath
+    // * Name of the CouchDB design document.
+    // * @param viewName
+    // * Name of the CouchDB view.
+    // * @return String Raw JSON data.
+    // */
+    // public static String retrieveRawJSONData(CouchDbConnector db,
+    // String designDocPath, String viewName) {
+    // /*
+    // * Executing a query against the database to retrieve data from a view,
+    // * located in the specified design document path.
+    // */
+    // ViewQuery query = new ViewQuery().designDocId(designDocPath).viewName(
+    // viewName);
+    // /* Retrieving the result of the query as a InputStream object */
+    // InputStream resultStream = db.queryForStream(query);
+    // /* Preparing the InputStream to be read */
+    // BufferedReader resultReader = new BufferedReader(new InputStreamReader(
+    // resultStream));
+    // StringBuilder sb = new StringBuilder();
+    // String line = null; // Used for temporary storage
+    // /*
+    // * Reading each line (ends with \n) and concatenating it into a result
+    // * String object.
+    // */
+    // try {
+    // while ((line = resultReader.readLine()) != null) {
+    // sb.append(line + "\n");
+    // }
+    // }
+    // catch (IOException e1) {
+    // e1.printStackTrace();
+    // }
+    //
+    // /* Releasing the resources for the stream */
+    // try {
+    // resultStream.close();
+    // }
+    // catch (IOException e) {
+    // e.printStackTrace();
+    // }
+    //
+    // /* Return the result as a String object */
+    // return sb.toString();
+    // }
 }

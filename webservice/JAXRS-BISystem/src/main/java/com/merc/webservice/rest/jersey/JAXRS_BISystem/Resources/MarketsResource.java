@@ -1,4 +1,4 @@
-package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resource;
+package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resources;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.ektorp.CouchDbConnector;
 
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Stocks;
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Markets;
-import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers.DatabaseHandler;
 
 /**
  * Root resource (exposed at "markets" path)
@@ -28,6 +28,9 @@ import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
 public class MarketsResource {
     private CouchDbConnector dbConnector;
 
+    /**
+     * Creates a new instance of MarketsResource.
+     */
     public MarketsResource() {
 	/* Creating a connection to the CouchDB database */
 	this.dbConnector = new DatabaseHandler().getConnector();
@@ -87,6 +90,10 @@ public class MarketsResource {
 	 * Retrieves and returns data from the CouchDB database based on the
 	 * supplied parameters.
 	 */
+	System.out.println("Start: " + Long.toString(
+			System.currentTimeMillis() - (86400 *1000)));
+	System.out.println("End: " + Long.toString(
+		System.currentTimeMillis()));
 	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
 		symbol.toLowerCase().concat("_market"),
 		Long.toString( // Start time, a day before current time
