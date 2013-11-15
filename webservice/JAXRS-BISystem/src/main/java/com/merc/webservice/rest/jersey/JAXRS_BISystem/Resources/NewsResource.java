@@ -1,4 +1,4 @@
-package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resource;
+package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resources;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,12 +12,12 @@ import javax.ws.rs.core.MediaType;
 import org.ektorp.CouchDbConnector;
 
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.News;
-import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
+import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers.DatabaseHandler;
 
 /**
  * Root resource (exposed at "news" path)
  * 
- * Modified: 2013-11-09.
+ * Modified: 2013-11-14.
  * 
  * @author Robin Larsson
  * @version 0.5
@@ -27,6 +27,9 @@ import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handler.DatabaseHandler;
 public class NewsResource {
     private CouchDbConnector dbConnector;
 
+    /**
+     * Creates a new instance of NewsResource.
+     */
     public NewsResource() {
 	/* Creating a connection to the CouchDB database */
 	this.dbConnector = new DatabaseHandler().getConnector();

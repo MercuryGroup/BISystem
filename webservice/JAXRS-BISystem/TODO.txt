@@ -1,13 +1,10 @@
 Web service JAXRS-BISystem:
 
 Thoughts:
-*NOT NEEDED, USE THE JACKSON LIBRARY IN EKTORP*
-Handling the storage of JSON data from CouchDB: JavaBeans???,
-http://code.google.com/p/genson/
+
 
 Ideas:
-Handling the date period by filtering by the key, where the start and end keys
-are based on the supplied start and stop parameter (converted to a timestamp at the web service side).
+Caching left to do. I have an idea on how to solve it, just need to see if it's possible to implement (Db data is cached as Strings and processed and returned in JSON string by using JAXB (moxy library and EclipseLink, Unmarshaller)). The API reference shall be correct for now. When done architecture documentation needs to be built-up.
 
 Potential issues:
 May data retrival, in a TimerTask, to be synchronous?
