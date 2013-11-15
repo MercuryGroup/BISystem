@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 
-public class httpThread extends AsyncTask<Void, Void, Void> {
+public class StockThread extends AsyncTask<Void, Void, Void> {
 
 protected void onProgressUpdate(Integer... progress) {
    // setProgressPercent(progress[0]);
@@ -87,15 +87,9 @@ private void readStream(InputStream in) {
 	  String updated = JSONObjStockVal.getString("updated");
 	  String openVal = JSONObjStockVal.getString("openVal");
 	  
-	  
-	//  JSONObject Obj2 = jsonStockArray.getJSONObject(0);
-			  
-   
-	 // String change = jsonObj.getString("change");
-	 // String latest = jsonObj.getString("latest");
-	 // int age = jsonObj.getInt("id");
-	  System.out.println(symbol + " " + " " + name + " " + change + " " + latest + " " + percent + " " + volume + " " + market + " " + updated + "\n");
-	 // System.out.println("Symbol :" + symbol + "\n Name : " + name + "\n Change : " + change + "\n Latest : " + latest);
+
+	  System.out.println(symbol + " " + " " + name + " " + change + " " + latest + " " + percent + " " + volume + " " + market + " " + updated + "" + openVal + "\n");
+	
 	  
 
 	  }
@@ -105,6 +99,8 @@ private void readStream(InputStream in) {
 	  
 	  }
 	  }
+
+
 
 }
 	
