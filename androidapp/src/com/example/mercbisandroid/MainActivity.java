@@ -23,12 +23,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.activity_main);
-
+		
+		// Rickard Bremer
+		checkInternetConnection();
+		
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
 		viewPager.setAdapter(new adapter(getSupportFragmentManager()));
 		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 		
-		checkInternetConnection();	
+			
+		
 			@Override
 			public void onPageSelected(int arg0) {
 				// TODO Auto-generated method stub
@@ -67,7 +71,21 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		actionBar.addTab(market);
 		actionBar.addTab(portfolio);
 	}
+	
+	// Rickard Bremer
+	
+	private void checkInternetConnection() {
+    	ConnectivityManager connMgr = (ConnectivityManager) 
+    	        getSystemService(Context.CONNECTIVITY_SERVICE);
+    	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+    	    if (networkInfo != null && networkInfo.isConnected()) {
+    	    	new StockThread().execute();
+    	    } else {
+    	        System.out.println("A Internet connection is not available!");
+    	    }
+    	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -120,17 +138,5 @@ public class MainActivity extends FragmentActivity implements TabListener {
 			return 3;
 		}
 	}
-
-    private void checkInternetConnection() {
-    	ConnectivityManager connMgr = (ConnectivityManager) 
-    	        getSystemService(Context.CONNECTIVITY_SERVICE);
-    	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-    	    if (networkInfo != null && networkInfo.isConnected()) {
-    	    	new httpThread().execute();
-    	    } else {
-    	        System.out.println("A Internet connection is not available!");
-    	    }
-    	}
-	
 	
 }

@@ -68,13 +68,24 @@ ok;
 
 sendData(_Type, List) ->
 	
+
+	% case _Type of 
+	% stock -> [A|T] = List,
+	%		 {Key, Val} = A,
+    %            io:format("~p~n", [Val]),
+    %            ?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
+	%			?NEWS ! {self(), symbol, Val};			
+	%			
+    % 
+	%    _ -> 	 ok
+	% end,
+		
+	
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
 		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
     Doc = { listToBin(List)},
- 		{ok, DocResult} = couchbeam:save_doc(Db, Doc),
-    
-    io:format("~p", [DocResult]).
+ 		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -87,14 +98,18 @@ listToBin([]) -> [];
 listToBin([{Key, Val}|T]) ->
 	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
 
+%toNews([{Key, Val|T}]) ->
+%		[{binary:bin_to_list(Key)}]
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Receive a List from the Transform module.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop() ->
-	receive 
-		
+	receive
+
 		{stock , List} ->
 			sendData(stock, List),
 			loop();
@@ -104,6 +119,7 @@ loop() ->
 			loop();
 		
 		{news, List} ->
+			io:format("~p~n", [List]),
 			sendData(news, List),
 			loop();
 		

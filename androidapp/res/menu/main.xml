@@ -1,38 +1,9 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
-<!--     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_settings"/> -->
-    <item 
-        android:id="@+id/stocks"
-        android:title="@string/stocksTB"
-        android:orderInCategory="1"
-		android:showAsAction="always" />
-    <item
-        android:id="@+id/market"
-        android:title="@string/marketTB"
-        android:orderInCategory="2"
-        android:showAsAction="always" />
-    <item
-        android:id="@+id/portfolio"
-        android:title="@string/portfolioTB"
-        android:orderInCategory="3"
-        android:showAsAction="always" />
-    
+<menu xmlns:android="http://schemas.android.com/apk/res/android">    
     <item
         android:title="Info"
    		android:showAsAction="never"
-   		android:id="@+id/settings" >
-	
-<!--  	<item
-	    android:title="test"
-	    android:icon="@drawable/ic_search"
-	    android:showAsAction="collapseActionView" -->
-		
-	
-	</item>
+   		android:id="@+id/settings" />
+			
 	
         
 </menu>

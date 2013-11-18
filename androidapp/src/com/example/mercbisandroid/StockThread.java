@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 
-public class httpThread extends AsyncTask<Void, Void, Void> {
+public class StockThread extends AsyncTask<Void, Void, Void> {
 
 protected void onProgressUpdate(Integer... progress) {
    // setProgressPercent(progress[0]);
@@ -27,7 +27,7 @@ protected void onPostExecute(Long result) {
 protected Void doInBackground(Void... arg0) {
 	
 	try {
-		  URL url = new URL("http://46.194.18.251:5984/mercury/_design/bi/_view/lse");
+		  URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=\"1383565321852\"&endkey=\"1383565328964\"");
 		  
 		  HttpURLConnection con = (HttpURLConnection) url
 		    .openConnection();
@@ -69,21 +69,27 @@ private void readStream(InputStream in) {
 	  try {
 	  
 	  JSONObject jsonObjMain = new JSONObject(jsonLine);
-
 	  JSONArray jsonArray = jsonObjMain.getJSONArray("rows");
-
-	  for (int i = 0; i < jsonArray.length(); i++) {
-
-	  JSONObject jsonObj = jsonArray.getJSONObject(i);
-
 	  
-	  String id = jsonObj.getString("id");
-//	  String name = jsonObj.getString("name");
-//	  String city = jsonObj.getString("city");
-//	  String gender = jsonObj.getString("gender");
-//	  int age = jsonObj.getInt("id");
+	  for (int i = 0; i < jsonArray.length(); i++) {
+		  
+	  JSONObject jsonObjStock = new JSONObject(new String(jsonArray.getString(i)));
+      
+	  JSONObject JSONObjStockVal = new JSONObject(jsonObjStock.getString("value"));
+	  
+	  String symbol = JSONObjStockVal.getString("symbol");
+	  String name = JSONObjStockVal.getString("name");
+	  String change = JSONObjStockVal.getString("change");
+	  String latest = JSONObjStockVal.getString("latest");
+	  String percent = JSONObjStockVal.getString("percent");
+	  String volume = JSONObjStockVal.getString("volume");
+	  String market = JSONObjStockVal.getString("market");
+	  String updated = JSONObjStockVal.getString("updated");
+	  String openVal = JSONObjStockVal.getString("openVal");
+	  
 
-	  System.out.println("id : " + id);
+	  System.out.println(symbol + " " + " " + name + " " + change + " " + latest + " " + percent + " " + volume + " " + market + " " + updated + "" + openVal + "\n");
+	
 	  
 
 	  }
@@ -93,6 +99,8 @@ private void readStream(InputStream in) {
 	  
 	  }
 	  }
+
+
 
 }
 	

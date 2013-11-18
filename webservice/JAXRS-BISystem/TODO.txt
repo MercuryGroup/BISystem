@@ -1,0 +1,15 @@
+Web service JAXRS-BISystem:
+
+Thoughts:
+
+
+Ideas:
+Caching left to do. I have an idea on how to solve it, just need to see if it's possible to implement (Db data is cached as Strings and processed and returned in JSON string by using JAXB (moxy library and EclipseLink, Unmarshaller)). The API reference shall be correct for now. When done architecture documentation needs to be built-up.
+
+Potential issues:
+May data retrival, in a TimerTask, to be synchronous?
+Quote, "More information about Timers" http://enos.itcollege.ee/~jpoial/docs/tutorial/essential/threads/timer.html:
+"The timer tasks shown here have been very simple. They do almost nothing and refer only to data that either can be safely accessed from multiple threads or is private to the timer task. As long as your timer task uses only APIs designed to be thread-safe, such as the methods in the Timer class, implementing timers is relatively straightforward. However, if your timer implementation depends on shared resources, such as data used by other places in your program, you need to be careful. To find out more about this, see the Synchronizing Threads (in the Essential Java Classes trail) section."
+
+Another issue, quote from http://docs.oracle.com/javase/7/docs/api/java/util/Timer.html:
+"Corresponding to each Timer object is a single background thread that is used to execute all of the timer's tasks, sequentially. Timer tasks should complete quickly. If a timer task takes excessive time to complete, it "hogs" the timer's task execution thread. This can, in turn, delay the execution of subsequent tasks, which may "bunch up" and execute in rapid succession when (and if) the offending task finally completes."
