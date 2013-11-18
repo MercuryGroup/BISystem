@@ -24,7 +24,8 @@ start() ->
 	if Pid == undefined ->
 		register(?CURRENCY, spawn(?CURRENCY, init, [])),
 		{ok, whereis(?CURRENCY)};
-		true -> {ok, Pid}
+		true -> 
+			{ok, Pid}
 	end.
 
 init() ->
@@ -94,9 +95,15 @@ loop(Db) ->
 			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
 			loop(Db);
 		{request, Pid, {Val, "SEK"}} ->
-			Rate = element(1, string:to_float(element(3, Db))),
-			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
-			loop(Db);
+			if 
+				Val == "-" ->
+					reply(Pid, "-"),
+					loop(Db);
+				true ->
+					Rate = element(1, string:to_float(element(3, Db))),
+					reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
+					loop(Db)
+				end;
 		{request, Pid, {Val, "JPY"}} ->
 			Rate = element(1, string:to_float(element(4, Db))),
 			reply(Pid, lists:nth(1, io_lib:format("~.2f",[(Rate * element(1, string:to_float(Val)))]))),
