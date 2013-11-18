@@ -95,7 +95,7 @@ getData(Stock, [{openVal, FilterStart, FilterStop}|Filters]) ->
 		"&nbsp;" ->
 			OpenVal = "-";
 		_ ->
-			OpenVal = currencyWrapper(_OpenVal)
+			OpenVal = currencyWrapper(re:replace(_OpenVal, "\\s+", "", [global,{return,list}]))
 	end,
 	[{openVal, OpenVal}|getData(TrimmedStock, Filters)];
 %%Latest (change value to euro)
@@ -105,7 +105,7 @@ getData(Stock, [{latest, FilterStart, FilterStop}|Filters]) ->
 		"-" ->
 			Latest = _Latest;
 		_ ->
-			Latest = currencyWrapper(_Latest)
+			Latest = currencyWrapper(re:replace(_Latest, "\\s+", "", [global,{return,list}]))
 	end,
 	[{latest, Latest}|getData(TrimmedStock, Filters)];
 %%Change (change value to euro)
