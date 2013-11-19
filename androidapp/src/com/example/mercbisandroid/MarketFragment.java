@@ -29,9 +29,9 @@ import android.widget.TextView;
  */
 public class MarketFragment extends ListFragment {
 	
-	static final String[] FRUITS = new String[] { "Apple", "Avocado", "Banana",
-		"Blueberry", "Coconut", "Durian", "Guava", "Kiwifruit",
-		"Jackfruit", "Mango", "Olive", "Pear", "Sugar-apple" };
+	static final String[] STOCKS = new String[] { "Stock1", "Stock2", "Stock3",
+		"Stock4", "Stock5", "Stock6", "Stock7", "Stock8",
+		"Stock9", "Stock10", "Stock11", "Stock12", "Stock13" };
 
 //AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> STOCKS = new StockThread().execute();
 	 
@@ -61,7 +61,7 @@ public class MarketFragment extends ListFragment {
 		
 		
 		     
-			setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_fruit,FRUITS));
+			setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
 		    ListView listView = getListView(); //EX: 
 		    listView.setTextFilterEnabled(true);
 		    registerForContextMenu(listView);
