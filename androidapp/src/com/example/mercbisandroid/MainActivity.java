@@ -79,9 +79,10 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	        getSystemService(Context.CONNECTIVITY_SERVICE);
     	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     	    if (networkInfo != null && networkInfo.isConnected()) {
-    	    	new StockThread().execute();
+    	    	System.out.println("A internet connection is available!");
     	    } else {
     	        System.out.println("A Internet connection is not available!");
+    	        System.exit(0);
     	    }
     	}
 
@@ -124,7 +125,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
 				fragment = new StocksFragment();
 			}
 			if (arg0==1){
-				fragment = new MarketFragment();
+				fragment = (Fragment) new MarketFragment();
 			}
 			if (arg0==2){
 				fragment = new PortfolioFragment();
