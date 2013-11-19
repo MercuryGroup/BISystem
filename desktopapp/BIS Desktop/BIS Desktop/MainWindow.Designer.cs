@@ -38,24 +38,30 @@
             this.minimizeLabel = new System.Windows.Forms.Label();
             this.dragPanel = new System.Windows.Forms.Panel();
             this.mainContentPanel = new System.Windows.Forms.Panel();
-            this.rightContentPanel = new System.Windows.Forms.Panel();
+            this.rightPanel = new System.Windows.Forms.Panel();
             this.leftParentPanel = new System.Windows.Forms.Panel();
             this.settings = new System.Windows.Forms.Panel();
+            this.nyseButton = new System.Windows.Forms.Button();
+            this.lseButton = new System.Windows.Forms.Button();
+            this.omxButton = new System.Windows.Forms.Button();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.menu.SuspendLayout();
             this.dragPanel.SuspendLayout();
             this.mainContentPanel.SuspendLayout();
             this.leftParentPanel.SuspendLayout();
+            this.settings.SuspendLayout();
             this.SuspendLayout();
             // 
             // marketButton
             // 
             this.marketButton.BackColor = System.Drawing.Color.LightGray;
+            this.marketButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.marketButton.FlatAppearance.BorderSize = 0;
             this.marketButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.marketButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.marketButton.Location = new System.Drawing.Point(-7, 115);
+            this.marketButton.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.marketButton.Location = new System.Drawing.Point(1, 114);
             this.marketButton.Name = "marketButton";
-            this.marketButton.Size = new System.Drawing.Size(185, 95);
+            this.marketButton.Size = new System.Drawing.Size(184, 71);
             this.marketButton.TabIndex = 0;
             this.marketButton.Text = "Market";
             this.marketButton.UseVisualStyleBackColor = false;
@@ -64,11 +70,13 @@
             // stocksButton
             // 
             this.stocksButton.BackColor = System.Drawing.Color.LightGray;
+            this.stocksButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.stocksButton.FlatAppearance.BorderSize = 0;
             this.stocksButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.stocksButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.stocksButton.Location = new System.Drawing.Point(-7, 209);
+            this.stocksButton.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.stocksButton.Location = new System.Drawing.Point(1, 191);
             this.stocksButton.Name = "stocksButton";
-            this.stocksButton.Size = new System.Drawing.Size(185, 95);
+            this.stocksButton.Size = new System.Drawing.Size(184, 71);
             this.stocksButton.TabIndex = 0;
             this.stocksButton.Text = "Stocks";
             this.stocksButton.UseVisualStyleBackColor = false;
@@ -77,11 +85,13 @@
             // newsButton
             // 
             this.newsButton.BackColor = System.Drawing.Color.LightGray;
+            this.newsButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.newsButton.FlatAppearance.BorderSize = 0;
             this.newsButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.newsButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.newsButton.Location = new System.Drawing.Point(-7, 302);
+            this.newsButton.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.newsButton.Location = new System.Drawing.Point(0, 268);
             this.newsButton.Name = "newsButton";
-            this.newsButton.Size = new System.Drawing.Size(185, 95);
+            this.newsButton.Size = new System.Drawing.Size(185, 71);
             this.newsButton.TabIndex = 0;
             this.newsButton.Text = "News";
             this.newsButton.UseVisualStyleBackColor = false;
@@ -90,11 +100,13 @@
             // portfolioButton
             // 
             this.portfolioButton.BackColor = System.Drawing.Color.LightGray;
+            this.portfolioButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.portfolioButton.FlatAppearance.BorderSize = 0;
             this.portfolioButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.portfolioButton.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.portfolioButton.Location = new System.Drawing.Point(-7, 396);
+            this.portfolioButton.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.portfolioButton.Location = new System.Drawing.Point(0, 345);
             this.portfolioButton.Name = "portfolioButton";
-            this.portfolioButton.Size = new System.Drawing.Size(185, 95);
+            this.portfolioButton.Size = new System.Drawing.Size(185, 71);
             this.portfolioButton.TabIndex = 0;
             this.portfolioButton.Text = "Portfolio";
             this.portfolioButton.UseVisualStyleBackColor = false;
@@ -112,7 +124,8 @@
             this.menu.Location = new System.Drawing.Point(0, 0);
             this.menu.Margin = new System.Windows.Forms.Padding(0);
             this.menu.Name = "menu";
-            this.menu.Size = new System.Drawing.Size(201, 688);
+            this.menu.Padding = new System.Windows.Forms.Padding(3);
+            this.menu.Size = new System.Drawing.Size(195, 688);
             this.menu.TabIndex = 0;
             this.menu.Paint += new System.Windows.Forms.PaintEventHandler(this.menu_Paint);
             // 
@@ -172,7 +185,7 @@
             // 
             // dragPanel
             // 
-            this.dragPanel.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.dragPanel.BackColor = System.Drawing.Color.White;
             this.dragPanel.Controls.Add(this.minimizeLabel);
             this.dragPanel.Controls.Add(this.maximizeLabel);
             this.dragPanel.Controls.Add(this.closeLabel);
@@ -187,8 +200,8 @@
             // 
             // mainContentPanel
             // 
-            this.mainContentPanel.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.mainContentPanel.Controls.Add(this.rightContentPanel);
+            this.mainContentPanel.BackColor = System.Drawing.Color.White;
+            this.mainContentPanel.Controls.Add(this.rightPanel);
             this.mainContentPanel.Controls.Add(this.leftParentPanel);
             this.mainContentPanel.Controls.Add(this.menu);
             this.mainContentPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -198,15 +211,16 @@
             this.mainContentPanel.Size = new System.Drawing.Size(1280, 688);
             this.mainContentPanel.TabIndex = 4;
             // 
-            // rightContentPanel
+            // rightPanel
             // 
-            this.rightContentPanel.BackColor = System.Drawing.Color.ForestGreen;
-            this.rightContentPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightContentPanel.Location = new System.Drawing.Point(804, 0);
-            this.rightContentPanel.Margin = new System.Windows.Forms.Padding(5, 0, 0, 0);
-            this.rightContentPanel.Name = "rightContentPanel";
-            this.rightContentPanel.Size = new System.Drawing.Size(476, 688);
-            this.rightContentPanel.TabIndex = 4;
+            this.rightPanel.BackColor = System.Drawing.Color.ForestGreen;
+            this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
+            this.rightPanel.Font = new System.Drawing.Font("Segoe UI", 9.75F);
+            this.rightPanel.Location = new System.Drawing.Point(804, 0);
+            this.rightPanel.Margin = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.rightPanel.Name = "rightPanel";
+            this.rightPanel.Size = new System.Drawing.Size(476, 688);
+            this.rightPanel.TabIndex = 4;
             // 
             // leftParentPanel
             // 
@@ -214,7 +228,7 @@
             this.leftParentPanel.Controls.Add(this.settings);
             this.leftParentPanel.Controls.Add(this.leftPanel);
             this.leftParentPanel.Dock = System.Windows.Forms.DockStyle.Left;
-            this.leftParentPanel.Location = new System.Drawing.Point(201, 0);
+            this.leftParentPanel.Location = new System.Drawing.Point(195, 0);
             this.leftParentPanel.Margin = new System.Windows.Forms.Padding(0, 0, 5, 0);
             this.leftParentPanel.Name = "leftParentPanel";
             this.leftParentPanel.Size = new System.Drawing.Size(517, 688);
@@ -222,23 +236,75 @@
             // 
             // settings
             // 
-            this.settings.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            this.settings.BackColor = System.Drawing.Color.White;
+            this.settings.Controls.Add(this.nyseButton);
+            this.settings.Controls.Add(this.lseButton);
+            this.settings.Controls.Add(this.omxButton);
             this.settings.Dock = System.Windows.Forms.DockStyle.Top;
             this.settings.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.settings.Location = new System.Drawing.Point(0, 0);
             this.settings.Margin = new System.Windows.Forms.Padding(0);
             this.settings.Name = "settings";
-            this.settings.Size = new System.Drawing.Size(517, 59);
+            this.settings.Padding = new System.Windows.Forms.Padding(6);
+            this.settings.Size = new System.Drawing.Size(517, 37);
             this.settings.TabIndex = 1;
+            // 
+            // nyseButton
+            // 
+            this.nyseButton.BackColor = System.Drawing.Color.LightGray;
+            this.nyseButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.nyseButton.FlatAppearance.BorderSize = 0;
+            this.nyseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.nyseButton.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.nyseButton.Location = new System.Drawing.Point(172, 0);
+            this.nyseButton.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
+            this.nyseButton.Name = "nyseButton";
+            this.nyseButton.Size = new System.Drawing.Size(80, 28);
+            this.nyseButton.TabIndex = 1;
+            this.nyseButton.Text = "NYSE";
+            this.nyseButton.UseVisualStyleBackColor = false;
+            this.nyseButton.Click += new System.EventHandler(this.nyseButton_Click);
+            // 
+            // lseButton
+            // 
+            this.lseButton.BackColor = System.Drawing.Color.LightGray;
+            this.lseButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.lseButton.FlatAppearance.BorderSize = 0;
+            this.lseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.lseButton.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lseButton.Location = new System.Drawing.Point(-1, 0);
+            this.lseButton.Margin = new System.Windows.Forms.Padding(0, 3, 3, 6);
+            this.lseButton.Name = "lseButton";
+            this.lseButton.Size = new System.Drawing.Size(80, 28);
+            this.lseButton.TabIndex = 0;
+            this.lseButton.Text = "LSE";
+            this.lseButton.UseVisualStyleBackColor = false;
+            this.lseButton.Click += new System.EventHandler(this.lseButton_Click);
+            // 
+            // omxButton
+            // 
+            this.omxButton.BackColor = System.Drawing.Color.LightGray;
+            this.omxButton.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.omxButton.FlatAppearance.BorderSize = 0;
+            this.omxButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.omxButton.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.omxButton.Location = new System.Drawing.Point(85, 0);
+            this.omxButton.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
+            this.omxButton.Name = "omxButton";
+            this.omxButton.Size = new System.Drawing.Size(80, 28);
+            this.omxButton.TabIndex = 2;
+            this.omxButton.Text = "OMX";
+            this.omxButton.UseVisualStyleBackColor = false;
+            this.omxButton.Click += new System.EventHandler(this.omxButton_Click);
             // 
             // leftPanel
             // 
             this.leftPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.leftPanel.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.leftPanel.Location = new System.Drawing.Point(0, 62);
+            this.leftPanel.Location = new System.Drawing.Point(0, 52);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(517, 626);
+            this.leftPanel.Size = new System.Drawing.Size(517, 636);
             this.leftPanel.TabIndex = 2;
             // 
             // MainWindow
@@ -257,6 +323,7 @@
             this.dragPanel.PerformLayout();
             this.mainContentPanel.ResumeLayout(false);
             this.leftParentPanel.ResumeLayout(false);
+            this.settings.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -273,10 +340,13 @@
         private System.Windows.Forms.Label minimizeLabel;
         private System.Windows.Forms.Panel dragPanel;
         private System.Windows.Forms.Panel mainContentPanel;
-        private System.Windows.Forms.Panel rightContentPanel;
         private System.Windows.Forms.Panel leftParentPanel;
         private System.Windows.Forms.Panel settings;
+        private System.Windows.Forms.Panel rightPanel;
         private System.Windows.Forms.Panel leftPanel;
+        private System.Windows.Forms.Button lseButton;
+        private System.Windows.Forms.Button nyseButton;
+        private System.Windows.Forms.Button omxButton;
     }
 }
 

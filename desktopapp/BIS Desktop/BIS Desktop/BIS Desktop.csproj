@@ -60,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="News.cs" />
+    <Compile Include="ResultPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Stock.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
@@ -73,6 +76,7 @@
     <Compile Include="ResultList.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ThreadHandler.cs" />
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
