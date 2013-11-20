@@ -12,5 +12,7 @@
     <string name="portfoliotest">This is the portfolio window</string>
     <string name="stockstest">This is the stocks window</string>
     <string name="title_activity_portfolio">PortfolioActivity</string>
-
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search stocks</string>
 </resources>
