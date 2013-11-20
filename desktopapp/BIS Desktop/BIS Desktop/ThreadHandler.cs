@@ -12,17 +12,17 @@ namespace BIS_Desktop
     class ThreadHandler
     {
         Thread t;
-        public void fetchResult(Object sender, String resultType, String market)
+        public void fetchResult(Object sender, String resultType, String market, object mainWindow)
         {
-            t = new Thread(() => fetchResultThread(sender, resultType, market));
+            t = new Thread(() => fetchResultThread(sender, resultType, market, mainWindow));
             t.Start();
         }
-        private void fetchResultThread(Object sender, String resultType, String market)
+        private void fetchResultThread(Object sender, String resultType, String market, object mainWindow)
         {
             ResultPanel panel = sender as ResultPanel;
             if (resultType == "stocks")
             {
-                ResultList list = new ResultList(resultType, market);
+                ResultList list = new ResultList(resultType, market, mainWindow);
                 panel.Invoke((MethodInvoker) (() => panel.Controls.Clear()));
                 panel.Controls.Clear();
                 panel.setContent(list);
@@ -37,9 +37,7 @@ namespace BIS_Desktop
                 panel.setContent(info);
                 panel.updateSize();
                 panel.Invoke((MethodInvoker)(() => panel.Controls.Add(info)));
-
             }
-            
             panel.setLoading(false);
         }
     }

@@ -37,13 +37,7 @@ namespace BIS_Desktop
             {
                 ResultList temp = content as ResultList;
                 temp.setSize(this.Width, this.Height);
-                Console.WriteLine("List");
             }
-            
-            
-            Console.WriteLine(content.Width + " " + this.Width);
-            
-            
         }
         public Panel getContent()
         {

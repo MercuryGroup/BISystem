@@ -35,7 +35,7 @@ namespace BIS_Desktop
          * Inner panels that will handle the parsed results 
          * for both left and right panels
          */
-        ResultPanel leftPanelResults, rightPanelResults;
+        public ResultPanel leftPanelResults, rightPanelResults;
         //Color used for buttons that have been clicked.
         Color mercuryBlue, 
             mercuryRed,
@@ -133,7 +133,7 @@ namespace BIS_Desktop
                 lseButton.BackColor = mercuryBlue;
                 lseButton.ForeColor = Color.White;
             }
-            loadResult(leftPanelResults, currentResultType, currentMarket);
+            loadResult(leftPanelResults, currentResultType, currentMarket, this);
             
         }
         private void marketClick(Object sender, String market_)
@@ -143,7 +143,7 @@ namespace BIS_Desktop
             button_.BackColor = mercuryBlue;
             button_.ForeColor = Color.White;
             currentMarket = market_;
-            loadResult(leftPanelResults, currentResultType, currentMarket);
+            loadResult(leftPanelResults, currentResultType, currentMarket, this);
         }
         /// <summary>
         /// Load result to the calling panel.
@@ -151,7 +151,7 @@ namespace BIS_Desktop
         /// <param name="sender"></param>
         /// <param name="contentType"></param>
         /// <param name="resultCategory"></param>
-        private void loadResult(object sender, String resultType, String resultSource)
+        public void loadResult(object sender, String resultType, String resultSource, object mainWindow)
         {
             /**
              * TODO:
@@ -159,7 +159,6 @@ namespace BIS_Desktop
              * [X] Lägg på "loading" panel
              * [ ] Ladda ny tråd för att hämta innehåll
              */
-
             //Instantiate current panel
             ResultPanel panel = sender as ResultPanel;
             
@@ -204,12 +203,12 @@ namespace BIS_Desktop
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
                 
-                th.fetchResult(panel, currentResultType, currentMarket);
+                th.fetchResult(panel, currentResultType, currentMarket, mainWindow);
                 
                 
             }
             
-
+            
         }
 
         /// <summary>

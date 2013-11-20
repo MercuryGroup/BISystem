@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InfoDisplay.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="News.cs" />
     <Compile Include="ResultPanel.cs">
       <SubType>Component</SubType>
