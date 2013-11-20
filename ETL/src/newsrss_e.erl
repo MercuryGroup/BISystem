@@ -6,17 +6,20 @@
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
 %%% to be generic.
 %%% Supports XML element filtering, and parsing of date & time strings.
-%%% All the retrieved data is sent to the Load (DB).
+%%% All the retrieved data is sent to the Load part (DB) of the ETL.
+%%% NOTE: In order to retrieve news for stock market indexes there needs to be
+%%% a "^" character added before the symbol name, needed in order to follow
+%%% the Yahoo Finance News RSS Feed API.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 11 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 20 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
-% getData and sendData are deprecated since 2013-11-11, but exists for
+% sendData are deprecated for exporting since 2013-11-11, but exists for
 % future changes
--compile({nowarn_unused_function, [{getData, 1}, {sendData, 1}]}).
--export([start/0, stop/0]).
+-compile({nowarn_unused_function, [{sendData, 1}]}).
+-export([start/0, stop/0, getData/1]).
 % http://stackoverflow.com/a/18846096
 -include_lib("../include/ETL.hrl").
 % https://github.com/erlang/otp/blob/maint/lib/xmerl/include/xmerl.hrl
@@ -56,26 +59,16 @@ stop() ->
 %%% @doc
 %%% Sends a request to the server to retrieve news items (concurrently)
 %%% for each provided stock/market symbol.
-%%% The returned result depends on the Options variable.
-%%% The Options variable shall follow this format:
-%%% {Symbols,ExtractionOptions}.
-%%% Symbols = string() e.g. "yhoo,aapl,^ftse",
-%%% ExtractionOptions = list() [{childItem, item},
-%%%								{filterItems,
-%%%								[title, link, description, pubDate]},
-%%%								{databaseID, guid},
-%%% 							{dateTimeField, pubDate}]
+%%% Symbols = string() e.g. "yhoo,aapl,^ftse".
 %%%
 %%% Example call setup:
-%%% newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item},
-%%% {filterItems, [title, link, description, pubDate]}, {databaseID, guid},
-%%% {dateTimeField, pubDate}]}).
+%%% newsrss_e:getData("yhoo,aapl,^ftse").
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getData({string(), [tuple(), ...]}) -> ok).
-getData(Options) ->
-	?NEWS ! {self(), startGet, Options}.
+-spec(getData(string()) -> ok).
+getData(Symbols) ->
+	?NEWS ! {self(), symbol, Symbols}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -104,7 +97,7 @@ init() ->
 -spec(loop() -> stopped).
 loop() ->
 	receive
-		{_From, startGet, {SymbolsPre, XMLSearchInfo}} ->
+		{_From, symbol, Symbols} ->
 			% ***
 			% See getData/1 methods for more code info.
 			% Adapted for supporting multiple retrivals for
@@ -113,8 +106,12 @@ loop() ->
 			% ***
 			% Used for returning results from spawned processes
 			Pid = self(),
+			% Configuration settings for the news feed retrival
+			XMLSearchInfo = [{childItem, item},
+			{filterItems, [title, link, description, pubDate]}, {databaseID, guid},
+			{dateTimeField, pubDate}],
 			% Extracting each symbol into a separate string, stored in a list
-			SymbolsPost = string:tokens(SymbolsPre, ","),
+			SymbolsPost = string:tokens(Symbols, ","),
 			% For retrieving and parsing the XML data
 			RetrieveParseXML = fun(Symbol) ->
 				spawn(fun() ->
@@ -213,7 +210,7 @@ retrieveXML(_) -> % Not a vaild link
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% *Explicitly for responses from Yahoo Finance API*
-%%% Seeing whether the call limit has been exceeded.
+%%% Seeing whether the API call limit has been exceeded.
 %%% If not return the supplied data from the argument.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
