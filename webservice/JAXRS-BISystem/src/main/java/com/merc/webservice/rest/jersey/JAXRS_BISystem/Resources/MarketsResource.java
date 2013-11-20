@@ -1,8 +1,5 @@
 package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resources;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -11,17 +8,15 @@ import javax.ws.rs.core.MediaType;
 
 import org.ektorp.CouchDbConnector;
 
-import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Stocks;
-import com.merc.webservice.rest.jersey.JAXRS_BISystem.DesignDocModels.Markets;
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers.DatabaseHandler;
 
 /**
  * Root resource (exposed at "markets" path)
  * 
- * Modified: 2013-11-09.
+ * Created: 2013-10-31. Modified: 2013-11-20.
  * 
  * @author Robin Larsson
- * @version 0.5
+ * @version 0.9
  */
 @Path("/markets")
 @Produces(MediaType.APPLICATION_JSON)
@@ -57,20 +52,24 @@ public class MarketsResource {
     @GET
     @Path("day/stocks/{symbol}")
     public String getMarketStockDayData(@PathParam("symbol") String symbol) {
-	// List<String> symbols = Arrays.asList(symbol.split(","));
-	// return "{\"MarketData\":" + symbols.toString() + "}";
 	/*
 	 * Retrieves and returns data from the CouchDB database based on the
 	 * supplied parameters.
+	 * 
+	 * Caching is enabled by the Ektorp library.
 	 */
+	long currentTime = System.currentTimeMillis();
+//	System.out.println("Start: " + Long.toString(
+//		currentTime - (86400 *1000)));
+//	System.out.println("End: " + Long.toString(
+//		currentTime));
 	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
 		symbol.toLowerCase(),
 		Long.toString( // Start time, a day before current time
-			System.currentTimeMillis() - (86400 * 1000)),
+			currentTime - (86400 * 1000)),
 		Long.toString( // End time, current time
-			System.currentTimeMillis()), Stocks.class);
-	// return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
-	// "_design/bi", symbol.toLowerCase());
+			currentTime),
+		false);
     }
 
     /**
@@ -84,23 +83,23 @@ public class MarketsResource {
     @GET
     @Path("day/index/{symbol}")
     public String getMarketIndexDayData(@PathParam("symbol") String symbol) {
-	// List<String> symbols = Arrays.asList(symbol.split(","));
-	// return "{\"MarketData\":" + symbols.toString() + "}";
 	/*
 	 * Retrieves and returns data from the CouchDB database based on the
 	 * supplied parameters.
+	 * 
+	 * Caching is enabled by the Ektorp library.
 	 */
-	System.out.println("Start: " + Long.toString(
-			System.currentTimeMillis() - (86400 *1000)));
-	System.out.println("End: " + Long.toString(
-		System.currentTimeMillis()));
+	long currentTime = System.currentTimeMillis();
+//	System.out.println("Start: " + Long.toString(
+//			currentTime - (86400 *1000)));
+//	System.out.println("End: " + Long.toString(
+//			currentTime));
 	return DatabaseHandler.retrieveJSONData(this.dbConnector, "_design/bi",
 		symbol.toLowerCase().concat("_market"),
 		Long.toString( // Start time, a day before current time
-			System.currentTimeMillis() - (86400 * 1000)),
+			currentTime - (86400 * 1000)),
 		Long.toString( // End time, current time
-			System.currentTimeMillis()), Markets.class);
-//	return DatabaseHandler.retrieveRawJSONData(this.dbConnector,
-//		"_design/bi", symbol.toLowerCase().concat("_market"));
+			currentTime),
+		false);
     }
 }

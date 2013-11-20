@@ -1,13 +1,21 @@
 Web service JAXRS-BISystem:
 
+NOTE: Since 2013-11-20 all there are no more things to do with the web service.
+This is after some discussion about the data returned by it, how it shall be formatted etc.
+Now the returned data is the same as the one CouchDB returns, entity-mapping has been deprecated.
+All the filtering that is required is implemented.
+Caching is done internally by the Ektorp library (for communicate with a CouchDB database).
+
 Thoughts:
 
 
 Ideas:
 Caching left to do. I have an idea on how to solve it, just need to see if it's possible to implement (Db data is cached as Strings and processed and returned in JSON string by using JAXB (moxy library and EclipseLink, Unmarshaller)). The API reference shall be correct for now. When done architecture documentation needs to be built-up.
+***Needs to be rephrased***
+After more thinking and reading of internet sources, there is already support for the type of caching and filtering that the web service needs to support. All the required code is already implemented in the Ektorp library (https://github.com/helun/Ektorp). The foremost is to write everything that is required in order to fulfil the requirements of the web service, but now when it exists a discussion about this is required.
 
 Potential issues:
-May data retrival, in a TimerTask, to be synchronous?
+May data retrieval, in a TimerTask, to be synchronous?
 Quote, "More information about Timers" http://enos.itcollege.ee/~jpoial/docs/tutorial/essential/threads/timer.html:
 "The timer tasks shown here have been very simple. They do almost nothing and refer only to data that either can be safely accessed from multiple threads or is private to the timer task. As long as your timer task uses only APIs designed to be thread-safe, such as the methods in the Timer class, implementing timers is relatively straightforward. However, if your timer implementation depends on shared resources, such as data used by other places in your program, you need to be careful. To find out more about this, see the Synchronizing Threads (in the Essential Java Classes trail) section."
 
