@@ -17,27 +17,32 @@ namespace BIS_Desktop
     {
         /**
          * TODO:
-         * [ ] Add label "beneath" move window
-         * [ ] Reset market buttons
+         * [X] Add label "beneath" move window
+         * [X] Reset market buttons
          * [ ] Info display
          * [ ] Portfolio
          */
 
         private Point startPoint = new Point(0, 0);
         //Booleans that checks clicks
-        private Boolean marketClicked, 
-            stocksClicked, newsClicked, 
+        private Boolean marketClicked,
+            stocksClicked, newsClicked,
             portfolioClicked, maximized,
-            dragging, lseClicked, nyseClicked,
-            omxClicked;
+            dragging;
+        private int marketPanelHeight;
+        private String currentMarket, currentResultType;
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
          */
         ResultPanel leftPanelResults, rightPanelResults;
         //Color used for buttons that have been clicked.
-        Color buttonClickedColor, buttonColor, highlightWhite,
+        Color mercuryBlue, 
+            mercuryRed,
+            buttonColor, 
+            highlightWhite,
             loading;
+        private ThreadHandler th;
         public MainWindow()
         {
 
@@ -48,9 +53,8 @@ namespace BIS_Desktop
             newsClicked = false;
             portfolioClicked = false;
             maximized = false;
-            lseClicked = false;
-            nyseClicked = false;
-            omxClicked = false;
+            //Initialize market panel height
+            marketPanelHeight = 40;
             //Initialize left and right parent panels
             leftPanel = new Panel();
             rightPanel = new Panel();
@@ -64,15 +68,17 @@ namespace BIS_Desktop
             rightPanel.Controls.Add(rightPanelResults);
             //Set color for different buttons
             buttonColor = System.Drawing.ColorTranslator.FromHtml("#A2A2A2");
-            buttonClickedColor = System.Drawing.ColorTranslator.FromHtml("#354A69");
+            mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
+            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#A05050");
             highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAFA");
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
             //Set background colors for left and right panel
             leftPanel.BackColor = loading;
             rightPanel.BackColor = loading;
+            leftParentPanel.BackColor = loading;
             //Reset buttons
             resetMenuButtons();
-            resetMarketButtons();
+            disableMarketButtons();
             //Refresh all content panels
             refreshContentPanels();
             //Add event handlers to all necessary panels
@@ -103,7 +109,7 @@ namespace BIS_Desktop
             if (WindowState == FormWindowState.Maximized)
             {
                 //Change color of maximize button
-                maximizeLabel.ForeColor = Color.Firebrick;
+                maximizeLabel.ForeColor = mercuryRed;
                 //set drag panel width
                 dragPanel.Width = MainWindow.ActiveForm.Width;
                 //Set maximized boolean to true
@@ -112,113 +118,32 @@ namespace BIS_Desktop
                 refreshContentPanels();
             }
         }
-
-        private void menu_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
         
-        /// <summary>
-        /// Function that triggers whenever a menu button is clicked.
-        /// </summary>
-        /// <param name="button"></param>
-        /// <param name="toggled"></param>
-        private void menuClick(String button, Boolean toggled)
+        private void menuClick(Object sender, String resultType_)
         {
-            
-            /*
-             * If the button wasn't set to clicked before,
-             * set all other buttons to unclicked.
-             */
-            if (!toggled)
-            {
-                resetMenuButtons();
-            }
-            
-            //Check which button that was clicked
-            switch (button)
-            {
-                //Market
-                case "market":
-
-                    //Change color of button
-                    loadResult(rightPanelResults, "info", button);
-                    marketButton.BackColor = buttonClickedColor;
-                    marketButton.ForeColor = Color.White;
-                    //Change color of london button
-                    //lseButton.PerformClick();
-                    lseButton.BackColor = buttonClickedColor;
-                    lseButton.ForeColor = Color.White;
-                    break;
-                //Stocks
-                case "stocks":
-                    //Set left panel to display a result list (stocks)
-                    loadResult(leftPanelResults, "list", button);
-                    //Change color of button
-                    stocksButton.BackColor = buttonClickedColor;
-                    stocksButton.ForeColor = Color.White;
-                    //Change color of london button
-                    lseButton.BackColor = buttonClickedColor;
-                    lseButton.ForeColor = Color.White;
-                    break;
-                //News
-                case "news":
-                    //Set left panel to display a result list (news)
-                    loadResult(leftPanelResults, "list", button);
-                    //Change color of button
-                    newsButton.BackColor = buttonClickedColor;
-                    newsButton.ForeColor = Color.White;
-                    //Change color of london button
-                    lseButton.BackColor = buttonClickedColor;
-                    lseButton.ForeColor = Color.White;
-                    break;
-                //Portfolio
-                case "portfolio":
-                    //Change color of button
-                    portfolioButton.BackColor = buttonClickedColor;
-                    portfolioButton.ForeColor = Color.White;
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-        private void marketClick(String button, Boolean toggled)
-        {
-
-            /*
-             * If the button wasn't set to clicked before,
-             * set all other buttons to unclicked.
-             */
-            if (!toggled)
+            Button button_ = sender as Button;
+            resetMenuButtons();
+            button_.BackColor = mercuryBlue;
+            button_.ForeColor = Color.White;
+            currentResultType = resultType_;
+            if (currentMarket == null)
             {
                 resetMarketButtons();
+                currentMarket = "lse";
+                lseButton.BackColor = mercuryBlue;
+                lseButton.ForeColor = Color.White;
             }
-
-            //Check which button that was clicked
-            switch (button)
-            {
-                //Market
-                case "market":
-
-                    
-                    break;
-                //Stocks
-                case "stocks":
-                    
-                    break;
-                //News
-                case "news":
-                    
-                    break;
-                //Portfolio
-                case "portfolio":
-                    
-                    break;
-                default:
-                    break;
-            }
-
+            loadResult(leftPanelResults, currentResultType, currentMarket);
+            
+        }
+        private void marketClick(Object sender, String market_)
+        {
+            Button button_ = sender as Button;
+            resetMarketButtons();
+            button_.BackColor = mercuryBlue;
+            button_.ForeColor = Color.White;
+            currentMarket = market_;
+            loadResult(leftPanelResults, currentResultType, currentMarket);
         }
         /// <summary>
         /// Load result to the calling panel.
@@ -237,12 +162,12 @@ namespace BIS_Desktop
 
             //Instantiate current panel
             ResultPanel panel = sender as ResultPanel;
-            //Clear current panel
-            panel.Controls.Clear();
+            
             //Set current panel to loading (if the panel isn't already loading content)
             if (!panel.getLoading())
             {
-
+                //Clear current panel
+                panel.Controls.Clear();
                 //Create loading panel
                 Panel loadingPanel = new Panel();
                 //Create loading label
@@ -276,10 +201,11 @@ namespace BIS_Desktop
                 //Save the loading panel as the current content
                 panel.setContent(loadingPanel);
                 panel.setLoading(true);
-                //Start new thread for fetching information
-                ThreadHandler th = new ThreadHandler();
-                //
-                th.fetchResult(panel, resultType, resultSource);
+                //Createnew instance of class for threading
+                th = new ThreadHandler();
+                
+                th.fetchResult(panel, currentResultType, currentMarket);
+                
                 
             }
             
@@ -309,10 +235,7 @@ namespace BIS_Desktop
         }
         private void resetMarketButtons()
         {
-
-            lseClicked = false;
-            nyseClicked = false;
-            omxClicked = false;
+            marketPanel.Height = marketPanelHeight;
             //Change color of buttons back to gray
             lseButton.BackColor = buttonColor;
             nyseButton.BackColor = buttonColor;
@@ -327,7 +250,8 @@ namespace BIS_Desktop
         /// </summary>
         private void stocksButton_Click(object sender, EventArgs e)
         {
-            menuClick("stocks", stocksClicked);
+            enableMarketButtons();
+            menuClick(sender, "stocks");
         }
         /// <summary>
         /// Market button event handler.
@@ -336,7 +260,8 @@ namespace BIS_Desktop
         /// <param name="e"></param>
         private void marketButton_Click(object sender, EventArgs e)
         {
-            menuClick("market", marketClicked);
+            enableMarketButtons();
+            menuClick(sender, "market");
         }
         /// <summary>
         /// News button event handler.
@@ -345,7 +270,8 @@ namespace BIS_Desktop
         /// <param name="e"></param>
         private void newsButton_Click(object sender, EventArgs e)
         {
-            menuClick("news", newsClicked);
+            enableMarketButtons();
+            menuClick(sender, "news");
         }
         /// <summary>
         /// Portfolio button event handler.
@@ -354,12 +280,8 @@ namespace BIS_Desktop
         /// <param name="e"></param>
         private void portfolioButton_Click(object sender, EventArgs e)
         {
-            menuClick("portfolio", portfolioClicked);
-        }
-
-        private void dragPanel_Paint(object sender, PaintEventArgs e)
-        {
-            
+            menuClick(sender, "portfolio");
+            disableMarketButtons();
         }
 
         /// <summary>
@@ -390,7 +312,7 @@ namespace BIS_Desktop
         /// <param name="e"></param>
         private void dragPanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (dragging)
+            if (dragging && maximized==false)
             {
                 Point p = PointToScreen(e.Location);
                 Location = new Point(p.X - this.startPoint.X, p.Y - this.startPoint.Y);
@@ -410,7 +332,7 @@ namespace BIS_Desktop
                 //Set window state to full screen
                 WindowState = FormWindowState.Maximized;
                 //Change color of maximize button
-                maximizeLabel.ForeColor = Color.Firebrick;
+                maximizeLabel.ForeColor = mercuryRed;
                 //set drag panel width
                 dragPanel.Width = MainWindow.ActiveForm.Width;
                 //Set maximized boolean to true
@@ -485,28 +407,37 @@ namespace BIS_Desktop
              * settings and a panel for content).
              * The height is always stretched.
              */
-            leftParentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 10;
+            leftParentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 5;
             //Set width of right panel.
             rightPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 10;
             //Set height of right panel.
-            leftPanel.Height = mainContentPanel.Height - settings.Height;
+            leftPanel.Height = mainContentPanel.Height - marketPanel.Height;
             //Set height and width of right and left content.
             leftPanelResults.updateSize();
         }
+        private void disableMarketButtons()
+        {
+            marketPanel.Height = 0;
+        }
+        private void enableMarketButtons()
+        {
+            marketPanel.Height = marketPanelHeight;
+        }
+        
 
         private void lseButton_Click(object sender, EventArgs e)
         {
-            marketClick("lse", lseClicked);
+            marketClick(sender, "lse");
         }
 
         private void nyseButton_Click(object sender, EventArgs e)
         {
-            marketClick("nyse", nyseClicked);
+            marketClick(sender, "nyse");
         }
 
         private void omxButton_Click(object sender, EventArgs e)
         {
-            marketClick("omx", omxClicked);
+            marketClick(sender, "omx");
         }
 
     }
