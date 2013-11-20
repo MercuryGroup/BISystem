@@ -5,7 +5,9 @@ package com.example.mercbisandroid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.support.v4.app.ListFragment;
@@ -29,9 +31,11 @@ import android.widget.TextView;
  */
 public class MarketFragment extends ListFragment {
 	
-	static final String[] STOCKS = new String[] { "Stock1", "Stock2", "Stock3",
-		"Stock4", "Stock5", "Stock6", "Stock7", "Stock8",
-		"Stock9", "Stock10", "Stock11", "Stock12", "Stock13" };
+	JSONObject JOBJ = new JSONObject();
+	String[] STOCKS;
+ //	static final String[] STOCKS = new String[] { "Stock1", "Stock2", "Stock3",
+//		"Stock4", "Stock5", "Stock6", "Stock7", "Stock8",
+//		"Stock9", "Stock10", "Stock11", "Stock12", "Stock13" };
 
 //AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> STOCKS = new StockThread().execute();
 	 
@@ -41,58 +45,60 @@ public class MarketFragment extends ListFragment {
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-	
 		
-	//	@SuppressWarnings("unchecked")
-		System.out.println("test2");
+		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
 		
-	 //  ArrayList<ArrayList> AL = new ArrayList();
-	   
 		
-		//System.out.println("Lista " + Lista.get().);
-		
-	//	JSONObject JOBJ = new JSONObject();
-		
-		//JOBJ.getJSONObject(Lista.get(1));
+		try {
+			STOCKS = new String[execute.get().size()];
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		} catch (ExecutionException e1) {
+			e1.printStackTrace();
+		}
 		
 		
 		
-		//ArrayList<Object> Test = STOCKS.doInBackground(null);
-		
-		
-		     
+	    try {
+	    	for (int i = 0; i < execute.get().size(); i++){
+	    	    String JsonLine = execute.get().get(i).toString();
+	    		JSONObject JOBJ;
+				try {
+					
+					JOBJ = new JSONObject(JsonLine);
+					STOCKS[i] = JOBJ.getString("symbol");
+					System.out.println("Symbol : " + JOBJ.getString("symbol"));
+					
+				} catch (JSONException e) {
+				
+					e.printStackTrace();
+				}
+	    		
+	    	}
+	    	
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+		 
 			setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
 		    ListView listView = getListView(); //EX: 
 		    listView.setTextFilterEnabled(true);
 		    registerForContextMenu(listView);
 		    super.onActivityCreated(savedInstanceState);
+		    return;
 		
 	}
 	
-	//@Override
-	
-//	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		//public void onCreate(Bundle savedInstanceState) {
-	//		super.onCreate(savedInstanceState);
+
+public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			
+			
+			
 	 
-			// no more this
-			// setContentView(R.layout.list_fruit);
-	 
-			//setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_fruit,FRUITS));
-	 
-			//ListView listView = getListView();
-			//listView.setTextFilterEnabled(true);
-	 
-			//listView.setOnItemClickListener(new OnItemClickListener() {
-			//	public void onItemClick(AdapterView<?> parent, View view,
-			//			int position, long id) {
-				    // When clicked, show a toast with the TextView text
-			//	    Toast.makeText(getActivity().getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
-			//	}
-		//	});
-		//	return 
-	 
-		//}
+		}
 	 
 		
 	}
