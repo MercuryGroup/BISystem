@@ -24,7 +24,6 @@ namespace BIS_Desktop
             {
                 ResultList list = new ResultList(resultType, market, mainWindow);
                 panel.Invoke((MethodInvoker) (() => panel.Controls.Clear()));
-                panel.Controls.Clear();
                 panel.setContent(list);
                 panel.updateSize();
                 panel.Invoke((MethodInvoker) (() => panel.Controls.Add(list)));
@@ -33,7 +32,6 @@ namespace BIS_Desktop
             {
                 InfoDisplay info = new InfoDisplay();
                 panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
-                panel.Controls.Clear();
                 panel.setContent(info);
                 panel.updateSize();
                 panel.Invoke((MethodInvoker)(() => panel.Controls.Add(info)));
