@@ -16,7 +16,7 @@
     <string name="search_title">Search</string>
     <string name="search_hint">Search stocks</string>
 
-    <string-array name ="list">
+   <!--  <string-array name ="list">
         <item>apple</item>
         <item>banana</item>
         <item>pear</item>
@@ -26,6 +26,6 @@
         <item>pepper</item>
         <item>watermelon</item>
     </string-array> 
-
+ -->
 
 </resources>
