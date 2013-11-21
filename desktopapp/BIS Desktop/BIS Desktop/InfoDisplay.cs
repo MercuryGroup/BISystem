@@ -9,15 +9,17 @@ using System.Drawing;
 
 namespace BIS_Desktop
 {
-    class InfoDisplay: Panel
+    class InfoDisplay: FlowLayoutPanel
     {
         
         private Chart chart;
         private ChartArea chartArea;
-        private Series series; 
+        private Series series;
+        private RadioButton rbMonth, rbWeek, rbDay;
+        private Panel buttonPanel;
 
         private String typeOfChart = "candlestick";
-
+       
         /*
          * Show day high and low for candlestick??
          *
@@ -25,7 +27,7 @@ namespace BIS_Desktop
         public InfoDisplay()
         {   
             initilizeChart(typeOfChart);
-            this.BackColor = Color.Pink;
+            this.BackColor = Color.White;
         }
 
         private void initilizeChart(String typeOfChart)
@@ -41,7 +43,6 @@ namespace BIS_Desktop
 
             chart.ChartAreas.Add(chartArea);
 
-          
             switch (typeOfChart)
             {
                 case "candlestick":
@@ -49,22 +50,86 @@ namespace BIS_Desktop
                     break;
             }
 
-            this.Controls.Add(chart); 
-        
+            initilizeRadioButtons();
+
+            this.Controls.Add(chart);
+
+            buttonPanel = new FlowLayoutPanel();
+         
+            buttonPanel.Controls.Add(rbMonth);
+            buttonPanel.Controls.Add(rbWeek);
+            buttonPanel.Controls.Add(rbDay);
+
+            this.Controls.Add(buttonPanel);
+    
+        }
+
+        public void initilizeRadioButtons()
+        {
+
+            rbMonth = new RadioButton();
+            rbWeek = new RadioButton();
+            rbDay = new RadioButton(); 
+
+            rbMonth.Text = "Month";
+            rbWeek.Text = "Week";
+            rbDay.Text = "Day";
+
+            rbMonth.Checked = true; 
+
+            rbMonth.CheckedChanged += this.monthChecked;
+            rbWeek.CheckedChanged += this.weekChecked;
+            rbDay.CheckedChanged += this.dayChecked; 
+
+           
         }
 
         public void initilizeCandeleStick()
         {
-            series = new Series("Stock prices");
-            series.ChartType = SeriesChartType.Candlestick;
-            series.Color = System.Drawing.Color.Red;
-            
-            series.Points.AddXY(1, 50);
-		    series.Points.AddXY(2, 25);
-		    series.Points.AddXY(3, 70);
-            series.Points.AddXY(4, 20);
-           
+            series = new Series("prices");
+          
+            series.Color = System.Drawing.Color.Blue;
             chart.Series.Add(series);
+
+            chart.Series["prices"].ChartType = SeriesChartType.Candlestick;          
+            chart.Series["prices"]["OpenCloseStyle"] = "Rectangle";
+            chart.Series["prices"]["ShowOpenClose"] = "Both";
+            chart.Series["prices"]["PointWidth"] = "0.5";
+
+            chart.Series["prices"]["PriceUpColor"] = "Blue"; 
+            chart.Series["prices"]["PriceDownColor"] = "Red";
+
+            for (int i = 0; i < 50; i++)
+            {
+
+                //adding X and high
+                chart.Series["prices"].Points.AddXY((i * 100) + 1, (i*20)+ 100);
+                // adding low
+                chart.Series["prices"].Points[i].YValues[1] = ((i*2) +10);
+                //adding open
+                chart.Series["prices"].Points[i].YValues[2] = ((i*2) + 50);
+                // adding close
+                chart.Series["prices"].Points[i].YValues[3] = ((i*2) + 100);   
+                
+            }
+               
+           
+            
+
+        }
+
+        public void monthChecked(object sender, System.EventArgs e)
+        {
+            
+        }
+
+        public void weekChecked(object sender, System.EventArgs e)
+        {
+
+        }
+
+        public void dayChecked(object sender, System.EventArgs e)
+        {
 
         }
 
@@ -72,14 +137,16 @@ namespace BIS_Desktop
         {
             this.Width = W;
             this.Height = H;
-            UpdateChart(W, H); 
+
+            chart.Width = W;
+            chart.Height = H / 3;
+
+            buttonPanel.Width = W - 200;
+            buttonPanel.Height = 30;
+            buttonPanel.Location = new Point((W - buttonPanel.Width) / 2);
+            
         }
 
-        public void UpdateChart(int W, int H)
-        {
-            chart.Width = W;
-            chart.Height = 400;
-        }
 
         
     }
