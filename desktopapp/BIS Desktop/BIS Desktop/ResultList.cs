@@ -17,9 +17,13 @@ namespace BIS_Desktop
         private Button[] btns; // Array of buttons
         private JsonHandler jh;
         private Label infoLabel;
-        private String DataButtonClicked; 
-      
-        public ResultList(String Data, String Market){
+        private String DataButtonClicked;
+        private MainWindow mw;
+        private Boolean buttonClicked = false; 
+
+        public ResultList(String Data, String Market, object o){
+
+            mw = o as MainWindow;
 
             DataButtonClicked = Data; 
             this.AutoScroll = true;
@@ -100,12 +104,11 @@ namespace BIS_Desktop
             infoLabel = new Label();
 
             infoLabel.Text = "Symbol Name Latest Change Percent Open Value";
-            infoLabel.BackColor = Color.WhiteSmoke;
+            infoLabel.BackColor = System.Drawing.ColorTranslator.FromHtml("#B8B8B8");
             infoLabel.AutoSize = false;
             infoLabel.Width = this.Width;
             infoLabel.TabStop = false;
             infoLabel.Margin = new Padding(0);
-
 
             this.Controls.Add(infoLabel); 
 
@@ -128,23 +131,14 @@ namespace BIS_Desktop
                 // add event handler
                 btns[i].Click += (sender, e) => {stock_clicked(sender, e, s); };
 
-
-                if (i % 2 == 1)
-                {
-                    btns[i].BackColor = Color.White;
-                }
-
-                else
-                {
-                    btns[i].BackColor = Color.LightBlue;
-                }
-
                 
-                    this.Controls.Add(btns[i]);
-                }
-
-
+                this.Controls.Add(btns[i]);
             }
+
+            setButtonColors(btns); 
+
+
+      }
 
 
         public String indentText(String text, int Width)
@@ -179,10 +173,45 @@ namespace BIS_Desktop
         }
 
 
+        private void setButtonColors(Button[] buttons)
+        {
+            for (int i = 0; i < buttons.Length; i++ )
+
+                if (i % 2 == 1)
+                {
+                    btns[i].BackColor = System.Drawing.ColorTranslator.FromHtml("#A2A2A2");
+                    btns[i].ForeColor = Color.Black;
+                }
+
+                else
+                {
+                    btns[i].BackColor = Color.LightGray;
+                    btns[i].ForeColor = Color.Black;
+                }
+        }
+
+
        private void stock_clicked(object sender, System.EventArgs e, Stock s)
        {
-            Button b = sender as Button;
-            Console.WriteLine(s.Name);
+           Button b = sender as Button;
+
+           if (buttonClicked == true)
+           {
+               setButtonColors(btns);
+               b.BackColor = mw.mercuryBlue;
+               b.ForeColor = Color.White;
+               buttonClicked = true;
+           }
+           else
+           {
+               b.BackColor = mw.mercuryBlue;
+               b.ForeColor = Color.White;
+               buttonClicked = true;
+           }
+           
+           ResultPanel temp = mw.rightPanelResults as ResultPanel;          
+           mw.loadResult(temp, "info", s.Market, mw); 
+            
        }
 
        private void news_clicked(object sender, System.EventArgs e, News n)
