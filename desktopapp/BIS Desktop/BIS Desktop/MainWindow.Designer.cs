@@ -33,6 +33,7 @@
             this.newsButton = new System.Windows.Forms.Button();
             this.portfolioButton = new System.Windows.Forms.Button();
             this.menu = new System.Windows.Forms.Panel();
+            this.searchField = new System.Windows.Forms.TextBox();
             this.closeLabel = new System.Windows.Forms.Label();
             this.maximizeLabel = new System.Windows.Forms.Label();
             this.minimizeLabel = new System.Windows.Forms.Label();
@@ -116,6 +117,7 @@
             // menu
             // 
             this.menu.BackColor = System.Drawing.Color.White;
+            this.menu.Controls.Add(this.searchField);
             this.menu.Controls.Add(this.portfolioButton);
             this.menu.Controls.Add(this.newsButton);
             this.menu.Controls.Add(this.stocksButton);
@@ -128,6 +130,23 @@
             this.menu.Padding = new System.Windows.Forms.Padding(3);
             this.menu.Size = new System.Drawing.Size(195, 688);
             this.menu.TabIndex = 0;
+            // 
+            // searchField
+            // 
+            this.searchField.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchField.Enabled = false;
+            this.searchField.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.searchField.ForeColor = System.Drawing.Color.LightGray;
+            this.searchField.Location = new System.Drawing.Point(28, 0);
+            this.searchField.MaxLength = 50;
+            this.searchField.Multiline = true;
+            this.searchField.Name = "searchField";
+            this.searchField.Size = new System.Drawing.Size(130, 30);
+            this.searchField.TabIndex = 0;
+            this.searchField.Text = "Search";
+            this.searchField.TextChanged += new System.EventHandler(this.searchField_TextChanged);
+            this.searchField.Enter += new System.EventHandler(this.searchField_Focus);
+            this.searchField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.searchField_KeyPressed);
             // 
             // closeLabel
             // 
@@ -333,6 +352,7 @@
             this.Name = "MainWindow";
             this.Text = "Form1";
             this.menu.ResumeLayout(false);
+            this.menu.PerformLayout();
             this.dragPanel.ResumeLayout(false);
             this.dragPanel.PerformLayout();
             this.mainContentPanel.ResumeLayout(false);
@@ -362,6 +382,7 @@
         private System.Windows.Forms.Button nyseButton;
         private System.Windows.Forms.Button omxButton;
         private System.Windows.Forms.Label windowLabel;
+        private System.Windows.Forms.TextBox searchField;
     }
 }
 
