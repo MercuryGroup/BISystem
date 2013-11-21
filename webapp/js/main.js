@@ -72,6 +72,7 @@ function getstockhistory(symbol,timeframe,type) {
 							console.log(value.value.openVal);
 							datalist.push(value.value.openVal);
 							datelist.push(date2); 
+							changelist.push(parseFloat(value.value.change));
 
 						} else if (date1 === date2) {
 
@@ -82,6 +83,7 @@ function getstockhistory(symbol,timeframe,type) {
 					datalist.push(value.value.openVal);
 					datelist.push(date2); 
 					changelist.push(parseFloat(value.value.change));
+					console.log(changelist);
 				}
 			}
 		});
@@ -199,7 +201,7 @@ function paintlinechart() {
 function paintbarchart() {
 var cl = getChangeList();
 
-for (var i = 0;i < cl.length;i++) {
+for (var i = 0;i <= cl.length;i++) {
 	if (cl[i] < 0 ) {
 		cl[i] = Math.abs(cl[i]);
 		barcolorlist.push("#DC3522");
