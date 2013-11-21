@@ -15,25 +15,12 @@ namespace BIS_Desktop
     class JsonHandler
     {
 
+        // make a controller method that builds query
+
+
         public List<News> getNews(String Market)
         {
-           
-            
-         //byte[] buff = new byte[16 * 1024];
-           // HttpClient client = new HttpClient();
-            //using(MemoryStream  ms = new MemoryStream()){
-
-              //  int read;
-                //while (( read = ms.Read(buff, 0, buff.Length)> 0)
-                //{
-
-                //}
-
-
-     
-           
-      
-
+          
             return new List<News>(); 
 
         }

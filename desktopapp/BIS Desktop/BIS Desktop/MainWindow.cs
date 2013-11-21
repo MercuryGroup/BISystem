@@ -37,7 +37,7 @@ namespace BIS_Desktop
          */
         public ResultPanel leftPanelResults, rightPanelResults;
         //Color used for buttons that have been clicked.
-        Color mercuryBlue, 
+        public Color mercuryBlue, 
             mercuryRed,
             buttonColor, 
             highlightWhite,
@@ -203,7 +203,7 @@ namespace BIS_Desktop
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
                 
-                th.fetchResult(panel, currentResultType, currentMarket, mainWindow);
+                th.fetchResult(panel, resultType, currentMarket, mainWindow);
                 
                 
             }
