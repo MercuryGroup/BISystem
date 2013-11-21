@@ -38,6 +38,16 @@ namespace BIS_Desktop
                 ResultList temp = content as ResultList;
                 temp.setSize(this.Width, this.Height);
             }
+
+            else if (content is InfoDisplay)
+            {
+                InfoDisplay temp = content as InfoDisplay;
+                temp.setSize(this.Width, this.Height);
+            }
+            content.Width = this.Width;
+            content.Height = this.Height;
+            Console.WriteLine(this.Height);
+            Console.WriteLine(this.Width);
         }
         public Panel getContent()
         {

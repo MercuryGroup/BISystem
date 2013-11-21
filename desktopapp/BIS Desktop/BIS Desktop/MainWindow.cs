@@ -413,6 +413,7 @@ namespace BIS_Desktop
             leftPanel.Height = mainContentPanel.Height - marketPanel.Height;
             //Set height and width of right and left content.
             leftPanelResults.updateSize();
+            rightPanelResults.updateSize();
         }
         private void disableMarketButtons()
         {
