@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 
 import android.os.AsyncTask;
@@ -29,10 +30,10 @@ import android.widget.TextView;
  * A simple {@link android.support.v4.app.Fragment} subclass.
  * 
  */
-public class MarketFragment extends ListFragment {
+public class MarketFragment extends Fragment {
 	
-	JSONObject JOBJ = new JSONObject();
-	String[] STOCKS;
+//	JSONObject JOBJ = new JSONObject();
+//	String[] STOCKS;
  //	static final String[] STOCKS = new String[] { "Stock1", "Stock2", "Stock3",
 //		"Stock4", "Stock5", "Stock6", "Stock7", "Stock8",
 //		"Stock9", "Stock10", "Stock11", "Stock12", "Stock13" };
@@ -43,7 +44,7 @@ public class MarketFragment extends ListFragment {
 		// Required empty public constructor
 	}
 
-	@Override
+	/*@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		
 		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
@@ -86,19 +87,26 @@ public class MarketFragment extends ListFragment {
 		    ListView listView = getListView(); //EX: 
 		    listView.setTextFilterEnabled(true);
 		    registerForContextMenu(listView);
+		
 		    super.onActivityCreated(savedInstanceState);
 		    return;
 		
 	}
-	
+	*/
 
-public void onCreate(Bundle savedInstanceState) {
+/*public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 			
 			
 			
 	 
-		}
+		}*/
+	
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// Inflate the layout for this fragment
+		return inflater.inflate(R.layout.fragment_market, container, false);
+	}
 	 
 		
 	}
