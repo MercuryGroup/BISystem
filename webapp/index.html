@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7">
+<![endif]-->
+  <!--[if IE 7]>
+  <html class="no-js lt-ie9 lt-ie8">
+  <![endif]-->
+    <!--[if IE 8]>
+    <html class="no-js lt-ie9">
+    <![endif]-->
+      <!--[if gt IE 8]>
+      <!-->
+      <html class="no-js">
+      <!--<![endif]-->
+      <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="js/date.js"></script>
+        <script src="js/Chart.js"></script>
+      </head>
+      
+      <script src="js/main.js"></script>
+
+      <body>
+        <!--[if lt IE 7]>
+        <p class="browsehappy">
+          You are using an <strong>outdated</strong>
+          browser. Please
+          <a href="http://browsehappy.com/">upgrade your browser</a>
+          to improve your experience.
+        </p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <div id="maindiv">
+          <div id="searchdiv">
+            <form action="JavaScript:addElement()">
+              <input type="search" id="sok" placeholder=" Search" autofocus>
+            </form>
+          </div>
+          <div id="navigation">
+      
+            <nav>
+              <ul>
+                <li class="active" onclick=setTopic("Market") id="showMarkets" >
+                  <a href="#">Markets</a>
+                </li>
+                <li onclick=setTopic("Stocks") id="showMarkets2">
+                  <a href="#">Stocks</a>
+                </li>
+                <li id="showMarkets3">
+                  <a href="#">News</a>
+                </li>
+                <li onclick=getVars() id="portfolio">
+                  <a  href="#">Portfolio</a>
+                </li>
+              </ul>
+            </nav>
+            
+            <nav class = "hidden" id="marketmen">
+              <ul>
+                <li id="markbut"onclick=setMarket("NYSE"),showlist(),jsonparser()>
+                  <a href="#">NYSE</a>
+                </li>
+                <li onclick=setMarket("LSE")>
+                  <a href="#">LSE</a>
+                </li>
+                <li onclick=setMarket("OMX")>
+                  <a href="#">OMX</a>
+                </li>
+              </ul>
+            </nav>
+
+          </div>
+          <div id="info">
+          <div id="listdisp" >
+              <div id="myDiv">
+
+                <input type="hidden" value="0" id="theValue" />
+
+                <table  id='resultList'>
+                  <caption></caption>
+                  <thead>
+                    <tr>
+                      <th>symbol</th>
+                      <th>name</th>
+                      <th>change</th>
+                      <th>value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr onClick=hidelist("AAP","month"),hideBar();>
+
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+            <div id="statView" class="hidden">
+             <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas><br>
+             <!-- <canvas id="barcanvas"  width="450" height="278"  class="visuallyhidden"></canvas><br> -->
+              <div id="radiobuttons"> 
+
+             <input type="radio" name="days" id="month" value="30 days" onClick=getstockhistory(getSymbol(),"month") /> Month
+             <input type="radio" name="days" id="week" value="week" onClick=getstockhistory(getSymbol(),"week")  /> Week
+             <input type="radio" name="days" id="day" value="today" onClick=getstockhistory(getSymbol(),"today") /> Today
+             <input type="radio" name="charts" id="charts" value="Linechart" onClick=setChartType("line"),chartPaintSelector() /> Linechart
+              <input type="radio" name="charts" id="charts" value="Barchart" onClick=setChartType("bar"),chartPaintSelector() /> Barchart
+              </div>
+           </div>
+
+         </div>
+
+       </div>
+       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+       <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+
+       <script>
+
+       </script>
+       <script src="js/plugins.js"></script>
+
+       <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+       <script>
+      //     (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      //     function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      //     e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      //     e.src='//www.google-analytics.com/analytics.js';
+      //     r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      //     ga('create','UA-XXXXX-X');ga('send','pageview');
+      // </script>
+      <script> 
+// function onlick_handler(e)
+// {
+//    e.stopPropagation(); //this event would propagate to parents of this object which are clicked as well
+//    jsonparser();
+// }
+
+
+
+
+
+var showBtn = document.querySelector("#showMarkets"),
+showBtn2 = document.querySelector("#showMarkets2"),
+showBtn3 = document.querySelector("#showMarkets3"),
+hideBtn = document.querySelector("#portfolio"),
+content = document.querySelector("#marketmen");
+
+// Toggle show/hide classes on test content
+showBtn.addEventListener("click", function(){
+  content.className = "visible";
+}, false);
+showBtn2.addEventListener("click", function(){
+  content.className = "visible";
+}, false);
+showBtn3.addEventListener("click", function(){
+  console.log("Show");
+  content.className = "visible";
+}, false);
+hideBtn.addEventListener("click", function(){
+  console.log("Hide");
+  content.className = "hidden";
+}, false);
+
+
+
+</script>
+</body>
+</html>

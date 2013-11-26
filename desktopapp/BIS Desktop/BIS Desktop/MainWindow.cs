@@ -30,7 +30,7 @@ namespace BIS_Desktop
             portfolioClicked, maximized,
             dragging;
         private int marketPanelHeight;
-        private String currentMarket, currentResultType;
+        private String currentMarket, currentResultType, searchFieldText;
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
@@ -45,7 +45,7 @@ namespace BIS_Desktop
         private ThreadHandler th;
         public MainWindow()
         {
-
+            
             //Initialize all boolean values
             dragging = false;
             marketClicked = false;
@@ -58,6 +58,7 @@ namespace BIS_Desktop
             //Initialize left and right parent panels
             leftPanel = new Panel();
             rightPanel = new Panel();
+            
             //Initialize component
             InitializeComponent();
             //Initialize result panels
@@ -85,7 +86,12 @@ namespace BIS_Desktop
             dragPanel.MouseDown += new MouseEventHandler(dragPanel_MouseDown);
             dragPanel.MouseMove += new MouseEventHandler(dragPanel_MouseMove);
             dragPanel.MouseUp += new MouseEventHandler(dragPanel_MouseUp);
+
+            
             this.SizeChanged += MainWindow_SizeChanged;
+            searchField.Enabled = true;
+            //Initialize search field text
+            searchFieldText = "";
         }
         //Create backdrop for window
         protected override CreateParams CreateParams
@@ -422,6 +428,7 @@ namespace BIS_Desktop
         private void enableMarketButtons()
         {
             marketPanel.Height = marketPanelHeight;
+            leftPanel.Height = leftParentPanel.Height - marketPanel.Height;
         }
         
 
@@ -439,7 +446,29 @@ namespace BIS_Desktop
         {
             marketClick(sender, "omx");
         }
-
+        private void searchField_Focus(object sender, EventArgs e){
+            searchField.ForeColor = Color.Black;
+            searchField.Text = searchFieldText;
+        }
+        private void searchField_TextChanged(object sender, EventArgs e)
+        {
+            searchFieldText = searchField.Text;
+            Console.WriteLine(searchFieldText);
+        }
+        private void searchField_KeyPressed(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                Console.WriteLine("Entered: " + searchFieldText);
+                searchField.ForeColor = Color.LightGray;
+                searchField.Text = "Search";
+                searchField.Enabled = false;
+                searchField.Enabled = true;
+                searchFieldText = "";
+                
+            }
+        }
+        
     }
     
 }
