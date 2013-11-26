@@ -16,6 +16,53 @@ namespace BIS_Desktop
     {
 
         // make a controller method that builds query
+        // get single stock
+        // get latest stocks
+        // get market
+        // get news
+
+
+        // API call: *Type*/*Period*/*Sub type*/*Symbol*.
+        //*Symbol* is optional.
+        //Type: stocks, markets, news.
+        //Period: all (only for news type), day, week, month.
+        //Sub type (only for markets type): stocks.
+        //Symbol: lse, nyse, omx (only for markets type and stocks sub type), otherwise a stock symbol.
+
+
+        private HttpClient client;
+        private String URL = "http://mercury.dyndns.org:8080/JAXRS-BISystem/api/"; 
+ 
+        public JsonHandler()
+        {
+           client = new HttpClient();
+        }
+
+        private Stock parseStock(JObject jo){
+
+            Stock stock = new Stock();
+
+            JObject temp = jo.Value<JObject>("value");
+
+            stock.Name = temp.Value<string>("name");
+            stock.Symbol = temp.Value<string>("symbol");
+            stock.Latest = temp.Value<string>("latest");
+            stock.Change = temp.Value<string>("change");
+            stock.Percent = temp.Value<string>("percent");
+            stock.Volume = temp.Value<string>("volume");
+            stock.OpenVal = temp.Value<string>("openVal");
+            stock.Updated = temp.Value<string>("updated");
+            stock.Market = temp.Value<string>("market");
+            stock.Type = temp.Value<string>("type");
+
+            if (stock.Volume == null)
+            {
+                stock.Volume = "N/A";
+            }
+
+            return stock;
+
+        }
 
 
         public List<News> getNews(String Market)
@@ -25,14 +72,41 @@ namespace BIS_Desktop
 
         }
 
-        public List<Stock> getStocks(String Market){
+     
+        public List<Stock> getSingleStock(String Symbol, String Period)
+        {
+            List<Stock> stocks = new List<Stock>();
+
+            URL += "stocks/" + Period + "/" + Symbol;
+
+            using(var s = client.GetStreamAsync(URL).Result)
+            using (StreamReader sr = new StreamReader(s))
+            {
+                string json = sr.ReadToEnd();
+
+                JArray JA = JArray.Parse(json);
+
+                foreach (JObject stock in JA)
+                {
+
+                    Stock st = parseStock(stock);
+
+                    stocks.Add(st);
+
+                }
+            }
+
+            return stocks;
+        }
+
+        public List<Stock> getAllStocks(String Market){
             
 
             List<Stock> stocks = new List<Stock>();
 
             String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=\"1383565321852\"&endkey=\"1383565328964\"";
 
-            HttpClient client = new HttpClient();
+           
             using(var s = client.GetStreamAsync(url).Result)
             using (StreamReader sr = new StreamReader(s))
             {
@@ -42,21 +116,9 @@ namespace BIS_Desktop
 
                 foreach (JObject stock in children.ToList())
                 {
-                    Stock st = new Stock();
-                    st.Key = stock.Value<string>("key");
-                    JObject temp = stock.Value<JObject>("value");
+                    Stock st = parseStock(stock);
 
-                    st.Name = temp.Value<string>("name");
-                    st.Symbol = temp.Value<string>("symbol");
-                    st.Latest = temp.Value<string>("latest");
-                    st.Change = temp.Value<string>("change");
-                    st.Percent = temp.Value<string>("percent");
-                    st.OpenVal = temp.Value<string>("openVal");
-                    st.Updated = temp.Value<string>("updated");
-                    st.Market = temp.Value<string>("market");
-                    st.Type = temp.Value<string>("type");
-
-                    stocks.Add(st);  
+                    stocks.Add(st); ;  
                 } 
                
                   

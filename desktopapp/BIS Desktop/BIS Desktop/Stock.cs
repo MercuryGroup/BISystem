@@ -13,7 +13,7 @@ namespace BIS_Desktop
     {
 
        
-        public String Key { get; set; }
+        public String Id { get; set; }
 
         
         public String Symbol { get; set; }
@@ -29,6 +29,9 @@ namespace BIS_Desktop
 
       
         public String Percent { get; set; }
+
+
+        public String Volume { get; set; }
 
     
         public String OpenVal { get; set; }

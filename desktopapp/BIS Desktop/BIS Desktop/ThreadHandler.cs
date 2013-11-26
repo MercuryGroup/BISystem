@@ -32,7 +32,7 @@ namespace BIS_Desktop
             }
             else if (resultType == "info")
             {
-                InfoDisplay info = new InfoDisplay();
+                InfoDisplay info = new InfoDisplay(market);
                 panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                 panel.Controls.Clear();
                 panel.setContent(info);
