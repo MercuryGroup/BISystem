@@ -4,7 +4,9 @@
 %%% @doc
 %%% Server extract module for extracting stock market news.
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
-%%% to be generic.
+%%% to be generic. And is adapted to only retrieve the news for
+%%% the current retrival date.
+%%%
 %%% Supports XML element filtering, and parsing of date & time strings.
 %%% All the retrieved data is sent to the Load part (DB) of the ETL.
 %%% NOTE: In order to retrieve news for stock market indexes there needs to be
@@ -12,14 +14,14 @@
 %%% the Yahoo Finance News RSS Feed API.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 20 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 26 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
 % sendData are deprecated for exporting since 2013-11-11, but exists for
 % future changes
 -compile({nowarn_unused_function, [{sendData, 1}]}).
--export([start/0, stop/0, getData/1]).
+-export([start/0, stop/0, init/0, loop/0, getData/1]).
 % http://stackoverflow.com/a/18846096
 -include_lib("../include/ETL.hrl").
 % https://github.com/erlang/otp/blob/maint/lib/xmerl/include/xmerl.hrl
@@ -34,11 +36,11 @@
 start() ->
 	case whereis(?NEWS) of
 		undefined ->
-			Pid = spawn(fun init/0),
-			register(?NEWS, Pid),
+			Pid = erlang:spawn(?MODULE, init, []),
+			erlang:register(?NEWS, Pid),
 			{ok, Pid};
 		Process ->
-			{ok, Process}
+			{error, {already_started, Process}}
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -52,21 +54,22 @@ stop() ->
 		undefined ->
 			already_stopped;
 		_ ->
-			?NEWS ! stopped
+			?NEWS ! {action, stop},
+			stopped
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Sends a request to the server to retrieve news items (concurrently)
 %%% for each provided stock/market symbol.
-%%% Symbols = string() e.g. "yhoo,aapl,^ftse".
+%%% Symbols = string() e.g. "yhoo,aapl,^ftse,3in.l,aak.st".
 %%%
 %%% Example call setup:
-%%% newsrss_e:getData("yhoo,aapl,^ftse").
+%%% newsrss_e:getData("yhoo,aapl,^ftse,3in.l,aak.st").
 %%%
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(getData(string()) -> ok).
+-spec(getData(Symbols :: string()) -> ok).
 getData(Symbols) ->
 	?NEWS ! {self(), symbol, Symbols}.
 
@@ -75,7 +78,7 @@ getData(Symbols) ->
 %%% Sends the data retrieved by the server to the Load layer (DB).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(sendData(term()) -> ok).
+-spec(sendData(Data :: term()) -> ok).
 sendData(Data) ->
 	%io:format("~p~n", [Data]). % For testing purposes
 	?LOAD ! Data.
@@ -85,7 +88,7 @@ sendData(Data) ->
 %%% Initialises the main server process for news extracting.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(init() -> stopped | term()).
+-spec(init() -> ok).
 init() ->
 	loop().
 
@@ -94,9 +97,13 @@ init() ->
 %%% Message receive loop for the extract server.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(loop() -> stopped).
+-spec(loop() -> ok).
 loop() ->
 	receive
+		{action, reload} ->
+			?NEWS:loop();
+		{action, stop} ->
+			ok;
 		{_From, symbol, Symbols} ->
 			% ***
 			% See getData/1 methods for more code info.
@@ -106,10 +113,6 @@ loop() ->
 			% ***
 			% Used for returning results from spawned processes
 			Pid = self(),
-			% Configuration settings for the news feed retrival
-			XMLSearchInfo = [{childItem, item},
-			{filterItems, [title, link, description, pubDate]}, {databaseID, guid},
-			{dateTimeField, pubDate}],
 			% Extracting each symbol into a separate string, stored in a list
 			SymbolsPost = string:tokens(Symbols, ","),
 			% For retrieving and parsing the XML data
@@ -125,6 +128,13 @@ loop() ->
 					% 	parseXML(
 					% 	retrieveXML(
 					% 		"http://tankmaster.no-ip.org/test/error.xml"))),
+					% Configuration settings for the news feed retrival
+					XMLSearchInfo = [{symbolMarket, Symbol},
+					{childItem, item},
+					{filterItems, [title, link, description, pubDate]},
+					{databaseID, guid},
+					{dateTimeField, pubDate},
+					{dateTimeSort, currentDay}],
 					Pid ! {self(), processXML(Parsed, XMLSearchInfo)}
 				end)
 			end,
@@ -138,9 +148,7 @@ loop() ->
 			Result = lists:append(retrieveResult(Processes)),
 			% Sending away the result
 			prepareToSend(Result),
-			loop();
-		stopped ->
-			stopped
+			loop()
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,6 +157,7 @@ loop() ->
 %%% into a list result.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(retrieveResult([pid(), ...] | []) -> ok).
 retrieveResult([]) ->
 	[];
 retrieveResult([Process | Rest]) ->
@@ -163,6 +172,8 @@ retrieveResult([Process | Rest]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(prepareToSend(list()) -> ok).
+prepareToSend([]) ->
+	ok;
 prepareToSend([Last | []]) ->
 	sendData(Last);
 prepareToSend([H | T]) ->
@@ -175,7 +186,7 @@ prepareToSend([H | T]) ->
 %%% The record based format is defined in the xmerl library.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(parseXML(string()) -> tuple()).
+-spec(parseXML(XMLData :: string()) -> tuple()).
 parseXML(XMLData) ->
 	xmerl_scan:string(XMLData).
 
@@ -184,7 +195,8 @@ parseXML(XMLData) ->
 %%% Retrieves data from the specified URL, through the HTTP protocol.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(retrieveXML(string() | _) -> string() | {error, atom() | term()}).
+-spec(retrieveXML(Link :: string() | _) ->
+	string() | {error, atom() | term()}).
 retrieveXML(Link) when is_list(Link) ->
 	% Used for setting up the sockets needed for the HTTP client
 	inets:start(),
@@ -214,7 +226,8 @@ retrieveXML(_) -> % Not a vaild link
 %%% If not return the supplied data from the argument.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(checkCallExceeding(string()) -> string() | {error, atom()}).
+-spec(checkCallExceeding(DataString :: string()) ->
+	string() | {error, atom()}).
 checkCallExceeding(DataString) ->
 	% The parsing is explicitly looking at the XML structure
 	% defined here http://developer.yahoo.com/search/rate.html
@@ -243,37 +256,49 @@ checkCallExceeding(DataString) ->
 %%% XMLSearchInfo shall contain search info; XML names for XML elements that
 %%% shall be processed.
 %%% 
-%%% XMLSearchInfo = [{childItem, atom()},
+%%% XMLSearchInfo = [{symbolMarket, list()},
+%%%					{childItem, atom()},
 %%%					{filterItems, [atom(), ...]},
 %%%					{databaseID, guid},
-%%%					{dateTimeField, atom()}].
+%%%					{dateTimeField, atom()},
+%%%					{dateTimeSort, atom()}].
 %%%
 %%% ParsedXML = tuple(). Parsed with xmerl_scan:string(string())
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(processXML(tuple(), list()) -> list()).
+-spec(processXML(ParsedXML :: tuple(), XMLSearchInfo :: list()) -> list()).
 processXML(ParsedXML, XMLSearchInfo) ->
 	% Extracting the search info
+	{_, SymbolMarket} = lists:keyfind(symbolMarket, 1, XMLSearchInfo),
 	{_, LookForChildElement} = lists:keyfind(childItem, 1, XMLSearchInfo),
 	{_, FilterElements} = lists:keyfind(filterItems, 1, XMLSearchInfo),
 	{_, DatabaseID} = lists:keyfind(databaseID, 1, XMLSearchInfo),
 	{_, DateTimeFieldName} = lists:keyfind(dateTimeField, 1, XMLSearchInfo),
+	{_, DateTimeSort} = lists:keyfind(dateTimeSort, 1, XMLSearchInfo),
 	% Contains all the child elements
 	[MainContent] = ParsedXML#xmlElement.content,
 	ItemListContent = MainContent#xmlElement.content,
 	% Using a list comprehension, which goes through each found
 	% XML element node.
-	[{news, extractChildElementsList(El, FilterElements, DatabaseID,
-		DateTimeFieldName)}
-	|| El <- extractMainElementsList(ItemListContent, LookForChildElement)].
+	XMLPreResult = 
+		[extractChildElementsList(SymbolMarket, El,
+			FilterElements, DatabaseID)
+		|| El <- extractMainElementsList(
+			ItemListContent, LookForChildElement)],
+	% Adaptation for Yahoo Finance News Feed, for current day retrival of news
+	XMLPostResult =
+		[processMainElements(El, [], DateTimeFieldName, DateTimeSort)
+		|| El <- XMLPreResult],
+	[{news, El} || El <- XMLPostResult, El =/= {null, []}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Finding the XML main elements (those that are located under
-%%%	the root XML node, and as well containing child elements).
+%%%	the root XML node, and as well contains child elements).
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(extractMainElementsList([tuple(), ...], atom()) -> list()).
+-spec(extractMainElementsList(MainElementsList :: [tuple(), ...],
+	LookForChildElement :: atom()) -> list()).
 extractMainElementsList(MainElementsList, LookForChildElement) ->
 	[El#xmlElement.content || El <- MainElementsList,
 	erlang:element(1, El) == xmlElement,
@@ -284,34 +309,86 @@ extractMainElementsList(MainElementsList, LookForChildElement) ->
 %%% @doc
 %%% Finding the XML child elements in the XML main elements.
 %%% Support for filtering, converting and adding XML elements.
+%%% Adapted to Yahoo Finance News Feed API.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(extractChildElementsList([tuple(), ...], [atom(), ...],
-	atom(), atom()) -> list()).
-extractChildElementsList(ChildElementsList, FilterElements, DatabaseID,
-	DateTimeFieldName) ->
+-spec(extractChildElementsList(SymbolMarket :: list(),
+	ChildElementsList:: [tuple(), ...], FilterElements :: [atom(), ...],
+	DatabaseID :: atom()) -> list()).
+extractChildElementsList(SymbolMarket, ChildElementsList,
+	FilterElements, DatabaseID) ->
 	% Checking whether some elements shall be filtered away or converted,
 	% as well even added (latter specific for Yahoo Finance News Feed).
 	% ATM a date & time string is the only element that can be converted.
-	% For adding the only element is a news item ID.
+	% For adding there are only news item, symbol and market ID.
 	% The elements that are filtered are noted as {null, []}, and deleted
 	% when found.
 	ExtractedChildElements = lists:delete({null, []},
-		[processElements(El, FilterElements, DatabaseID, DateTimeFieldName)
+		[processChildElements(El, FilterElements, DatabaseID)
 		|| El <- ChildElementsList]), % Removing potentially skipped elements
-	% Added 'type' for distinction in DB
-	lists:append(ExtractedChildElements, [{type, "news"}]).
+	% Adding 'type' for distinction in DB
+	PreResultType = lists:append(ExtractedChildElements, [{type, "news"}]),
+	% Adding 'symbol' and 'market' for distinction in DB 
+	[Symbol, Market] =
+		case string:tokens(SymbolMarket, ".") of
+			[_Symbol, _Market] ->
+				[_Symbol, _Market];
+			[_Symbol] -> % Exception case, no market == nyse
+				[_Symbol, "nyse"]
+		end,
+	PreResultSymbol = lists:append(PreResultType, [{symbol, Symbol}]),
+	lists:append(PreResultSymbol, [{market, Market}]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Processing XML elements; filter, convert and add.
+%%% Processes XML main elements with post-processing
+%%% (list elements not applicable as Xmerl record types); filter, convert.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-type(element() :: [{atom(), list()}, ...]).
+-spec(processMainElements(
+	element() | [], Acc :: [tuple(), ...] | [],
+	DateTimeFieldName :: atom(), DateTimeSort :: atom()) ->
+	{null, []} | element()).
+processMainElements([], [], _, _) ->
+	{null, []};
+processMainElements([], Acc, _, _) ->
+	Acc;
+processMainElements([{Name, Value} | T], Acc,
+	DateTimeFieldName, DateTimeSort) ->
+	case [Name, DateTimeSort] of
+		[DateTimeFieldName, currentDay] -> % Match found for current day news.
+			[Day, LetterMonth, Year, _, _] =
+				string:tokens(lists:last(string:tokens(Value, ",")), " "),
+			NumberMonth = monthNumber(LetterMonth),
+			CurrentDate = erlang:date(),
+			DateToTest = {erlang:list_to_integer(Year),
+				NumberMonth, erlang:list_to_integer(Day)},
+			case DateToTest of
+				CurrentDate -> % Match found, converting date & time
+							   % to a timestamp and caching.
+					processMainElements(T, 
+						lists:append(Acc, [{Name, timestampConverter(Value)}]),
+						DateTimeFieldName, DateTimeSort);
+				_ -> % Match not found at all, aborting the search.
+					processMainElements([], [],
+						DateTimeFieldName, DateTimeSort)
+			end;
+		_ -> % Match not found, adding to cache and continuing the search.
+			processMainElements(T, lists:append(Acc, [{Name, Value}]),
+				DateTimeFieldName, DateTimeSort)
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Processes XML child elements; filter, convert and add.
 %%% Converting and adding is specifically for Yahoo Finance News Feed.
 %%% Otherwise made to be generic.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(processElements(tuple(), [atom(), ...],
-	atom(), atom()) -> tuple() | list()).
-processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
+-spec(processChildElements(Element :: tuple(), FilterElements :: [atom(), ...],
+	DatabaseID :: atom()) -> tuple() | list()).
+processChildElements(Element, FilterElements, DatabaseID) ->
 	case Element#xmlElement.name of
 		% For adding the unique news item ID, specific for
 		% Yahoo Finance News Feed
@@ -321,23 +398,6 @@ processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 				length("yahoo_finance/"),
 				extract_XMLText(Element#xmlElement.content)),
 			{'_id', Result};
-		% *OPTIONAL*
-		% Converting date & time strings to Epoch timestamps, in milliseconds.
-		% Though not done when included in FilterElements.
-		DateTimeFieldName ->
-			case lists:member(DateTimeFieldName, FilterElements) of
-				true -> % Not to be filtered
-					Timestamp = integer_to_list(
-						timestampConverter(
-								findingSplitUpChildElements(
-									Element#xmlElement.content
-								)
-							)
-						),
-					{DateTimeFieldName, Timestamp};
-				false -> % To be filtered
-					{null, []}
-			end;
 		Other ->
 			% Filtering out the XML elements that shall not be included
 			case lists:member(Other, FilterElements) of
@@ -356,7 +416,8 @@ processElements(Element, FilterElements, DatabaseID, DateTimeFieldName) ->
 %%% And as well extracting the XML elements name, and their values.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(findingSplitUpChildElements([tuple(), ...]) -> list()).
+-spec(findingSplitUpChildElements(
+	MultipleChildElements :: [tuple(), ...]) -> list()).
 findingSplitUpChildElements(MultipleChildElements) ->
 	% Concatenates the value(s) of the elements that has been split up.
 	lists:concat(
@@ -396,14 +457,15 @@ extract_XMLText(Content) ->
 %%% @doc
 %%% Converts a date & time string (explicitly with time zone GMT/UTC)
 %%% into a timestamp string. The timestamp will be in milliseconds, and follow
-%%% the Epoch time standard. The date & time string shall follow an English
-%%% standard.
+%%% the Epoch time standard. The date & time string shall the RFC822 format
+%%% standard in section 5 of its specification.
 %%% Example of a date & time string "Wed, 22 Oct 2013 15:53:37 GMT".
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(timestampConverter(string()) -> integer()).
 timestampConverter(DateTimeString) ->
-	% lists:last removes the weekday from the date & time string.
+	% lists:last returns everything, except the weekday from the
+	% date & time string.
 	% string:tokens returns tokens based on a delimiter.
 	[Day, Month, Year, Time, _] =
 		string:tokens(lists:last(string:tokens(DateTimeString, ",")), " "),
