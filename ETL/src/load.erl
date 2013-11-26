@@ -69,16 +69,16 @@ ok;
 sendData(_Type, List) ->
 	
 
-	% case _Type of 
-	% stock -> [A|T] = List,
-	%		 {Key, Val} = A,
-    %            io:format("~p~n", [Val]),
-    %            ?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
-	%			?NEWS ! {self(), symbol, Val};			
-	%			
-    % 
-	%    _ -> 	 ok
-	% end,
+	 % case _Type of 
+	 % stock -> [A|T] = List,
+		% 	 {Key, Val} = A,
+  %               io:format("~p~n", [Val]),
+  %               %?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
+		% 		?NEWS ! {self(), symbol, Val};			
+				
+     
+	 %    _ -> 	 ok
+	 % end,
 		
 	
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
@@ -123,6 +123,8 @@ loop() ->
 			sendData(news, List),
 			loop();
 		
+		{action, stop} -> ok;
+
 		{action, reload} -> load:loop()
 
     end.

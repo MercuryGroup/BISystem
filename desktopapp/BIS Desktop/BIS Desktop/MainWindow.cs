@@ -28,9 +28,9 @@ namespace BIS_Desktop
         private Boolean marketClicked,
             stocksClicked, newsClicked,
             portfolioClicked, maximized,
-            dragging;
+            dragging, searchFieldHasText;
         private int marketPanelHeight;
-        private String currentMarket, currentResultType, searchFieldText;
+        private String currentMarket, currentResultType;
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
@@ -39,8 +39,9 @@ namespace BIS_Desktop
         //Color used for buttons that have been clicked.
         public Color mercuryBlue, 
             mercuryRed,
-            buttonColor, 
+            mercuryGrey, 
             highlightWhite,
+            mercuryBeige,
             loading;
         private ThreadHandler th;
         public MainWindow()
@@ -53,6 +54,7 @@ namespace BIS_Desktop
             newsClicked = false;
             portfolioClicked = false;
             maximized = false;
+            searchFieldHasText = false;
             //Initialize market panel height
             marketPanelHeight = 40;
             //Initialize left and right parent panels
@@ -68,17 +70,22 @@ namespace BIS_Desktop
             leftPanel.Controls.Add(leftPanelResults);
             rightPanel.Controls.Add(rightPanelResults);
             //Set color for different buttons
-            buttonColor = System.Drawing.ColorTranslator.FromHtml("#A2A2A2");
+            mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
-            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#A05050");
+            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC352");
             highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAFA");
+            mercuryBeige = System.Drawing.ColorTranslator.FromHtml("#D9CB9E");
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
-            //Set background colors for left and right panel
+            //Set custom color for controls
             leftPanel.BackColor = loading;
             rightPanel.BackColor = loading;
             leftParentPanel.BackColor = loading;
+            menu.BackColor = mercuryBeige;
+            searchField.BackColor = mercuryGrey;
+
             //Reset buttons
             resetMenuButtons();
+            extraPanel.BackColor = mercuryBeige;
             disableMarketButtons();
             //Refresh all content panels
             refreshContentPanels();
@@ -89,9 +96,6 @@ namespace BIS_Desktop
 
             
             this.SizeChanged += MainWindow_SizeChanged;
-            searchField.Enabled = true;
-            //Initialize search field text
-            searchFieldText = "";
         }
         //Create backdrop for window
         protected override CreateParams CreateParams
@@ -104,6 +108,7 @@ namespace BIS_Desktop
                 return createparams;
             }
         }
+
         /// <summary>
         /// Event handler that checks if the main window has changed size.
         /// </summary>
@@ -127,10 +132,11 @@ namespace BIS_Desktop
         
         private void menuClick(Object sender, String resultType_)
         {
+            
             Button button_ = sender as Button;
             resetMenuButtons();
             button_.BackColor = mercuryBlue;
-            button_.ForeColor = Color.White;
+            //button_.ForeColor = Color.White;
             currentResultType = resultType_;
             if (currentMarket == null)
             {
@@ -142,15 +148,17 @@ namespace BIS_Desktop
             loadResult(leftPanelResults, currentResultType, currentMarket, this);
             
         }
+
         private void marketClick(Object sender, String market_)
         {
             Button button_ = sender as Button;
             resetMarketButtons();
-            button_.BackColor = mercuryBlue;
-            button_.ForeColor = Color.White;
+            //button_.BackColor = mercuryBlue;
+            //button_.ForeColor = Color.White;
             currentMarket = market_;
             loadResult(leftPanelResults, currentResultType, currentMarket, this);
         }
+
         /// <summary>
         /// Load result to the calling panel.
         /// </summary>
@@ -228,28 +236,30 @@ namespace BIS_Desktop
             newsClicked = false;
             portfolioClicked = false;
             //Change color of buttons back to gray
-            marketButton.BackColor = buttonColor;
-            newsButton.BackColor = buttonColor;
-            stocksButton.BackColor = buttonColor;
-            portfolioButton.BackColor = buttonColor;
+            marketButton.BackColor = mercuryGrey;
+            newsButton.BackColor = mercuryGrey;
+            stocksButton.BackColor = mercuryGrey;
+            portfolioButton.BackColor = mercuryGrey;
             //Set color for foreground
-            marketButton.ForeColor = Color.Black;
-            newsButton.ForeColor = Color.Black;
-            stocksButton.ForeColor = Color.Black;
-            portfolioButton.ForeColor = Color.Black;
+            //marketButton.ForeColor = Color.Black;
+            //newsButton.ForeColor = Color.Black;
+            //stocksButton.ForeColor = Color.Black;
+            //portfolioButton.ForeColor = Color.Black;
         }
+
         private void resetMarketButtons()
         {
             marketPanel.Height = marketPanelHeight;
             //Change color of buttons back to gray
-            lseButton.BackColor = buttonColor;
-            nyseButton.BackColor = buttonColor;
-            omxButton.BackColor = buttonColor;
+            lseButton.BackColor = mercuryGrey;
+            nyseButton.BackColor = mercuryGrey;
+            omxButton.BackColor = mercuryGrey;
             //Set color for foreground
-            lseButton.ForeColor = Color.Black;
-            nyseButton.ForeColor = Color.Black;
-            omxButton.ForeColor = Color.Black;
+            //lseButton.ForeColor = Color.Black;
+            //nyseButton.ForeColor = Color.Black;
+            //omxButton.ForeColor = Color.Black;
         }
+
         /// <summary>
         /// Stock button event handler.
         /// </summary>
@@ -258,6 +268,7 @@ namespace BIS_Desktop
             enableMarketButtons();
             menuClick(sender, "stocks");
         }
+
         /// <summary>
         /// Market button event handler.
         /// </summary>
@@ -268,6 +279,7 @@ namespace BIS_Desktop
             enableMarketButtons();
             menuClick(sender, "market");
         }
+
         /// <summary>
         /// News button event handler.
         /// </summary>
@@ -278,6 +290,7 @@ namespace BIS_Desktop
             enableMarketButtons();
             menuClick(sender, "news");
         }
+
         /// <summary>
         /// Portfolio button event handler.
         /// </summary>
@@ -398,7 +411,7 @@ namespace BIS_Desktop
             }
             else
             {
-                label.ForeColor = buttonColor;
+                label.ForeColor = mercuryGrey;
             }
         }
 
@@ -423,10 +436,17 @@ namespace BIS_Desktop
         }
         private void disableMarketButtons()
         {
+            leftPanel.Height = leftParentPanel.Height;
             marketPanel.Height = 0;
+            lseButton.Enabled = false;
+            nyseButton.Enabled = false;
+            omxButton.Enabled = false;
         }
         private void enableMarketButtons()
         {
+            lseButton.Enabled = true;
+            nyseButton.Enabled = true;
+            omxButton.Enabled = true;
             marketPanel.Height = marketPanelHeight;
             leftPanel.Height = leftParentPanel.Height - marketPanel.Height;
         }
@@ -447,25 +467,41 @@ namespace BIS_Desktop
             marketClick(sender, "omx");
         }
         private void searchField_Focus(object sender, EventArgs e){
-            searchField.ForeColor = Color.Black;
-            searchField.Text = searchFieldText;
-        }
-        private void searchField_TextChanged(object sender, EventArgs e)
-        {
-            searchFieldText = searchField.Text;
-            Console.WriteLine(searchFieldText);
+            if (!searchFieldHasText)
+            {
+                searchField.ForeColor = Color.White;
+                searchField.Text = "";
+            }
         }
         private void searchField_KeyPressed(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Console.WriteLine("Entered: " + searchFieldText);
-                searchField.ForeColor = Color.LightGray;
+                resetMenuButtons();
+                loadResult(leftPanelResults, "stocks", searchField.Text, this);
+                disableMarketButtons();
+                searchField.Text = "";
+                mainContentPanel.Focus();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                searchField.Text = "";
+                mainContentPanel.Focus();
+            }
+            
+        }
+        private void searchField_Exit(object sender, EventArgs e)
+        {
+            
+            if (searchField.Text == "")
+            {
+                searchFieldHasText = false;
                 searchField.Text = "Search";
-                searchField.Enabled = false;
-                searchField.Enabled = true;
-                searchFieldText = "";
-                
+                searchField.ForeColor = Color.Gray;
+            }
+            else
+            {
+                searchFieldHasText = true;
             }
         }
         

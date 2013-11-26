@@ -19,15 +19,24 @@ namespace BIS_Desktop
         private Panel buttonPanel;
 
         private String typeOfChart = "candlestick";
-       
+        private String Symbol;
         /*
          * Show day high and low for candlestick??
          *
         */
-        public InfoDisplay()
-        {   
+        public InfoDisplay(String s)
+        {
+            Console.WriteLine("Symbol" +s);
+            Symbol = s;
             initilizeChart(typeOfChart);
             this.BackColor = Color.White;
+
+            initilizeRadioButtons();
+
+
+            this.Controls.Add(chart);
+            this.Controls.Add(buttonPanel);
+
         }
 
         private void initilizeChart(String typeOfChart)
@@ -50,9 +59,6 @@ namespace BIS_Desktop
                     break;
             }
 
-            initilizeRadioButtons();
-
-            this.Controls.Add(chart);
 
             buttonPanel = new FlowLayoutPanel();
          
@@ -60,7 +66,13 @@ namespace BIS_Desktop
             buttonPanel.Controls.Add(rbWeek);
             buttonPanel.Controls.Add(rbDay);
 
-            this.Controls.Add(buttonPanel);
+            // TEMPORARY
+            RichTextBox sd = new RichTextBox();
+            JsonHandler js = new JsonHandler();
+            List<Stock> temp = js.getSingleStock(Symbol, "month");
+
+            sd.Text = temp[0].Name+"\n" +temp[0].Volume;
+            this.Controls.Add(sd); 
     
         }
 
