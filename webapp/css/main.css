@@ -247,6 +247,17 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 
   }
 
+  #currentdata tr td {
+/*background: #A8ADBF; */
+
+border: 1px solid black;
+width: 600px;
+}
+
+#currentdata tr:hover {
+background:  #374140;
+border: 1px;
+}
 
 
   nav ul li:focus,table tbody tr:hover{
@@ -269,6 +280,37 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 
 }
 
+#canvas {
+  max-height: 278px;
+  height: 278px;
+  width: 600px;
+}
+
+#companyname {
+  float: left;
+}
+
+
+#save:focus {
+  color:#F6F6F6;
+}
+#save:hover {
+ background: #1E1E20;
+}
+
+#save {
+    float: right;
+  border-radius: 4px;
+    padding: 10px 15px;
+    background: #8D7833;
+    color: #FFF;
+    margin-top: 20px;
+    border: 0px;
+    height: 40px;
+    width: 80px;
+    font-size: 17px;
+    transition: opacity 0.5s linear;
+}
 
 #info {
   width: 600px;
@@ -303,8 +345,14 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 }
 
 td {     
-
   padding-left:  5px;
+}
+#datapresentation {
+  margin-top: 170px;
+  padding-top: 60px;
+}
+#radiobuttons {
+  padding-top: 35px;
 }
 
 /*    #secondlist tbody {

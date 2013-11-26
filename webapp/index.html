@@ -25,7 +25,12 @@
         <link rel="stylesheet" href="css/main.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <script src="js/date.js"></script>
+        <script src="js/getset.js"></script>
         <script src="js/Chart.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="js/knockout-2.2.1.js"></script>
+        <script src="js/globalize.min.js"></script>
+        <script src="js/dx.chartjs.js"></script>
       </head>
       
       <script src="js/main.js"></script>
@@ -43,12 +48,12 @@
         <!-- Add your site or application content here -->
         <div id="maindiv">
           <div id="searchdiv">
-            <form action="JavaScript:addElement()">
+            <form action="JavaScript:search()">
               <input type="search" id="sok" placeholder=" Search" autofocus>
             </form>
           </div>
           <div id="navigation">
-      
+
             <nav>
               <ul>
                 <li class="active" onclick=setTopic("Market") id="showMarkets" >
@@ -60,7 +65,7 @@
                 <li id="showMarkets3">
                   <a href="#">News</a>
                 </li>
-                <li onclick=getVars() id="portfolio">
+                <li onclick=showlist(),portfoliobuilder() id="portfolio">
                   <a  href="#">Portfolio</a>
                 </li>
               </ul>
@@ -82,7 +87,7 @@
 
           </div>
           <div id="info">
-          <div id="listdisp" >
+            <div id="listdisp" >
               <div id="myDiv">
 
                 <input type="hidden" value="0" id="theValue" />
@@ -98,8 +103,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr onClick=hidelist("AAP","month"),hideBar();>
-
+                    <tr onClick=hidelist("AAP","today","AdvancedAutoParts"),hideBar();>
+                      <th>value</th>
                     </tr>
                   </tbody>
                 </table>
@@ -107,32 +112,64 @@
               </div>
             </div>
             <div id="statView" class="hidden">
-             <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas><br>
-             <!-- <canvas id="barcanvas"  width="450" height="278"  class="visuallyhidden"></canvas><br> -->
+              <h1 id="companyname"></h1>
+              <button id="save"></button>
+              <div id="canvas"  onclick=showlist()></div>
+              <!-- <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas> -->
+              <br>
+              <br>
+              <br>
+              <!-- <canvas id="barcanvas"  width="450" height="278"  class="visuallyhidden"></canvas><br> -->
               <div id="radiobuttons"> 
 
-             <input type="radio" name="days" id="month" value="30 days" onClick=getstockhistory(getSymbol(),"month") /> Month
-             <input type="radio" name="days" id="week" value="week" onClick=getstockhistory(getSymbol(),"week")  /> Week
-             <input type="radio" name="days" id="day" value="today" onClick=getstockhistory(getSymbol(),"today") /> Today
-             <input type="radio" name="charts" id="charts" value="Linechart" onClick=setChartType("line"),chartPaintSelector() /> Linechart
-              <input type="radio" name="charts" id="charts" value="Barchart" onClick=setChartType("bar"),chartPaintSelector() /> Barchart
-              </div>
-           </div>
+               <input type="radio" name="days" id="month" value="30 days" onClick=getstockhistory(getSymbol(),"month") /> Month
+               <input type="radio" name="days" id="week" value="week" onClick=getstockhistory(getSymbol(),"week")  /> Week
+               <input type="radio" name="days" id="day" value="today" onClick=getstockhistory(getSymbol(),"today") /> Today
+               <input type="radio" name="charts" id="charts" value="Linechart" onClick=setChartType("line"),chartPaintSelector() /> Linechart
+               <input type="radio" name="charts" id="charts" value="Barchart" onClick=setChartType("bar"),chartPaintSelector() /> Barchart
+             </div>
+             <div id="dataPresentation">
+              <table>
+                <caption></caption>
+                <thead>
+                  <tr>
+                    <th>
+                      Symbol
+                    </th>
 
-         </div>
+                    <th>
+                     Change
 
-       </div>
-       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+                   </th>
+                   <th>
+                     Latest
+                   </th>
+                 </tr>
+               </thead>
+               <tbody id='currentdata'>
+                <tr>
 
-       <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-       <script>
+      </div>
 
-       </script>
-       <script src="js/plugins.js"></script>
+    </div>
 
-       <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-       <script>
+    
+
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+
+    <script>
+
+    </script>
+    <script src="js/plugins.js"></script>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
       //     (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
       //     function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
       //     e=o.createElement(i);r=o.getElementsByTagName(i)[0];
@@ -151,11 +188,13 @@
 
 
 
+
 var showBtn = document.querySelector("#showMarkets"),
 showBtn2 = document.querySelector("#showMarkets2"),
 showBtn3 = document.querySelector("#showMarkets3"),
 hideBtn = document.querySelector("#portfolio"),
 content = document.querySelector("#marketmen");
+
 
 // Toggle show/hide classes on test content
 showBtn.addEventListener("click", function(){
@@ -172,6 +211,8 @@ hideBtn.addEventListener("click", function(){
   console.log("Hide");
   content.className = "hidden";
 }, false);
+
+
 
 
 
