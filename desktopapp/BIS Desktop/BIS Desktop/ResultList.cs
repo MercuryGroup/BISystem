@@ -19,7 +19,8 @@ namespace BIS_Desktop
         private Label infoLabel;
         private String DataButtonClicked;
         private MainWindow mw;
-        private Boolean buttonClicked = false; 
+        private Boolean buttonClicked = false;
+        private String[][] twoDimText; 
 
         public ResultList(String Data, String Market, object o){
 
@@ -64,8 +65,8 @@ namespace BIS_Desktop
 
             for (int i = 0; i < news.Count; i++)
             {
-                News n = news[i];
-
+               
+               News n = news[i];
 
                btns[i] = new Button();
                btns[i].Text = n.title;
@@ -99,7 +100,7 @@ namespace BIS_Desktop
         private void generateStockList(String Market)
         {
 
-            List<Stock> stocks = jh.getStocks(Market);
+            List<Stock> stocks = jh.getAllStocks(Market);
             
             infoLabel = new Label();
 
@@ -113,13 +114,14 @@ namespace BIS_Desktop
             this.Controls.Add(infoLabel); 
 
             btns = new Button[stocks.Count];
+            twoDimText = new String[stocks.Count][]; 
 
             for (int i = 0; i < stocks.Count; i++ )
             {
                 Stock s = stocks[i]; 
                    
                 btns[i] = new Button();
-                btns[i].Text = s.Symbol + " " + s.Name + " " + s.Latest + " " + s.Change + " " + s.Percent + " " + s.OpenVal;
+                btns[i].Text = s.Symbol + " " + s.Name + " " + s.Latest + " " + s.Change + " " + s.Percent + " " +s.Volume+" "+ s.OpenVal;
                 btns[i].TextAlign = ContentAlignment.MiddleLeft; 
                 btns[i].AutoSize = false;
                 btns[i].Width = this.Width;
@@ -133,6 +135,10 @@ namespace BIS_Desktop
 
                 
                 this.Controls.Add(btns[i]);
+
+                string text = btns[i].Text;
+                String[] splitText = text.Split(' '); 
+                twoDimText[i] = splitText; 
             }
 
             setButtonColors(btns); 
@@ -141,35 +147,41 @@ namespace BIS_Desktop
       }
 
 
-        public String indentText(String text, int Width)
+        public String indentText(int Width)
         {
 
             Graphics grpx = Graphics.FromImage(new Bitmap(1, 1));
 
-            String[] splitArray = text.Split(' ');
+            for (int j = 0; j < twoDimText.Length; j++){
 
-            var total = (int)grpx.MeasureString(splitArray.ToString(), btns[0].Font).Width;
 
-            var lengthZero = (int)grpx.MeasureString(splitArray[0], btns[0].Font).Width;
-            var lengthOne = (int)grpx.MeasureString(splitArray[1], btns[0].Font).Width;
-            var lengthTwo = (int)grpx.MeasureString(splitArray[2], btns[0].Font).Width;
-            var lengthThree = (int)grpx.MeasureString(splitArray[3], btns[0].Font).Width;
-            var lengthFour = (int)grpx.MeasureString(splitArray[4], btns[0].Font).Width;
-            var lengthFive = (int)grpx.MeasureString(splitArray[5], btns[0].Font).Width;
-            var lengthSix = (int)grpx.MeasureString(splitArray[6], btns[0].Font).Width;
+                int longest = 0;
 
-            String indentZero = new String(' ', ((Width) / 7)- lengthZero);
-            String indentOne = new String(' ', ((Width ) / 7) - lengthOne);
-            String indentTwo = new String(' ', ((Width ) / 7) - lengthTwo);
-            String indentThree = new String(' ', ((Width ) / 7) - lengthThree);
-            String indentFour = new String(' ', ((Width ) / 7) - lengthFour);
-            String indentFive = new String(' ', ((Width ) / 7) - lengthFive);
-            String indentSix = new String(' ', ((Width ) / 7) - lengthSix);
+                for (int i = 0; i < twoDimText[j].Length; i++)
+                {
 
-            String newText = splitArray[0] + indentOne + splitArray[1] + indentTwo + splitArray[2] + indentThree + splitArray[3] + indentFour +
-            splitArray[4] + indentFive + splitArray[5] + indentSix + splitArray[6]; 
+                  
+                   // var wordsWidth = (int)grpx.MeasureString(twoDimText[i][j], btns[0].Font).Width;
+                   // Console.WriteLine(twoDimText[i][j]);
 
-            return newText;
+                   // if (wordsWidth > longest)
+                    //{
+                   //     longest = wordsWidth;
+                   ///}
+
+                }
+
+            }
+
+             
+             
+            
+    
+
+            String newText = "";
+       
+
+                return newText;
         }
 
 
@@ -210,7 +222,7 @@ namespace BIS_Desktop
            }
            
            ResultPanel temp = mw.rightPanelResults as ResultPanel;          
-           mw.loadResult(temp, "info", s.Market, mw); 
+           mw.loadResult(temp, "info", s.Symbol, mw); 
             
        }
 
@@ -225,12 +237,13 @@ namespace BIS_Desktop
            this.Height = H;
            this.Width = W;
 
-           if (this.DataButtonClicked.ToLower() == "stocks" || this.DataButtonClicked.ToLower() == "portfolio")
+           if (this.DataButtonClicked == "stocks" || this.DataButtonClicked == "portfolio")
            {
                updateButton(W);
                updateLabel(W);
+               indentText(W);
            }
-           else if (this.DataButtonClicked.ToLower() == "market")
+           else if (this.DataButtonClicked == "market")
            {
                updateButton(W);
            }
@@ -242,11 +255,6 @@ namespace BIS_Desktop
            infoLabel.Width = W;
            infoLabel.Height = 35;
            infoLabel.TextAlign = ContentAlignment.MiddleLeft;
-
-           //Graphics grpx = Graphics.FromImage(new Bitmap(1, 1));
-           //var Width = (int)grpx.MeasureString(infoLabel.ToString(), btns[0].Font).Width;
-           //String Text = infoLabel.Text;
-           //indentText(Text, this.Width);
        }
 
        private void updateButton(int W)
@@ -254,12 +262,7 @@ namespace BIS_Desktop
            foreach (Button b in btns)
            {
                b.Width = W;
-               b.Height = 35;
-
-              // Graphics grpx = Graphics.FromImage(new Bitmap(1, 1));
-               //var Width = (int)grpx.MeasureString(b.Text, btns[0].Font).Width;
-              // String Text = b.Text;
-              // b.Text = indentText(Text, this.Width);
+               b.Height = 35; 
            }
        }
     }
