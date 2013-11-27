@@ -74,12 +74,14 @@ sendData(_Type, List) ->
     ReMapped = reMappMarket(Test),
    
 	 
+
 	  case _Type of 
 	  stock -> [A|T] = List,
       	 {Key, Val} = A,
-               io:format("~p~n", [Val]),
-               %?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
-     		 		?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped , Market};			 
+      	    case ReMapped of
+      	    	"fail" -> ?NEWS ! {self(), symbol, Val , Market};
+                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped , Market}
+                end;			 
 	     _ -> 	 ok
 	  end,
     
@@ -97,17 +99,13 @@ sendData(_Type, List) ->
 %%% Turn Extract market from List
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%reMappMarket() -> ok;
-
 reMappMarket(Market) ->
     case Market of
 		 "omx" -> "st";
 		 "lse" -> "l";
-		 "nyse" -> " ";
+		 "nyse" -> "fail";
 		_ -> ok
 	end.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
