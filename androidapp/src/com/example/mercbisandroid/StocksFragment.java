@@ -23,7 +23,7 @@ public class StocksFragment extends ListFragment implements OnItemClickListener{
 	
 	JSONObject JOBJ = new JSONObject();
 	String[] STOCKS;
-public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
+	public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
 	
 	public StocksFragment() {
 		// Required empty public constructor
