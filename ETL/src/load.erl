@@ -68,19 +68,19 @@ ok;
 
 sendData(_Type, List) ->
 	
-    Market = extractMarket(List),
-    Test = string:to_lower(Market),
-
-    ReMapped = reMappMarket(Test),
-   
-	 
-
 	  case _Type of 
-	  stock -> [A|T] = List,
-      	 {Key, Val} = A,
+	  stock ->  
+	  			Market = extractMarket(List),
+                Test = string:to_lower(Market),
+	            ReMapped = reMappMarket(Test),
+	            Val = extractSymbol(List),
+      	    
       	    case ReMapped of
-      	    	"fail" -> ?NEWS ! {self(), symbol, Val , Market};
-                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped , Market}
+
+      	    	"fail" -> ?NEWS ! {self(), symbol, Val},
+      	    			io:format("~p~n", [Val]);
+                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped},
+                		io:format("~p~n", [Val ++ "." ++ ReMapped])
                 end;			 
 	     _ -> 	 ok
 	  end,
@@ -91,8 +91,21 @@ sendData(_Type, List) ->
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
 		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
-    Doc = { listToBin(List)},
- 		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
+   Doc = { listToBin(List)},
+		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn Extract market from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+extractSymbol([]) -> [];
+
+extractSymbol([{Key, Val}|T]) ->
+	case Key of
+		symbol -> Val;
+		_ -> extractSymbol(T)
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
