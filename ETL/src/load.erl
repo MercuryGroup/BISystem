@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% File: loadnyse.erl
+%%% File: load.erl
 %%% @author Rickard Bremer
 %%% @doc
 %%% Load stock data into our database.
@@ -85,17 +85,15 @@ sendData(_Type, List) ->
 	     _ -> 	 ok
 	  end,
     
-
-		
-	
-	Server = couchbeam:server_connection("localhost", 5984, "", []),
+    Server = couchbeam:server_connection("localhost", 5984, "", []),
 		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
-   Doc = { listToBin(List)},
-		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    Doc = { listToBin(List)},
+       {ok, DocResult} = couchbeam:save_doc(Db, Doc).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Turn Extract market from List
+%%% Extract symbol from List
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -143,9 +141,6 @@ listToBin([]) -> [];
 
 listToBin([{Key, Val}|T]) ->
 	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
-
-%toNews([{Key, Val|T}]) ->
-%		[{binary:bin_to_list(Key)}]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
