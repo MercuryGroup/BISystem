@@ -3,7 +3,6 @@ package com.merc.webservice.rest.jersey.JAXRS_BISystem.Resources;
 import java.util.Calendar;
 
 import javax.inject.Singleton;
-import javax.swing.text.View;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;

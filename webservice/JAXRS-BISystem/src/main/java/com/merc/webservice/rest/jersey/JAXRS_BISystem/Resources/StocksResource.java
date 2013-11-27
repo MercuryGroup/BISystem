@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
-import org.ektorp.support.View;
 
 import com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers.DatabaseHandler;
 

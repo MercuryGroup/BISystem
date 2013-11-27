@@ -1,7 +1,6 @@
 package com.merc.webservice.rest.jersey.JAXRS_BISystem.Handlers;
 
 import java.net.MalformedURLException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
