@@ -4,6 +4,9 @@
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="org.ektorp-1.4.2-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.ektorp/org.ektorp">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="JAXRS-BISystem"/>
         <property name="java-output-path" value="/JAXRS-BISystem/target/classes"/>
     </wb-module>

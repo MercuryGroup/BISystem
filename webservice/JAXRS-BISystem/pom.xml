@@ -34,6 +34,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+            	<groupId>org.ektorp</groupId>
+            	<artifactId>org.ektorp</artifactId>
+            	<version>1.4.2-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -49,7 +54,6 @@
         <dependency>
         	<groupId>org.ektorp</groupId>
         	<artifactId>org.ektorp</artifactId>
-        	<version>1.4.1</version>
         </dependency>
     </dependencies>
     <properties>
