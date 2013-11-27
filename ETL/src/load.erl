@@ -68,17 +68,22 @@ ok;
 
 sendData(_Type, List) ->
 	
+    Market = extractMarket(List),
+    Test = string:to_lower(Market),
 
-	 % case _Type of 
-	 % stock -> [A|T] = List,
-		% 	 {Key, Val} = A,
-  %               io:format("~p~n", [Val]),
-  %               %?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
-		% 		?NEWS ! {self(), symbol, Val};			
-				
-     
-	 %    _ -> 	 ok
-	 % end,
+    ReMapped = reMappMarket(Test),
+   
+	 
+	  case _Type of 
+	  stock -> [A|T] = List,
+      	 {Key, Val} = A,
+               io:format("~p~n", [Val]),
+               %?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
+     		 		?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped , Market};			 
+	     _ -> 	 ok
+	  end,
+    
+
 		
 	
 	Server = couchbeam:server_connection("localhost", 5984, "", []),
@@ -86,6 +91,36 @@ sendData(_Type, List) ->
     
     Doc = { listToBin(List)},
  		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn Extract market from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%reMappMarket() -> ok;
+
+reMappMarket(Market) ->
+    case Market of
+		 "omx" -> "st";
+		 "lse" -> "l";
+		 "nyse" -> " ";
+		_ -> ok
+	end.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn Extract market from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+extractMarket([]) -> [];
+
+extractMarket([{Key, Val}|T]) ->
+	case Key of
+		market -> Val;
+		_ -> extractMarket(T)
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -122,7 +157,6 @@ loop() ->
 			io:format("~p~n", [List]),
 			sendData(news, List),
 			loop();
-		
 		{action, stop} -> ok;
 
 		{action, reload} -> load:loop()
