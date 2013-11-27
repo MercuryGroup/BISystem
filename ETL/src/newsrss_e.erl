@@ -14,7 +14,7 @@
 %%% the Yahoo Finance News RSS Feed API.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 26 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 27 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -134,7 +134,8 @@ loop() ->
 					{filterItems, [title, link, description, pubDate]},
 					{databaseID, guid},
 					{dateTimeField, pubDate},
-					{dateTimeSort, currentDay}],
+					{dateTimeSort, currentDay},
+					{marketMapping, [{"l", "lse"}, {"st", "omx"}]}],
 					Pid ! {self(), processXML(Parsed, XMLSearchInfo)}
 				end)
 			end,
@@ -261,7 +262,8 @@ checkCallExceeding(DataString) ->
 %%%					{filterItems, [atom(), ...]},
 %%%					{databaseID, guid},
 %%%					{dateTimeField, atom()},
-%%%					{dateTimeSort, atom()}].
+%%%					{dateTimeSort, atom()},
+%%%					{marketMapping, {{atom(), atom()}, {atom(), atom()}}].
 %%%
 %%% ParsedXML = tuple(). Parsed with xmerl_scan:string(string())
 %%% @end
@@ -275,13 +277,14 @@ processXML(ParsedXML, XMLSearchInfo) ->
 	{_, DatabaseID} = lists:keyfind(databaseID, 1, XMLSearchInfo),
 	{_, DateTimeFieldName} = lists:keyfind(dateTimeField, 1, XMLSearchInfo),
 	{_, DateTimeSort} = lists:keyfind(dateTimeSort, 1, XMLSearchInfo),
+	{_, MarketMapping} = lists:keyfind(marketMapping, 1, XMLSearchInfo),
 	% Contains all the child elements
 	[MainContent] = ParsedXML#xmlElement.content,
 	ItemListContent = MainContent#xmlElement.content,
 	% Using a list comprehension, which goes through each found
 	% XML element node.
 	XMLPreResult = 
-		[extractChildElementsList(SymbolMarket, El,
+		[extractChildElementsList(SymbolMarket, MarketMapping, El,
 			FilterElements, DatabaseID)
 		|| El <- extractMainElementsList(
 			ItemListContent, LookForChildElement)],
@@ -313,9 +316,10 @@ extractMainElementsList(MainElementsList, LookForChildElement) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(extractChildElementsList(SymbolMarket :: list(),
+	MarketMapping :: [{atom(), atom()}, ...],
 	ChildElementsList:: [tuple(), ...], FilterElements :: [atom(), ...],
 	DatabaseID :: atom()) -> list()).
-extractChildElementsList(SymbolMarket, ChildElementsList,
+extractChildElementsList(SymbolMarket, MarketMapping, ChildElementsList,
 	FilterElements, DatabaseID) ->
 	% Checking whether some elements shall be filtered away or converted,
 	% as well even added (latter specific for Yahoo Finance News Feed).
@@ -332,7 +336,8 @@ extractChildElementsList(SymbolMarket, ChildElementsList,
 	[Symbol, Market] =
 		case string:tokens(SymbolMarket, ".") of
 			[_Symbol, _Market] ->
-				[_Symbol, _Market];
+				TrueMarketName = proplists:get_value(_Market, MarketMapping),
+				[_Symbol, TrueMarketName];
 			[_Symbol] -> % Exception case, no market == nyse
 				[_Symbol, "nyse"]
 		end,
