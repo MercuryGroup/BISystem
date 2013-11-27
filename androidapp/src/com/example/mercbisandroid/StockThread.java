@@ -35,7 +35,7 @@ protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
 	  String line = "";
 	  
 	try {
-		  URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=\"1383565321852\"&endkey=\"1383565328964\"");
+		  URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/lse?startkey=\"1383565318618\"&endkey=\"1383566000000\"");
 		  
 		  HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		  
