@@ -11,43 +11,67 @@ namespace BIS_Desktop
 {
     class InfoDisplay: FlowLayoutPanel
     {
-        
+        //Symbol Name Latest Change Percent Open Value
         private Chart chart;
         private ChartArea chartArea;
         private Series series;
         private RadioButton rbMonth, rbWeek, rbDay;
         private Panel buttonPanel;
-
+        private List<Stock> temp;
+        private int maximumLength;
         private String typeOfChart = "candlestick";
         private String Symbol;
+        private Panel chartPanel;
+        private Controller c;
+        
+        ToolTip tooltip;
+        JsonHandler js;
         /*
          * Show day high and low for candlestick??
          *
         */
         public InfoDisplay(String s)
         {
-            Console.WriteLine("Symbol" +s);
+            js = new JsonHandler();
+            chartPanel = new Panel();
+
+            
             Symbol = s;
             initilizeChart(typeOfChart);
             this.BackColor = Color.White;
 
             initilizeRadioButtons();
-
+            StockChart SC = new StockChart();
 
             this.Controls.Add(chart);
             this.Controls.Add(buttonPanel);
+            //temp = js.getSingleStock(Symbol, "month");
 
         }
-
         private void initilizeChart(String typeOfChart)
         {
-
+            /**
+             * TODO:
+             * [ ] Set y maximum value based on content
+             * [ ] Set interval based on day/week/month
+             * [ ] Get largest and smallest value
+             * CURRENT
+             * [/] Add mouse hover listener to chart areas
+             */
+            
             chart = new Chart();
             chartArea = new ChartArea();
+
             // set max and min values to the area
             chartArea.AxisX.Minimum = 0;
-            chartArea.AxisX.Maximum = 1000;
+
+            //This value should be based on the dates
+            chartArea.AxisX.Maximum = 30;
+            chartArea.AxisX.Interval = 1;;
+
             chartArea.AxisY.Minimum = 0;
+
+            //set y maximum value based
             chartArea.AxisY.Maximum = 1000;
 
             chart.ChartAreas.Add(chartArea);
@@ -59,7 +83,10 @@ namespace BIS_Desktop
                     break;
             }
 
+            //Retreive data from json handler
+            temp = js.getSingleStock(Symbol, "month");
 
+            //Add buttons
             buttonPanel = new FlowLayoutPanel();
          
             buttonPanel.Controls.Add(rbMonth);
@@ -68,13 +95,14 @@ namespace BIS_Desktop
 
             // TEMPORARY
             RichTextBox sd = new RichTextBox();
-            JsonHandler js = new JsonHandler();
-            List<Stock> temp = js.getSingleStock(Symbol, "month");
 
-            sd.Text = temp[0].Name+"\n" +temp[0].Volume;
-            this.Controls.Add(sd); 
-    
+            
+            maximumLength = 30;
+
+            Console.WriteLine("MAX: " + c.getMinMaxValue(temp, "max") + " MIN: " + c.getMinMaxValue(temp, "min"));
+            
         }
+        
 
         public void initilizeRadioButtons()
         {
@@ -98,6 +126,8 @@ namespace BIS_Desktop
 
         public void initilizeCandeleStick()
         {
+
+
             series = new Series("prices");
           
             series.Color = System.Drawing.Color.Blue;
@@ -111,17 +141,24 @@ namespace BIS_Desktop
             chart.Series["prices"]["PriceUpColor"] = "Blue"; 
             chart.Series["prices"]["PriceDownColor"] = "Red";
 
-            for (int i = 0; i < 50; i++)
-            {
 
+            //Print (BASED ON TEMP DATA LENGTH)
+            for (int i = 0; i < 30; i++)
+            {
+                ToolTip tip = new ToolTip();
                 //adding X and high
-                chart.Series["prices"].Points.AddXY((i * 100) + 1, (i*20)+ 100);
+                chart.Series["prices"].Points.AddXY(i, (i*20)+ 100);
+                
+                //chart.Series["prices"].ToolTip = "X: #VALX\nY: #VALY";
+                chart.Series["prices"].Points[i].ToolTip = "";
+
+
                 // adding low
-                chart.Series["prices"].Points[i].YValues[1] = ((i*2) +10);
+                chart.Series["prices"].Points[i].YValues[1] = i;
                 //adding open
                 chart.Series["prices"].Points[i].YValues[2] = ((i*2) + 50);
                 // adding close
-                chart.Series["prices"].Points[i].YValues[3] = ((i*2) + 100);   
+                chart.Series["prices"].Points[i].YValues[3] = ((i*2) + 300);   
                 
             }
                
@@ -129,7 +166,6 @@ namespace BIS_Desktop
             
 
         }
-
         public void monthChecked(object sender, System.EventArgs e)
         {
             

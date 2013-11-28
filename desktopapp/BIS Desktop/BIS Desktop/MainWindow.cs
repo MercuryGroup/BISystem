@@ -31,18 +31,15 @@ namespace BIS_Desktop
             dragging, searchFieldHasText;
         private int marketPanelHeight;
         private String currentMarket, currentResultType;
+        private Controller c;
+        public Font mercuryFont;
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
          */
         public ResultPanel leftPanelResults, rightPanelResults;
         //Color used for buttons that have been clicked.
-        public Color mercuryBlue, 
-            mercuryRed,
-            mercuryGrey, 
-            highlightWhite,
-            mercuryBeige,
-            loading;
+       
         private ThreadHandler th;
         public MainWindow()
         {
@@ -69,23 +66,19 @@ namespace BIS_Desktop
             //Add result panels to left and right parent panels
             leftPanel.Controls.Add(leftPanelResults);
             rightPanel.Controls.Add(rightPanelResults);
-            //Set color for different buttons
-            mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
-            mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
-            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC352");
-            highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAFA");
-            mercuryBeige = System.Drawing.ColorTranslator.FromHtml("#D9CB9E");
-            loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
+            
+            //Set font
+            mercuryFont = new Font("Segoe UI", 10, FontStyle.Regular);
             //Set custom color for controls
-            leftPanel.BackColor = loading;
-            rightPanel.BackColor = loading;
-            leftParentPanel.BackColor = loading;
-            menu.BackColor = mercuryBeige;
-            searchField.BackColor = mercuryGrey;
+            leftPanel.BackColor = c.loading;
+            rightPanel.BackColor = c.loading;
+            leftParentPanel.BackColor = c.loading;
+            menu.BackColor = c.mercuryBeige;
+            searchField.BackColor = c.mercuryGrey;
 
             //Reset buttons
             resetMenuButtons();
-            extraPanel.BackColor = mercuryBeige;
+            extraPanel.BackColor = c.mercuryBeige;
             disableMarketButtons();
             //Refresh all content panels
             refreshContentPanels();
@@ -120,7 +113,7 @@ namespace BIS_Desktop
             if (WindowState == FormWindowState.Maximized)
             {
                 //Change color of maximize button
-                maximizeLabel.ForeColor = mercuryRed;
+                maximizeLabel.ForeColor = c.mercuryRed;
                 //set drag panel width
                 dragPanel.Width = MainWindow.ActiveForm.Width;
                 //Set maximized boolean to true
@@ -135,14 +128,14 @@ namespace BIS_Desktop
             
             Button button_ = sender as Button;
             resetMenuButtons();
-            button_.BackColor = mercuryBlue;
+            button_.BackColor = c.mercuryBlue;
             //button_.ForeColor = Color.White;
             currentResultType = resultType_;
             if (currentMarket == null)
             {
                 resetMarketButtons();
                 currentMarket = "lse";
-                lseButton.BackColor = mercuryBlue;
+                lseButton.BackColor = c.mercuryBlue;
                 lseButton.ForeColor = Color.White;
             }
             loadResult(leftPanelResults, currentResultType, currentMarket, this);
@@ -204,7 +197,7 @@ namespace BIS_Desktop
                 //Add loading text to label
                 loadingLabel.Text = "Loading...";
                 //Set backcolor of loading label
-                loadingPanel.BackColor = loading;
+                loadingPanel.BackColor = c.loading;
                 //Set text aligntment of text inside label
                 loadingLabel.TextAlign = ContentAlignment.TopCenter;
                 //Add label to loading panel
@@ -217,7 +210,7 @@ namespace BIS_Desktop
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
                 
-                th.fetchResult(panel, resultType, currentMarket, mainWindow);
+                th.fetchResult(panel, resultType, resultSource, mainWindow);
                 
                 
             }
@@ -236,10 +229,10 @@ namespace BIS_Desktop
             newsClicked = false;
             portfolioClicked = false;
             //Change color of buttons back to gray
-            marketButton.BackColor = mercuryGrey;
-            newsButton.BackColor = mercuryGrey;
-            stocksButton.BackColor = mercuryGrey;
-            portfolioButton.BackColor = mercuryGrey;
+            marketButton.BackColor = c.mercuryGrey;
+            newsButton.BackColor = c.mercuryGrey;
+            stocksButton.BackColor = c.mercuryGrey;
+            portfolioButton.BackColor = c.mercuryGrey;
             //Set color for foreground
             //marketButton.ForeColor = Color.Black;
             //newsButton.ForeColor = Color.Black;
@@ -251,9 +244,9 @@ namespace BIS_Desktop
         {
             marketPanel.Height = marketPanelHeight;
             //Change color of buttons back to gray
-            lseButton.BackColor = mercuryGrey;
-            nyseButton.BackColor = mercuryGrey;
-            omxButton.BackColor = mercuryGrey;
+            lseButton.BackColor = c.mercuryGrey;
+            nyseButton.BackColor = c.mercuryGrey;
+            omxButton.BackColor = c.mercuryGrey;
             //Set color for foreground
             //lseButton.ForeColor = Color.Black;
             //nyseButton.ForeColor = Color.Black;
@@ -350,7 +343,7 @@ namespace BIS_Desktop
                 //Set window state to full screen
                 WindowState = FormWindowState.Maximized;
                 //Change color of maximize button
-                maximizeLabel.ForeColor = mercuryRed;
+                maximizeLabel.ForeColor = c.mercuryRed;
                 //set drag panel width
                 dragPanel.Width = MainWindow.ActiveForm.Width;
                 //Set maximized boolean to true
@@ -411,7 +404,7 @@ namespace BIS_Desktop
             }
             else
             {
-                label.ForeColor = mercuryGrey;
+                label.ForeColor = c.mercuryGrey;
             }
         }
 
