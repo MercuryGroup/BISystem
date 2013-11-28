@@ -15,20 +15,35 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CONSTANTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-define(ETL, etl).										% Name of the ETL-controller
+-define(SCHEDULER, schedule).							% Name of the scheduler
 -define(LOAD, stockLoader).								% Name of the Load
 -define(CURRENCY, currency).							% Name of the Currency Converter
 -define(NEWS, newsrss_e).								% Name of the News extractor
+-define(STARTER, startup).								% Name of the Starter
+
 -define(TO_CURRENCY, "eur").							% Currency we want to use as standard.
 -define(TIMESTAMP, integer_to_list(milliseconds())).	% Milliseconds since the epoch (1970-01-01 00:00:00)
 -define(DATABASE, "mercury").							% Name of the database
--define(ETL, etl).										% Name of the ETL-controller
--define(SCHEDULER, schedule).							% Name of the scheduler
 -define(UPDATE_INTERVAL, 60000).						% Update interval for the scheduler, time is in milliseconds
 -define(LAUNCH_LIST, [									% The default configuration for the scheduler
-	{nyse, fun nyse_e:start/0, [{14,45}, {18,45}, {22, 45}], ?ETL},
-	{omx, fun omx_e:start/0, [{9,05}, {13,15}, {17,25}], ?ETL},
-	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?ETL}
+	{nyse, fun nyse_e:start/0, [{14,45}, {18,45}, {22, 45}], ?STARTER},
+	{omx, fun omx_e:start/0, [{9,05}, {13,15}, {17,25}], ?STARTER},
+	{lse, fun lse_e:start/0, [{10,0}, {13,30}, {17,0}], ?STARTER}
 	]).
+-define(ETL_CONFIG, [									%The modules that the ETL will start and supervise.
+	load,
+	starter,
+	currency,
+	scheduler,
+	newsrss_e
+	]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% RECORDS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-record(moduleinfo, {module, pid}).						% Used by the etl to keep track of modules and their pids 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FUNCTIONS

@@ -6,7 +6,7 @@
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(etl).
--export([start/0, stop/0, reload/0, loop/1, force/0]).
+-export([start/0, stop/0, reload/0, relaunch/0, loop/1, force/0]).
 -include("../include/ETL.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,21 +33,8 @@ start() ->
 init() ->
 	process_flag(trap_exit, true),
 	inets:start(),
-	%spawn the load
-	{ok, PID} = load:start(),
-	link(PID),
-	%spawn the scheduler
-	{ok, S_PID} = scheduler:start(),
-	link(S_PID),
-	%spawn the currency converter
-	{ok, C_PID} = currency:start(),
-	link(C_PID),
-
-	%{ok, N_PID} = newsrss_e:start(),
-	%link(N_PID),
-
-	List = [{PID, ?LOAD}, {S_PID, ?SCHEDULER}, {C_PID, ?CURRENCY}], %{N_PID, ?NEWS}],
-	loop(List).
+	ModuleList = launch(?ETL_CONFIG),
+	loop(ModuleList).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -76,6 +63,17 @@ reload() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
+%%% relaunch/0 - 	Relaunches the modules the etl supervises. Should only be
+%%%					used after reload/0 has been invoked.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(relaunch() -> ok).
+relaunch() ->
+	?ETL ! {action, relaunch},
+	ok.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
 %%% force/0 - Forces the functions inside the scheduler config to extecute.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,90 +89,30 @@ force() ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(loop(list()) -> any()).
-loop(List) ->
+loop(ModuleList) ->
 	receive
-		{start, Fun} ->
-			Fun(),
-			loop(List);
-
 		{action, stop} ->
-			load:stop(),
-			scheduler:stop(),
+			send_to_all(ModuleList, {action, stop}),
 			ok;
 
 		{action, reload} ->
-			?LOAD ! {action, reload},
-			?CURRENCY ! {action, reload},
-			etl:loop(List);
+			send_to_all(ModuleList, {action, reload}),
+			etl:loop(ModuleList);
+
+		{action, relaunch} ->
+			NewModuleList = launch(?ETL_CONFIG),
+			loop(NewModuleList);
 
 		{action, 'force extract'} ->
 			{ok, Config} = scheduler:get_config(),
 			forceExtract(Config),
-			loop(List);
+			loop(ModuleList);
 
 		{'EXIT', FromPid, _Reason} ->
 			%log?
-			%check who FromPid is and restart
-			case whois(FromPid, List) of
-				?LOAD ->
-					{ok, Pid} = load:start(),
-					link(Pid),
-					NewList = replace(FromPid, Pid, List),
-					loop(NewList);
-
-				?SCHEDULER ->
-					{ok, Pid} = scheduler:start(),
-					link(Pid),
-					NewList = replace(FromPid, Pid, List),
-					loop(NewList);
-
-				?CURRENCY ->
-					{ok, Pid} = currency:start(),
-					link(Pid),
-					NewList = replace(FromPid, Pid, List),
-					loop(NewList);
-
-				% ?NEWS ->
-				% 	{ok, Pid} = newsrss_e:start(),
-				% 	link(Pid),
-				% 	NewList = replace(FromPid, Pid, List),
-				% 	loop(NewList);
-
-
-				undefined ->
-					ok
-			end
+			NewModuleList = revive(ModuleList, FromPid),
+			loop(NewModuleList)
 	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% whois/2 - Looks after the pid in the list of tuples
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(whois(pid(), list()) -> undefined | atom()).
-whois(_, []) ->
-	undefined;
-
-whois(Pid, [{Pid, Name} | _]) ->
-	Name;
-
-whois(Pid, [_ | Tail]) ->
-	whois(Pid, Tail).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% replace/3 - replaces the old pid with the new pid in the list.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(replace(OldPid :: pid(), NewPid :: pid(), list()) -> list()).
-replace(_, _, []) ->
-	[];
-
-replace(OldPid, NewPid, [{OldPid, Name} | Tail]) ->
-	[{NewPid, Name} | Tail];
-
-replace(OldPid, NewPid, [Head | Tail]) ->
-	[Head | replace(OldPid, NewPid, Tail)].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -188,3 +126,50 @@ forceExtract([]) ->
 forceExtract([{_, Fun, _, _} | Tail]) ->
 	Fun(),
 	forceExtract(Tail).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% module_factory/1 - Starts the given module and create a link.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(module_factory(atom()) -> record()).
+module_factory(Module) ->
+	{ok, Pid} = Module:start(),
+	link(Pid),
+	#moduleinfo{module=Module, pid=Pid}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% launch/1 - Starts all the modules in a list.s
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(launch([atom(), ...]) -> [record(), ...]).
+launch([]) ->
+	[];
+launch([Head | Tail]) ->
+	[module_factory(Head) | launch(Tail)].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% send_to_all/2 - Sends the message to all the modules.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(send_to_all([record(), ...], any()) -> ok).
+send_to_all([], _) ->
+	ok;
+send_to_all([Head | Tail], Message) ->
+	Head#moduleinfo.pid ! Message,
+	send_to_all(Tail, Message).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% revive/2 - Find the module that belongs to the pid and restarts it.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(revive([record(), ...], pid()) -> [record(), ...]).
+revive([], _) ->
+	[];
+revive([Head | Tail], Pid) when Head#moduleinfo.pid == Pid ->
+	[module_factory(Head#moduleinfo.module) | Tail];
+revive([Head | Tail], Pid) ->
+	[Head | revive(Tail, Pid)].

@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% File: loadnyse.erl
+%%% File: load.erl
 %%% @author Rickard Bremer
 %%% @doc
 %%% Load stock data into our database.
@@ -68,24 +68,68 @@ ok;
 
 sendData(_Type, List) ->
 	
+	  case _Type of 
+	  stock ->  
+	  			Market = extractMarket(List),
+                Test = string:to_lower(Market),
+	            ReMapped = reMappMarket(Test),
+	            Val = extractSymbol(List),
+      	    
+      	    case ReMapped of
 
-	 case _Type of 
-	 stock -> [A|T] = List,
-			 {Key, Val} = A,
-                io:format("~p~n", [Val]),
-                %?NEWS ! {self(), startGet, {Val, [{childItem, item},{filterItems, [title, link, description, pubDate]}, {databaseID, guid},{dateTimeField, pubDate}]}};
-				?NEWS ! {self(), symbol, Val};			
-				
-     
-	    _ -> 	 ok
-	 end,
-		
-	
-	Server = couchbeam:server_connection("localhost", 5984, "", []),
+      	    	"fail" -> ?NEWS ! {self(), symbol, Val},
+      	    			io:format("~p~n", [Val]);
+                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped},
+                		io:format("~p~n", [Val ++ "." ++ ReMapped])
+                end;			 
+	     _ -> 	 ok
+	  end,
+    
+    Server = couchbeam:server_connection("localhost", 5984, "", []),
 		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
     
     Doc = { listToBin(List)},
- 		{ok, DocResult} = couchbeam:save_doc(Db, Doc).
+       {ok, DocResult} = couchbeam:save_doc(Db, Doc).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Extract symbol from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+extractSymbol([]) -> [];
+
+extractSymbol([{Key, Val}|T]) ->
+	case Key of
+		symbol -> Val;
+		_ -> extractSymbol(T)
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn Extract market from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+reMappMarket(Market) ->
+    case Market of
+		 "omx" -> "st";
+		 "lse" -> "l";
+		 "nyse" -> "fail";
+		_ -> ok
+	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Turn Extract market from List
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+extractMarket([]) -> [];
+
+extractMarket([{Key, Val}|T]) ->
+	case Key of
+		market -> Val;
+		_ -> extractMarket(T)
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -97,9 +141,6 @@ listToBin([]) -> [];
 
 listToBin([{Key, Val}|T]) ->
 	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
-
-%toNews([{Key, Val|T}]) ->
-%		[{binary:bin_to_list(Key)}]
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,7 +163,8 @@ loop() ->
 			io:format("~p~n", [List]),
 			sendData(news, List),
 			loop();
-		
+		{action, stop} -> ok;
+
 		{action, reload} -> load:loop()
 
     end.

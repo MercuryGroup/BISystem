@@ -9,16 +9,18 @@ import java.util.concurrent.ExecutionException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends ListActivity {
 
 	ListView l;
 
@@ -37,7 +39,7 @@ public class SearchActivity extends Activity {
 		
 		testArrayList = new ArrayList<String>(Arrays.asList(Stocks));
 
-		l = (ListView) findViewById(R.id.list);
+		l = (ListView) findViewById(android.R.id.list);
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, testArrayList);
 		l.setAdapter(adapter);
@@ -48,7 +50,7 @@ public class SearchActivity extends Activity {
 	protected void onNewIntent(Intent intent) {
 		handleIntent(intent);
 	}
-
+	
 	private void handleIntent(Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
@@ -75,7 +77,13 @@ public class SearchActivity extends Activity {
 		return true;
 	}
 	
-public void getListOfStocks() {
+	public void onListItemClick(ListView l, View v, int position, long id){
+		Log.d("Test", testArrayList.get(position));
+	}
+	
+	
+	
+	public void getListOfStocks() {
 		
 		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
 		

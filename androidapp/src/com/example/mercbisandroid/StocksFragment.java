@@ -9,6 +9,9 @@ import org.json.JSONObject;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -16,11 +19,12 @@ import android.widget.ListView;
  * A simple {@link android.support.v4.app.Fragment} subclass.
  * 
  */
-public class StocksFragment extends ListFragment {
+public class StocksFragment extends ListFragment implements OnItemClickListener{
 	
 	JSONObject JOBJ = new JSONObject();
 	String[] STOCKS;
-
+	public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
+	
 	public StocksFragment() {
 		// Required empty public constructor
 	}
@@ -43,12 +47,14 @@ public void onActivityCreated(Bundle savedInstanceState) {
 	    try {
 	    	for (int i = 0; i < execute.get().size(); i++){
 	    	    String JsonLine = execute.get().get(i).toString();
-	    		JSONObject JOBJ;
+	    		//JSONObject JOBJ;
 				try {
 					
 					JOBJ = new JSONObject(JsonLine);
-					STOCKS[i] = JOBJ.getString("symbol");
-					System.out.println("Symbol : " + JOBJ.getString("symbol"));
+					STOCKLIST.add(JOBJ);
+					//STOCKS[i] = JOBJ.getString("symbol");
+					STOCKS[i] = STOCKLIST.get(i).getString("symbol");
+				//	System.out.println("Symbol : " + STOCKS[i]);
 					
 				} catch (JSONException e) {
 				
@@ -64,8 +70,19 @@ public void onActivityCreated(Bundle savedInstanceState) {
 		}
 		 
 			setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
-		    ListView listView = getListView(); //EX: 
+		    
+			
+			ListView listView = getListView(); //EX: 
 		    listView.setTextFilterEnabled(true);
+		    
+		    listView.setOnItemClickListener(new OnItemClickListener() {
+		        public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+		                // When clicked, show a toast with the TextView text
+		               System.out.println(STOCKLIST.get(position));
+		            }
+		        });
+		    
+		    
 		    registerForContextMenu(listView);
 		    super.onActivityCreated(savedInstanceState);
 		    return;
@@ -76,6 +93,12 @@ public void onActivityCreated(Bundle savedInstanceState) {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		
  
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		System.out.println("Hello World");
+		
 	}
  
 	

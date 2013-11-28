@@ -2,29 +2,19 @@ package com.example.mercbisandroid;
 
 //import com.example.list_fruit.R;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-
-import android.os.AsyncTask;
-//import android.app.ListFragment;
-import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
-import android.widget.TextView;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+//import android.app.ListFragment;
+import android.os.Bundle;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.
@@ -98,16 +88,65 @@ public class MarketFragment extends Fragment {
 			super.onCreate(savedInstanceState);
 			
 			
-			
-	 
+	
 		}*/
 	
+////	ActionBar actionBar;
+//	
+////	public void onCreate(Bundle arg0) {
+////		super.onCreate(arg0);
+////	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+////			Bundle savedInstanceState) {
+//		// Inflate the layout for this fragment
+//		
+//	//	actionBar = getActionBar();
+//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//
+//		ActionBar.Tab stocks = actionBar.newTab();
+//		stocks.setText("Stocks");
+//		stocks.setTabListener(this);
+//
+//		ActionBar.Tab market = actionBar.newTab();
+//		market.setText("Market");
+//		market.setTabListener(this);
+//
+//		ActionBar.Tab portfolio = actionBar.newTab();
+//		portfolio.setText("Portfolio");
+//		portfolio.setTabListener(this);
+//
+//		actionBar.addTab(stocks);
+//		actionBar.addTab(market);
+//		actionBar.addTab(portfolio);
+//	//	return inflater.inflate(R.layout.fragment_market, container, false);
+//	
+//	}
+	
+//	private FragmentTabHost mTabHost;
+
+  
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		return inflater.inflate(R.layout.fragment_market, container, false);
 	}
-	 
+//	public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+
+//        setContentView(R.layout.market_tabs);
+//        mTabHost = (FragmentTabHost)findViewById(android.R.id.tabhost);
+//        mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
+//
+//        mTabHost.addTab(mTabHost.newTabSpec("simple").setIndicator("Simple"),
+//                FragmentStackSupport.CountingFragment.class, null);
+//        mTabHost.addTab(mTabHost.newTabSpec("contacts").setIndicator("Contacts"),
+//                LoaderCursorSupport.CursorLoaderListFragment.class, null);
+//        mTabHost.addTab(mTabHost.newTabSpec("custom").setIndicator("Custom"),
+//                LoaderCustomSupport.AppListFragment.class, null);
+//        mTabHost.addTab(mTabHost.newTabSpec("throttle").setIndicator("Throttle"),
+//                LoaderThrottleSupport.ThrottledLoaderListFragment.class, null);
+//    }
+
 		
 	}
 
