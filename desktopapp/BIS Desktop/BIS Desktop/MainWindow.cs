@@ -43,7 +43,8 @@ namespace BIS_Desktop
         private ThreadHandler th;
         public MainWindow()
         {
-            
+
+            c = new Controller(); 
             //Initialize all boolean values
             dragging = false;
             marketClicked = false;

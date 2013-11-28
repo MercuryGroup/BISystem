@@ -41,7 +41,7 @@ namespace BIS_Desktop
             this.BackColor = Color.White;
 
             initilizeRadioButtons();
-            StockChart SC = new StockChart();
+            //StockChart SC = new StockChart();
 
             this.Controls.Add(chart);
             this.Controls.Add(buttonPanel);

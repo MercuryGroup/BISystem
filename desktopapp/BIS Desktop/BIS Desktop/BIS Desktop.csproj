@@ -64,6 +64,7 @@
     <Compile Include="InfoDisplay.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Market.cs" />
     <Compile Include="News.cs" />
     <Compile Include="ResultPanel.cs">
       <SubType>Component</SubType>
@@ -79,9 +80,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResultList.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="StockChart.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ThreadHandler.cs" />
