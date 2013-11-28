@@ -394,7 +394,7 @@ processChildElements(Element, FilterElements, DatabaseID) ->
 		% Yahoo Finance News Feed
 		DatabaseID ->
 			% Removing unecessary characters from the result.
-			Result = lists:split(length("yahoo_finance/"),
+			{, Result} = lists:split(length("yahoo_finance/"),
 				extract_XMLText(Element#xmlElement.content)),
 			% ToExtract = extract_XMLText(Element#xmlElement.content),
 			% % "Ugly" test for seeing if the symbol is not available
