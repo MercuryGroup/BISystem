@@ -148,6 +148,11 @@ loop() ->
 			% from the spawned processes
 			retrieveResult(Processes),
 			loop()
+	after 30000 -> % Aborting after 60 secs,
+				   % as the synchronous behaviour of retrieving results can
+				   % stall the loop.
+		ok
+
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
