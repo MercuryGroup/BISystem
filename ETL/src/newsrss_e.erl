@@ -373,7 +373,9 @@ processMainElements([{Name, Value} | T], Acc,
 				CurrentDate -> % Match found, converting date & time
 							   % to a timestamp and caching.
 					processMainElements(T, 
-						lists:append(Acc, [{Name, timestampConverter(Value)}]),
+						lists:append(Acc, [{Name,
+							erlang:integer_to_list(
+								timestampConverter(Value))}]),
 						DateTimeFieldName, DateTimeSort);
 				_ -> % Match not found at all, aborting the search.
 					processMainElements([], [],
@@ -467,7 +469,7 @@ extract_XMLText(Content) ->
 %%% Example of a date & time string "Wed, 22 Oct 2013 15:53:37 GMT".
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(timestampConverter(string()) -> integer()).
+-spec(timestampConverter(DateTimeString :: string()) -> integer()).
 timestampConverter(DateTimeString) ->
 	% lists:last returns everything, except the weekday from the
 	% date & time string.
@@ -494,7 +496,7 @@ timestampConverter(DateTimeString) ->
 %%% representation.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(monthNumber(string()) -> pos_integer()).
+-spec(monthNumber(MonthString :: string()) -> pos_integer()).
 monthNumber(MonthString) when length(MonthString) == 3  ->
 	case MonthString of
 		"Jan" -> 1;
