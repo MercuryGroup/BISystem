@@ -40,7 +40,7 @@ start() ->
 			erlang:register(?NEWS, Pid),
 			{ok, Pid};
 		Process ->
-			{error, {already_started, Process}}
+			{ok, Process}
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -148,7 +148,7 @@ loop() ->
 			% from the spawned processes
 			retrieveResult(Processes),
 			loop()
-	after 30000 -> % Aborting after 60 secs,
+	after 30000 -> % Aborting after 30 secs,
 				   % as the synchronous behaviour of retrieving results can
 				   % stall the loop.
 		ok
