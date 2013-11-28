@@ -23,7 +23,7 @@ public class StocksFragment extends ListFragment implements OnItemClickListener{
 	
 	JSONObject JOBJ = new JSONObject();
 	String[] STOCKS;
-	public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
+public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
 	
 	public StocksFragment() {
 		// Required empty public constructor
@@ -31,11 +31,11 @@ public class StocksFragment extends ListFragment implements OnItemClickListener{
 	
 public void onActivityCreated(Bundle savedInstanceState) {
 		
-		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
+	//	AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
 		
 		
 		try {
-			STOCKS = new String[execute.get().size()];
+			STOCKS = new String[MainActivity.stockArray.get().size()];
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		} catch (ExecutionException e1) {
@@ -45,16 +45,14 @@ public void onActivityCreated(Bundle savedInstanceState) {
 		
 		
 	    try {
-	    	for (int i = 0; i < execute.get().size(); i++){
-	    	    String JsonLine = execute.get().get(i).toString();
-	    		//JSONObject JOBJ;
+	    	for (int i = 0; i < MainActivity.stockArray.get().size(); i++){
+	    	    String JsonLine = MainActivity.stockArray.get().get(i).toString();
+	    		;
 				try {
 					
 					JOBJ = new JSONObject(JsonLine);
 					STOCKLIST.add(JOBJ);
-					//STOCKS[i] = JOBJ.getString("symbol");
 					STOCKS[i] = STOCKLIST.get(i).getString("symbol");
-				//	System.out.println("Symbol : " + STOCKS[i]);
 					
 				} catch (JSONException e) {
 				

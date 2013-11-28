@@ -32,11 +32,11 @@ public class SearchActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search);
-		
+
 		getListOfStocks();
-		
-		//Stocks = getResources().getStringArray(R.layout.list_stocks);
-		
+
+		// Stocks = getResources().getStringArray(R.layout.list_stocks);
+
 		testArrayList = new ArrayList<String>(Arrays.asList(Stocks));
 
 		l = (ListView) findViewById(android.R.id.list);
@@ -50,7 +50,7 @@ public class SearchActivity extends ListActivity {
 	protected void onNewIntent(Intent intent) {
 		handleIntent(intent);
 	}
-	
+
 	private void handleIntent(Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
@@ -76,18 +76,18 @@ public class SearchActivity extends ListActivity {
 
 		return true;
 	}
-	
-	public void onListItemClick(ListView l, View v, int position, long id){
+
+	public void onListItemClick(ListView l, View v, int position, long id) {
 		Log.d("Test", testArrayList.get(position));
+		MainActivity test = new MainActivity();
+		test.addToArray(testArrayList.get(position));
 	}
-	
-	
-	
+
 	public void getListOfStocks() {
-		
-		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
-		
-		
+
+		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread()
+				.execute();
+
 		try {
 			Stocks = new String[execute.get().size()];
 		} catch (InterruptedException e1) {
@@ -95,33 +95,31 @@ public class SearchActivity extends ListActivity {
 		} catch (ExecutionException e1) {
 			e1.printStackTrace();
 		}
-		
-		
-		
-	    try {
-	    	for (int i = 0; i < execute.get().size(); i++){
-	    	    String JsonLine = execute.get().get(i).toString();
-	    		JSONObject JOBJ;
+
+		try {
+			for (int i = 0; i < execute.get().size(); i++) {
+				String JsonLine = execute.get().get(i).toString();
+				JSONObject JOBJ;
 				try {
-					
+
 					JOBJ = new JSONObject(JsonLine);
 					Stocks[i] = JOBJ.getString("symbol");
 					System.out.println("Symbol : " + JOBJ.getString("symbol"));
-					
+
 				} catch (JSONException e) {
-				
+
 					e.printStackTrace();
 				}
-	    		
-	    	}
-	    	
+
+			}
+
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
 		return;
-		
+
 	}
 
 }

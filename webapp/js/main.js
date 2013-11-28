@@ -33,8 +33,8 @@ function portfoliobuilder() {
 				sortArrayBySymbol(element);
 				$.each(element, function (i,value) {
 					if (isStockSaved(value.value.symbol) === true) {
-					addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
-				}
+						addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+					}
 				});
 			}
 		});
@@ -57,11 +57,11 @@ function search() {
 				$.each(element, function (i,value) {
 					if (value.value.symbol.toLowerCase().indexOf(searchterm) != -1 || value.value.name.toLowerCase().indexOf(searchterm) != -1) {
 						console.log("Found Match");
-					addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
-				} else {
+						addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+					} else {
 				// console.log("No Match "+ value.value.symbol);
 			}
-				});
+		});
 			}
 		});
 	});
@@ -70,8 +70,8 @@ function search() {
 function getstockhistory(symbol,timeframe,name) {
 	setName(name);
 	duration = timeframe;
-	today = Date.now();
-	console.log(today.valueOf());
+	today = Date.now().valueOf();
+	
 	if (timeframe === "week") {
 		timeframe = Date.today().add(-7).days();
 		timeframe = timeframe.valueOf();
@@ -90,12 +90,21 @@ function getstockhistory(symbol,timeframe,name) {
 	var tableRef = document.getElementById('resultList');
 	var date1 = null;
 	var date2 = null;
+	dailyValues = [];
 	datelist = [];
-	datalist = [];
+	openVallist = [];
 	latestlist = [];
 	changelist = [];
 	percentlist = [];
-
+	dayLow = [];
+	dayHigh = [];
+	diadata = [];
+	var Dat;
+	var OVal;
+	var Chan;
+	var Lat;
+	var nextDay = new Boolean();
+	diadata = [];
 	console.log('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]');
 	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]', function(url_data) {
 		$.each(url_data, function (i,element) {
@@ -108,45 +117,72 @@ function getstockhistory(symbol,timeframe,name) {
 					// console(getStockData().value.updated);
 
 					$.each(getStockData(), function (i,value) {
+						dayLow = [];
+						dayHigh = [];
 
 						if (duration === "today") {
 							console.log("Setting name to "+value.value.name);
 							
 							var date = new Date(parseInt(value.value.updated));
 							date2=date.toString("HH:mm");
-							console.log("date2 in today "+date2);
-							datalist.push(value.value.openVal);
+
+							openVallist.push(value.value.openVal);
+
 							datelist.push(date2); 
 							latestlist.push(value.value.latest);
+
+							OVal = parseFloat(value.value.openVal);
+							Dat =date2; 
+							Chan = parseFloat(value.value.change);
+							Lat = parseFloat(value.value.latest);
+							Dhi = null;
+							Dlow = null;
+							diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl: Chan});
 						// changelist.push(parseFloat(value.value.change));
 					} 
 					if (duration === "month" || duration === "week") {
 						date2 = dateConvert(value.value.updated);
 						if (date1 === null) {
-							// setName(value.value.name);
-							date1 = dateConvert(value.value.updated);
-							console.log("Updated from null, now: "+date1);
-							console.log(value.value.openVal);
-							datalist.push(value.value.openVal);
-							datelist.push(date2); 
-							changelist.push(parseFloat(value.value.change));
-							latestlist.push(value.value.latest);
 
-						} else if (date1 === date2) {
 
-						} else {
-							date1 = date2;		
-							datalist.push(value.value.openVal);
-							datelist.push(date2); 
-							changelist.push(parseFloat(value.value.change));
-							latestlist.push(value.value.latest);
 						}
+						if (date1 === date2) {
+							dailyValues.push(parseFloat(value.value.latest));
+							nextDay = true;
+						} else {
+								if (nextDay === true) {
+								dailyValues.sort();
+
+								Dlow = dailyValues[0];
+								Dhi = dailyValues.pop();
+								dailyValues = [];
+								nextDay = false;
+								console.log("Day High "+Dhi);
+								diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl:Chan});
+
+							}
+
+							date1 = date2;		
+							OVal = parseFloat(value.value.openVal);
+							Dat =date2; 
+							Chan = parseFloat(value.value.change);
+							Lat = parseFloat(value.value.latest);
+							dailyValues.push(parseFloat(value.value.openVal));
+							dailyValues.push(parseFloat(value.value.latest));
+
+
+
+						}
+
 					}
+
+
 				});
 }
 });
 
-setDataList(datalist.reverse());
+diadata.reverse();
+setOpenVallist(openVallist.reverse());
 setDateList(datelist.reverse());
 setLatestList(latestlist.reverse());
 setChangeList(changelist.reverse());
@@ -204,15 +240,23 @@ function fillInDataTable() {
 	{
 		tableRef.deleteRow(0);
 	}
-	console.log("getname is " +getName());
 	var cn = document.getElementById('companyname').innerHTML=getName();
-
 	var ni = document.getElementById('currentdata');
 	var numi = document.getElementById('theValue');
 	var num = (document.getElementById('theValue').value -1)+ 2;
 	numi.value = num;
 	var newdiv = document.createElement('tr');
 	newdiv.className='clickableRow';
+
+	try  {
+				Change = diadata[diadata.length-1].cl;
+		Value = diadata[diadata.length-1].c;
+
+	} catch (te) {
+
+		Change = "Market closed";
+		Value = "Market closed";
+	}
 
 	// newdiv.addEventListener('click', hidelist(Symbol));
 	cell = document.createElement("td");
@@ -222,8 +266,8 @@ function fillInDataTable() {
 	cellSave = document.createElement("td");
 	textnode = document.createTextNode(Symbol);
 	textName = document.createTextNode(getName());
-	textChange = document.createTextNode(getChangeList().pop());
-	textValue = document.createTextNode(getLatestList().pop());
+	textChange = document.createTextNode(Change);
+	textValue = document.createTextNode(Value);
 	textSave = document.createTextNode("Save");
 	cellSave.setAttribute('onClick', 'hidelist("'+Symbol+'","today");');
 	cell.appendChild(textnode);
@@ -237,20 +281,22 @@ function fillInDataTable() {
 	newdiv.appendChild(cellValue);
 	// newdiv.appendChild(cellSave);
 	ni.appendChild(newdiv);
-
 }
+
+
+
 function portfolioController() {
-var sb = document.getElementById('save');
+	var sb = document.getElementById('save');
 	if (isStockSaved(Symbol) === true) {
 		console.log("Already in portfolio");
 		sb.onclick = function() { deleteStock(Symbol);
-		document.getElementById('save').innerHTML = "Save";
+			document.getElementById('save').innerHTML = "Save";
 		}
 		document.getElementById('save').innerHTML = "Remove";
 	} else {
 		console.log("Not saved");
 		sb.onclick = function() { saveStock(Symbol);
-		document.getElementById('save').innerHTML = "Remove";
+			document.getElementById('save').innerHTML = "Remove";
 
 		}
 		document.getElementById('save').innerHTML = "Save";
@@ -281,93 +327,117 @@ function deleteStock(symbol) {
 	portfolioController();
 }
 
-// function paintlinechart() {
-// 	console.log(getDataList());
-// 	var lineChartData = {
-// 		labels : datelist,
-// 		datasets : [
-// 		{
-// 			fillColor : "rgba(151,187,205,0.5)",
-// 			strokeColor : "rgba(151,187,205,1)",
-// 			pointColor : "rgba(151,187,205,1)",
-// 			pointStrokeColor : "#fff",
-// 			data : datalist
-// 		}
-// 		]
-
-// 	}
-
-// 	var myLine = new Chart(document.getElementById("canvas").getContext("2d")).Line(lineChartData);
-// }
 
 function paintlinechart() {
-	var cl = datalist;
-	diagramdata = [];
-	for (var i = 0;i <= cl.length;i++) {
-		diagramdata.push({day: getDateList()[i],value: datalist[i]});
+
+	{
+		$("#canvas").dxChart({
+			title: {
+				text: 'Stock Price'
+			},
+			legend: {
+				verticalAlignment: "bottom",
+				visible:false,
+			},
+			dataSource: diadata,
+
+					valueAxis: {
+			title: { 
+				text: "EUR"
+			},
+
+		},
+
+			series: {
+				argumentField: "date",
+				valueField: "c",
+				color: '#ffa500',
+				type: "line",
+			},
+			tooltip:{
+				enabled: true
+			}
+		});
 	}
-{
- $("#canvas").dxChart({
-  dataSource: diagramdata,
-
-  series: {
-    argumentField: "day",
-    valueField: "value",
-    name: "Closing value history",
-    type: "line",
-    color: '#ffa500'
-  }
-});
-}
 }
 
-// function paintbarchart2() {
-// 	var cl = getChangeList();
-// 	barcolorlist = [];
-// 	for (var i = 0;i <= cl.length;i++) {
-// 		if (cl[i] < 0 ) {
-// 			cl[i] = Math.abs(cl[i]);
-// 			barcolorlist.push("#DC3522");
-// 		} else {
-// 			barcolorlist.push("#374140");
-// 		}
-// 	}
-// 	console.log(barcolorlist);
-// 	console.log(getChangeList());
-// 	var barChartData = {
-// 		labels : getDateList(),
-// 		datasets : [
-// 		{
-// 			fillColor : barcolorlist,
-// 			strokeColor : "rgba(151,187,205,1)",
-// 			data : cl
-// 		}
-// 		]
-// 	}
+function paintCandlestick() {
+	diagramdata = [];
+	dayHigh.reverse();
+	dayLow.reverse();
+	console.log("painting candlestick");
+	for (var i = 0;i <= getDateList().length;i++) {
+		diagramdata.push({date: getDateList()[i],c: getLatestList()[i],o: openVallist[i],h: dayHigh[i],l:dayLow[i]});
+		console.log("diagramdata " +diagramdata[i] +" daylow " +dayLow[i]  );
+	}
 
-// 	var bars = new Chart(document.getElementById("canvas").getContext("2d")).Bar(barChartData);
+	$("#canvas").dxChart({
+		title: "Stock Price",
+		dataSource: diadata,
+		commonSeriesSettings: {
+			argumentField: "date",
+			type: "candlestick"
+		},
+		series: [
+		{ 
+			name: "STOCKS",
+			openValueField: "o", 
+			highValueField: "h", 
+			lowValueField: "l", 
+			closeValueField: "c", 
+			reduction: {
+				color: "red"
+			}
+		}
+		],    
+		valueAxis: {
+			title: { 
+				text: "EUR"
+			},
 
-// }
+		},
+		tooltip:{
+			enabled: true
+		},
+		argumentAxis: {
+			label: {
+				format: "shortDate"
+			}
+		}
+	});
+}
+
+
 function paintbarchart() {
 	var cl = getChangeList();
 	diagramdata = [];
 	for (var i = 0;i <= cl.length;i++) {
 		diagramdata.push({day: getDateList()[i],value: getChangeList()[i]});
 	}
-	console.log(diagramdata);
-{
- $("#canvas").dxChart({
-  dataSource: diagramdata,
+	
+	{
+		$("#canvas").dxChart({
+			title: {
+				text: 'Change'
+			},
+			dataSource: diadata,
 
-  series: {
-    argumentField: "day",
-    valueField: "value",
-    name: "The daily change",
-    type: "bar",
-    color: '#ffa500'
-  }
-});
-}
+					valueAxis: {
+			title: { 
+				text: "EUR"
+			},
+
+		},
+
+			series: {
+				argumentField: "date",
+				valueField: "cl",
+				name: "The daily change",
+				type: "bar",
+				color: '#ffa500'
+			}
+		});
+	}
 }
 
 
@@ -379,17 +449,11 @@ function chartPaintSelector() {
 	if (getChartType() === "line") {
 		paintlinechart();
 	}
-	// con = document.querySelector("#canvas");
-	// chart = document.querySelector("#barcanvas");
-	// chart.className = 'visuallyhidden';
-	// con.className = 'visible';
+	if (getChartType() === "candle") {
+		paintCandlestick();
+	}
 }
 function hideLine() {
-
-	// con = document.querySelector("#canvas");
-	// chart = document.querySelector("#barcanvas");
-	// con.className = 'visuallyhidden';
-	// chart.className = 'visible';
 	paintbarchart();
 
 }
@@ -408,14 +472,13 @@ function hidelist(Symbol,timeframe,name) {
 	firstDataFill = true;
 	getstockhistory(Symbol,timeframe,name);
 
+
 }
 
 
 function showlist() {
 	con = document.querySelector("#listdisp");
 	chart = document.querySelector("#statView");
-	datalist = [0];
-	datelist = [0];
 	chart.className = 'visuallyhidden';
 	con.className = 'visible';
 
@@ -437,29 +500,3 @@ function sortArrayBySymbol(data) {
 	});
 }
 
-
-
-
-// $(function ()  
-// {
-//  $("#canvas").dxChart({
-//   dataSource: [
-//   {day: "Monday", oranges: 3},
-//   {day: "Tuesday", oranges: 2},
-//   {day: "Wednesday", oranges: -7},
-//   {day: "Thursday", oranges: 43},
-//   {day: "Friday", oranges: 6},
-//   {day: "Saturday", oranges: 11},
-//   {day: "Sunday", oranges: 4} ],
-
-//   series: {
-//     argumentField: "day",
-//     valueField: "oranges",
-//     name: "My oranges",
-//     type: "bar",
-//     color: '#ffa500'
-//   }
-// });
-// }
-
-// );

@@ -134,7 +134,7 @@ loop() ->
 					{filterItems, [title, link, description, pubDate]},
 					{databaseID, guid},
 					{dateTimeField, pubDate},
-					{dateTimeSort, currentDay},
+					{dateTimeFilter, currentDay},
 					{marketMapping, [{"l", "lse"}, {"st", "omx"}]}],
 					Pid ! {self(), processXML(Parsed, XMLSearchInfo)}
 				end)
@@ -152,8 +152,7 @@ loop() ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Reads the messages from each of the processes, and combining
-%%% into a list result.
+%%% Reads the messages from each of the processes, and sending them away.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(retrieveResult([pid(), ...] | []) -> ok).
@@ -166,13 +165,27 @@ retrieveResult([Process | Rest]) ->
 				[] -> % No result was returned from the retrival process
 					ok;
 				_Result ->
-					sendData(Result),
+					prepareToSend(Result),
 					retrieveResult(Rest)
 			end
 	after 10000 -> % Aborting after 10 secs,
 				   % if the spawned process e.g. crashes
 		ok
 	end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% Reads through a list and calling a function to send each element away.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(prepareToSend(list()) -> ok).
+prepareToSend([]) ->
+	ok;
+prepareToSend([Last | []]) ->
+	sendData(Last);
+prepareToSend([H | T]) ->
+	sendData(H),
+	prepareToSend(T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -247,16 +260,16 @@ checkCallExceeding(DataString) ->
 %%% Returns an Erlang term (mostly a tuple) with the same hierarchy structure
 %%% as the provided XML document.
 %%% 
-%%% XMLSearchInfo shall contain search info; XML names for XML elements that
-%%% shall be processed.
+%%% XMLSearchInfo shall contain search info;
+%%% e.g. XML names for XML elements that shall be processed, or 
 %%% 
 %%% XMLSearchInfo = [{symbolMarket, list()},
 %%%					{childItem, atom()},
 %%%					{filterItems, [atom(), ...]},
 %%%					{databaseID, guid},
 %%%					{dateTimeField, atom()},
-%%%					{dateTimeSort, atom()},
-%%%					{marketMapping, {{atom(), atom()}, {atom(), atom()}}].
+%%%					{dateTimeFilter, atom()},
+%%%					{marketMapping, [{atom(), atom()}, ...]}].
 %%%
 %%% ParsedXML = tuple(). Parsed with xmerl_scan:string(string())
 %%% @end
@@ -269,22 +282,23 @@ processXML(ParsedXML, XMLSearchInfo) ->
 	{_, FilterElements} = lists:keyfind(filterItems, 1, XMLSearchInfo),
 	{_, DatabaseID} = lists:keyfind(databaseID, 1, XMLSearchInfo),
 	{_, DateTimeFieldName} = lists:keyfind(dateTimeField, 1, XMLSearchInfo),
-	{_, DateTimeSort} = lists:keyfind(dateTimeSort, 1, XMLSearchInfo),
+	{_, DateTimeFilter} = lists:keyfind(dateTimeFilter, 1, XMLSearchInfo),
 	{_, MarketMapping} = lists:keyfind(marketMapping, 1, XMLSearchInfo),
 	% Contains all the child elements
 	[MainContent] = ParsedXML#xmlElement.content,
 	ItemListContent = MainContent#xmlElement.content,
 	% Using a list comprehension, which goes through each found
-	% XML element node.
+	% XML element node. 
+	% Adaptation for Yahoo Finance News Feed, for current day retrival of news
 	XMLPreResult = 
 		[extractChildElementsList(SymbolMarket, MarketMapping, El,
 			FilterElements, DatabaseID)
 		|| El <- extractMainElementsList(
 			ItemListContent, LookForChildElement)],
-	% Adaptation for Yahoo Finance News Feed, for current day retrival of news
 	XMLPostResult =
-		[processMainElements(El, [], DateTimeFieldName, DateTimeSort)
+		[processMainElements(El, [], DateTimeFieldName, DateTimeFilter)
 		|| El <- XMLPreResult],
+	% Giving it a 'news' tag, and removing all the non-current day news.
 	[{news, El} || El <- XMLPostResult, El =/= {null, []}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -317,7 +331,7 @@ extractChildElementsList(SymbolMarket, MarketMapping, ChildElementsList,
 	% Checking whether some elements shall be filtered away or converted,
 	% as well even added (latter specific for Yahoo Finance News Feed).
 	% ATM a date & time string is the only element that can be converted.
-	% For adding there are only news item, symbol and market ID.
+	% For adding, there are only news item, symbol and market ID.
 	% The elements that are filtered are noted as {null, []}, and deleted
 	% when found.
 	ExtractedChildElements = lists:delete({null, []},
@@ -341,20 +355,21 @@ extractChildElementsList(SymbolMarket, MarketMapping, ChildElementsList,
 %%% @doc
 %%% Processes XML main elements with post-processing
 %%% (list elements not applicable as Xmerl record types); filter, convert.
+%%% Currently adapted for Yahoo Finance News Feed API.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -type(element() :: [{atom(), list()}, ...]).
 -spec(processMainElements(
 	element() | [], Acc :: [tuple(), ...] | [],
-	DateTimeFieldName :: atom(), DateTimeSort :: atom()) ->
+	DateTimeFieldName :: atom(), DateTimeFilter :: atom()) ->
 	{null, []} | element()).
-processMainElements([], [], _, _) ->
+processMainElements([], [], _, _) -> % Aborted search, signal removal.
 	{null, []};
-processMainElements([], Acc, _, _) ->
+processMainElements([], Acc, _, _) -> % Successful search, return acc.
 	Acc;
 processMainElements([{Name, Value} | T], Acc,
-	DateTimeFieldName, DateTimeSort) ->
-	case [Name, DateTimeSort] of
+	DateTimeFieldName, DateTimeFilter) ->
+	case [Name, DateTimeFilter] of
 		[DateTimeFieldName, currentDay] -> % Match found for current day news.
 			[Day, LetterMonth, Year, _, _] =
 				string:tokens(lists:last(string:tokens(Value, ",")), " "),
@@ -369,14 +384,15 @@ processMainElements([{Name, Value} | T], Acc,
 						lists:append(Acc, [{Name,
 							erlang:integer_to_list(
 								timestampConverter(Value))}]),
-						DateTimeFieldName, DateTimeSort);
+						DateTimeFieldName, DateTimeFilter);
 				_ -> % Match not found at all, aborting the search.
 					processMainElements([], [],
-						DateTimeFieldName, DateTimeSort)
+						DateTimeFieldName, DateTimeFilter)
 			end;
-		_ -> % Match not found, adding to cache and continuing the search.
+		_ -> % Not matching 'DateTimeFieldName',
+			 % adding to cache and continuing the search.
 			processMainElements(T, lists:append(Acc, [{Name, Value}]),
-				DateTimeFieldName, DateTimeSort)
+				DateTimeFieldName, DateTimeFilter)
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -421,8 +437,8 @@ processChildElements(Element, FilterElements, DatabaseID) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Handling if there are XML elements that has been split up by
-%%% quote signs, that Xmerl sees as the end of the XML value.
+%%% Handles if there are XML elements that has been split up by
+%%% quote signs (that Xmerl sees as the end of the XML value).
 %%% And as well extracting the XML elements name, and their values.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -443,7 +459,7 @@ findingSplitUpChildElements(MultipleChildElements) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Extracts the value from a XML element.
-%%% If there is no value in it, a blank list is returned.
+%%% If there is no value in it, a blank string is returned.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -type(xmlText() :: #xmlText{}).
@@ -467,8 +483,9 @@ extract_XMLText(Content) ->
 %%% @doc
 %%% Converts a date & time string (explicitly with time zone GMT/UTC)
 %%% into a timestamp string. The timestamp will be in milliseconds, and follow
-%%% the Epoch time standard. The date & time string shall the RFC822 format
-%%% standard in section 5 of its specification.
+%%% the Unix epoch time standard.
+%%% The date & time string shall the RFC822 format standard in section 5
+%%% of its specification.
 %%% Example of a date & time string "Wed, 22 Oct 2013 15:53:37 GMT".
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -496,7 +513,7 @@ timestampConverter(DateTimeString) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
 %%% Converts the textual description of a month (three characters) to a number
-%%% representation.
+%%% representation. E.g: "Jan" -> 1.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(monthNumber(MonthString :: string()) -> pos_integer()).
