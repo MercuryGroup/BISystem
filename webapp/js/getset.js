@@ -6,12 +6,11 @@ function getDateList() {
 	return dali;
 }
 
-function setDataList(datalist) {
-	console.log("setdatalist "+datalist);
+function setOpenVallist(datalist) {
 	datli = datalist;
 }
 
-function getDataList() {
+function getOpenVallist() {
 	return datli;
 }
 function setLatestList(datalist) {
