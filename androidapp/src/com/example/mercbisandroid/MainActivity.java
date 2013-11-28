@@ -1,6 +1,7 @@
 package com.example.mercbisandroid;
 
-import com.example.mercbisandroid.R;
+import java.util.ArrayList;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -9,6 +10,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +21,8 @@ import android.view.Menu;
 import android.widget.SearchView;
 
 public class MainActivity extends FragmentActivity implements TabListener {
+	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
+	
 	ActionBar actionBar;
 	ViewPager viewPager;
 
@@ -145,6 +149,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
     	    if (networkInfo != null && networkInfo.isConnected()) {
     	    	System.out.println("A internet connection is available!");
+    	    	stockArray = new StockThread().execute();
     	    } else {
     	        System.out.println("A Internet connection is not available!");
     	        System.exit(0);

@@ -70,9 +70,9 @@ sendData(_Type, List) ->
 	
 	  case _Type of 
 	  stock ->  
-	  			Market = extractMarket(List),
-                Test = string:to_lower(Market),
-	            ReMapped = reMappMarket(Test),
+	  		%	Market = extractMarket(List),
+                Market = string:to_lower(extractMarket(List)),
+	            ReMapped = reMappMarket(Market),
 	            Val = extractSymbol(List),
       	    
       	    case ReMapped of
