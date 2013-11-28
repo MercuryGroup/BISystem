@@ -80,8 +80,8 @@ getData(Symbols) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(sendData(Data :: term()) -> ok).
 sendData(Data) ->
-	%io:format("~p~n", [Data]). % For testing purposes
-	?LOAD ! Data.
+	io:format("~p~n", [Data]). % For testing purposes
+	%?LOAD ! Data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
