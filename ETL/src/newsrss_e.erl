@@ -14,7 +14,7 @@
 %%% the Yahoo Finance News RSS Feed API.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 27 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 28 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -148,11 +148,6 @@ loop() ->
 			% from the spawned processes
 			retrieveResult(Processes),
 			loop()
-	after 30000 -> % Aborting after 30 secs,
-				   % as the synchronous behaviour of retrieving results can
-				   % stall the loop.
-		ok
-
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -163,13 +158,18 @@ loop() ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(retrieveResult([pid(), ...] | []) -> ok).
 retrieveResult([]) ->
-	[];
+	ok;
 retrieveResult([Process | Rest]) ->
 	receive
 		{Process, Result} ->
-			sendData(Result),
-			retrieveResult(Rest)
-	after 30000 -> % Aborting after 30 secs,
+			case Result of
+				[] -> % No result was returned from the retrival process
+					ok;
+				_Result ->
+					sendData(Result),
+					retrieveResult(Rest)
+			end
+	after 10000 -> % Aborting after 10 secs,
 				   % if the spawned process e.g. crashes
 		ok
 	end.
@@ -394,9 +394,19 @@ processChildElements(Element, FilterElements, DatabaseID) ->
 		% Yahoo Finance News Feed
 		DatabaseID ->
 			% Removing unecessary characters from the result.
-			{_, Result} = lists:split(
-				length("yahoo_finance/"),
+			Result = lists:split(length("yahoo_finance/"),
 				extract_XMLText(Element#xmlElement.content)),
+			% ToExtract = extract_XMLText(Element#xmlElement.content),
+			% % "Ugly" test for seeing if the symbol is not available
+			% % at the Yahoo Finance News Feed API.
+			% {_, Result} = case ToExtract of
+			% 	[] ->
+			% 		{error, no_valid_symbol};
+			% 	_ToExtract ->
+			% 		% Removing unecessary characters from the result.
+			% 		lists:split(length("yahoo_finance/"),
+			% 			_ToExtract)
+			% end,
 			{'_id', Result};
 		Other ->
 			% Filtering out the XML elements that shall not be included
