@@ -1,0 +1,1254 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Ch",
+				"Chan"
+			],
+			[
+				"can",
+				"candlestick"
+			],
+			[
+				"re",
+				"reverse  (function)"
+			],
+			[
+				"day",
+				"dayHigh"
+			],
+			[
+				"open",
+				"openVallist"
+			],
+			[
+				"dail",
+				"dailyValues"
+			],
+			[
+				"setD",
+				"setDataList"
+			],
+			[
+				"set",
+				"setChangeList"
+			],
+			[
+				"paddi",
+				"padding-top"
+			],
+			[
+				"font",
+				"font-family"
+			],
+			[
+				"vi",
+				"visible"
+			],
+			[
+				"padd",
+				"padding-top"
+			],
+			[
+				"max",
+				"max-height"
+			],
+			[
+				"bar",
+				"bardata"
+			],
+			[
+				"bor",
+				"border"
+			],
+			[
+				"sear",
+				"searchterm"
+			],
+			[
+				"mar",
+				"margin-top"
+			],
+			[
+				"por",
+				"portfolioController"
+			],
+			[
+				"is",
+				"isStockSaved"
+			],
+			[
+				"get",
+				"get	Get Elements"
+			],
+			[
+				"save",
+				"saveStock"
+			],
+			[
+				"lo",
+				"localStorage"
+			],
+			[
+				"lat",
+				"latest"
+			],
+			[
+				"getC",
+				"getChangeList"
+			],
+			[
+				"fill",
+				"fillInDataTable"
+			],
+			[
+				"ce",
+				"cellSave  (variable)"
+			],
+			[
+				"cell",
+				"cellSave"
+			],
+			[
+				"getElem",
+				"getElementById"
+			],
+			[
+				"getElement",
+				"getElementsByTagName"
+			],
+			[
+				"cha",
+				"Change"
+			],
+			[
+				"Cha",
+				"Change"
+			],
+			[
+				"getS",
+				"getStockData"
+			],
+			[
+				"setS",
+				"setStockData"
+			],
+			[
+				"pain",
+				"paintlinechart"
+			],
+			[
+				"min",
+				"min-height"
+			],
+			[
+				"padding",
+				"padding-bottom"
+			],
+			[
+				"margin",
+				"margin-bottom"
+			],
+			[
+				"ma",
+				"margin-top"
+			],
+			[
+				"te",
+				"text-align"
+			],
+			[
+				"pa",
+				"paintbarchart"
+			],
+			[
+				"sort",
+				"sortArrayByTime"
+			],
+			[
+				"time",
+				"timeframe"
+			],
+			[
+				"dat",
+				"date1"
+			],
+			[
+				"ch",
+				"chart"
+			],
+			[
+				"vis",
+				"visible"
+			],
+			[
+				"scr",
+				"script	Tag"
+			],
+			[
+				"date",
+				"dateConvert"
+			],
+			[
+				"ba",
+				"background-color"
+			],
+			[
+				"padding-",
+				"padding-left:   (property)"
+			],
+			[
+				"a",
+				"auto"
+			],
+			[
+				"app",
+				"appendChild"
+			],
+			[
+				"cre",
+				"createElement"
+			],
+			[
+				"doc",
+				"document"
+			],
+			[
+				"margi",
+				"margin-top"
+			],
+			[
+				"class",
+				"className"
+			],
+			[
+				"new",
+				"newdiv"
+			],
+			[
+				"div",
+				"divIdName"
+			],
+			[
+				"on",
+				"onclick	Attr"
+			],
+			[
+				"st",
+				"style	<style>"
+			],
+			[
+				"di",
+				"display"
+			],
+			[
+				"d",
+				"display"
+			],
+			[
+				"elem",
+				"element"
+			],
+			[
+				"in",
+				"input	input - button"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"chan",
+				"changeConv"
+			],
+			[
+				"se",
+				"sendData"
+			],
+			[
+				"ext",
+				"extract"
+			],
+			[
+				"L",
+				"Lengthtwo"
+			],
+			[
+				"Sr",
+				"Starttwo"
+			],
+			[
+				"Open",
+				"Open"
+			],
+			[
+				"conv",
+				"ConvPrice"
+			],
+			[
+				"curre",
+				"currencyWrapper"
+			],
+			[
+				"cur",
+				"currencyWrapper"
+			],
+			[
+				"s",
+				"spawn"
+			],
+			[
+				"sta",
+				"status"
+			],
+			[
+				"li",
+				"list_min"
+			],
+			[
+				"lis",
+				"list"
+			],
+			[
+				"ef",
+				"ef2"
+			],
+			[
+				"e",
+				"event"
+			],
+			[
+				"ex",
+				"extract"
+			],
+			[
+				"N",
+				"Nlist"
+			],
+			[
+				"Sp",
+				"Split"
+			],
+			[
+				"Spl",
+				"split"
+			],
+			[
+				"TimeT",
+				"TimeTuple"
+			],
+			[
+				"t",
+				"tail_reverse"
+			],
+			[
+				"o",
+				"openingValCal"
+			],
+			[
+				"Pri",
+				"Price2"
+			],
+			[
+				"Pr",
+				"Price2"
+			],
+			[
+				"P",
+				"PidList"
+			],
+			[
+				"mo",
+				"modc	Module comment"
+			],
+			[
+				"pri",
+				"priceConvert"
+			],
+			[
+				"Stock",
+				"StockVolume"
+			],
+			[
+				"Pa",
+				"PageNumber"
+			],
+			[
+				"D",
+				"Datalist"
+			],
+			[
+				"Li",
+				"ListSegment"
+			],
+			[
+				"page",
+				"pageSelector"
+			],
+			[
+				"p",
+				"PageNumber"
+			],
+			[
+				"St",
+				"State"
+			],
+			[
+				"S",
+				"SubList"
+			],
+			[
+				"fin",
+				"findWord"
+			],
+			[
+				"B",
+				"Body"
+			],
+			[
+				"Proc",
+				"ProcList"
+			],
+			[
+				"F",
+				"From"
+			],
+			[
+				"fe",
+				"fetchvalue"
+			],
+			[
+				"rec",
+				"receive"
+			],
+			[
+				"dis",
+				"dist_erlang"
+			],
+			[
+				"exp",
+				"export_all"
+			],
+			[
+				"per",
+				"person"
+			],
+			[
+				"binar",
+				"binaryData"
+			],
+			[
+				"messa",
+				"message"
+			],
+			[
+				"con",
+				"console"
+			],
+			[
+				"me",
+				"message"
+			],
+			[
+				"req",
+				"request"
+			],
+			[
+				"http",
+				"httpServer"
+			],
+			[
+				"l",
+				"log"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"r",
+				"response"
+			],
+			[
+				"f",
+				"for	for (…) {…}"
+			],
+			[
+				"number",
+				"numberfix"
+			],
+			[
+				"sub",
+				"sub_exprint"
+			],
+			[
+				"_",
+				"_CmpFun"
+			],
+			[
+				"q",
+				"qsort1"
+			],
+			[
+				"Shap",
+				"Shapes"
+			],
+			[
+				"la",
+				"larger"
+			],
+			[
+				"Sh",
+				"Shapes"
+			],
+			[
+				"sha",
+				"shapes"
+			],
+			[
+				"Sha",
+				"Shape2"
+			],
+			[
+				"c",
+				"circumference"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "index.html",
+			"settings":
+			{
+				"buffer_size": 7298,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "css/main.css",
+			"settings":
+			{
+				"buffer_size": 10610,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\nfunction jsonparser() {\n	var tableRef = document.getElementById('resultList');\n	while ( tableRef.rows.length > 0 )\n	{\n		tableRef.deleteRow(0);\n	}\n\n	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22', function(url_data) {\n		$.each(url_data, function (i,element) {\n			if ($.isArray(element) === true) {\n				sortArrayBySymbol(element);\n				$.each(element, function (i,value) {\n					addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    \n				});\n			}\n		});\n	});\n}      \n\n\n\nfunction portfoliobuilder() {\n	var tableRef = document.getElementById('resultList');\n	while ( tableRef.rows.length > 0 )\n	{\n		tableRef.deleteRow(0);\n	}\n\n	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22', function(url_data) {\n		$.each(url_data, function (i,element) {\n			if ($.isArray(element) === true) {\n				sortArrayBySymbol(element);\n				$.each(element, function (i,value) {\n					if (isStockSaved(value.value.symbol) === true) {\n						addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    \n					}\n				});\n			}\n		});\n	});\n}      \n\n\nfunction search() {\n	var tableRef = document.getElementById('resultList');\n	var searchterm = document.getElementById(\"sok\").value.toLowerCase();\n	while ( tableRef.rows.length > 0 )\n	{\n		tableRef.deleteRow(0);\n	}\n	console.log(\"Searching for \"+searchterm);\n	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22', function(url_data) {\n		$.each(url_data, function (i,element) {\n			if ($.isArray(element) === true) {\n				sortArrayBySymbol(element);\n				$.each(element, function (i,value) {\n					if (value.value.symbol.toLowerCase().indexOf(searchterm) != -1 || value.value.name.toLowerCase().indexOf(searchterm) != -1) {\n						console.log(\"Found Match\");\n						addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    \n					} else {\n				// console.log(\"No Match \"+ value.value.symbol);\n			}\n		});\n			}\n		});\n	});\n}    \n\nfunction getstockhistory(symbol,timeframe,name) {\n	setName(name);\n	duration = timeframe;\n	today = Date.now().valueOf();\n	\n	if (timeframe === \"week\") {\n		timeframe = Date.today().add(-7).days();\n		timeframe = timeframe.valueOf();\n		console.log(timeframe);\n	}\n	if (timeframe === \"month\") {\n		timeframe = Date.today().add(-30).days();\n		timeframe = timeframe.valueOf();\n		console.log(timeframe);\n	} if (timeframe === \"today\") {\n		timeframe = Date.today();\n		timeframe = timeframe.valueOf();\n		console.log(timeframe);\n	}\n\n	var tableRef = document.getElementById('resultList');\n	var date1 = null;\n	var date2 = null;\n	dailyValues = [];\n	datelist = [];\n	openVallist = [];\n	latestlist = [];\n	changelist = [];\n	percentlist = [];\n	dayLow = [];\n	dayHigh = [];\n	diadata = [];\n	var Dat;\n	var OVal;\n	var Chan;\n	var Lat;\n	var nextDay = new Boolean();\n	diadata = [];\n	console.log('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]');\n	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]', function(url_data) {\n		$.each(url_data, function (i,element) {\n\n\n			if ($.isArray(element) === true) {\n				sortArrayByTime(element);\n				element.reverse();\n				setStockData(element);\n					// console(getStockData().value.updated);\n\n					$.each(getStockData(), function (i,value) {\n						dayLow = [];\n						dayHigh = [];\n\n						if (duration === \"today\") {\n							console.log(\"Setting name to \"+value.value.name);\n							\n							var date = new Date(parseInt(value.value.updated));\n							date2=date.toString(\"HH:mm\");\n							OVal = parseFloat(value.value.openVal);\n							Dat =date2; \n							Chan = parseFloat(value.value.change);\n							Lat = parseFloat(value.value.latest);\n							Dhi = null;\n							Dlow = null;\n							diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl: Chan});\n					} \n					if (duration === \"month\" || duration === \"week\") {\n						date2 = dateConvert(value.value.updated);\n						if (date1 === null) {\n\n\n						}\n						if (date1 === date2) {\n							dailyValues.push(parseFloat(value.value.latest));\n							nextDay = true;\n						} else {\n								if (nextDay === true) {\n								dailyValues.sort();\n								Dlow = dailyValues[0];\n								Dhi = dailyValues.pop();\n								dailyValues = [];\n								nextDay = false;\n								console.log(\"Day High \"+Dhi);\n								diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl:Chan});\n\n							}\n\n							date1 = date2;		\n							OVal = parseFloat(value.value.openVal);\n							Dat =date2; \n							Chan = parseFloat(value.value.change);\n							Lat = parseFloat(value.value.latest);\n							dailyValues.push(parseFloat(value.value.openVal));\n							dailyValues.push(parseFloat(value.value.latest));\n\n\n\n						}\n\n					}\n\n\n				});\n}\n});\n\ndiadata.reverse();\nsetOpenVallist(openVallist.reverse());\nsetDateList(datelist.reverse());\nsetLatestList(latestlist.reverse());\nsetChangeList(changelist.reverse());\nchartPaintSelector();\nif (firstDataFill === true) {\n	fillInDataTable();\n	firstDataFill = false;\n}\n});\n\n}    \n\n\n\nfunction dateConvert(timeString) {\n	var date = new Date(parseInt(timeString));\n	date=date.toString(\"MMM dd\");\n	return date;\n}\n\n\nfunction addElement(Symbol,Name,Change,Value) {\n	var ni = document.getElementsByTagName('tbody').item(0);\n	var numi = document.getElementById('theValue');\n	var num = (document.getElementById('theValue').value -1)+ 2;\n	numi.value = num;\n	var newdiv = document.createElement('tr');\n	newdiv.className='clickableRow';\n	newdiv.setAttribute('onClick', 'hidelist(\"'+Symbol+'\",\"today\",\"'+Name+'\");');\n	// newdiv.addEventListener('click', hidelist(Symbol));\n	cell = document.createElement(\"td\");\n	cellName = document.createElement(\"td\");\n	cellChange = document.createElement(\"td\");\n	cellValue = document.createElement(\"td\");\n	textnode = document.createTextNode(Symbol);\n	textName = document.createTextNode(Name);\n	textChange = document.createTextNode(Change);\n	textValue = document.createTextNode(Value);\n	cell.appendChild(textnode);\n	cellName.appendChild(textName);\n	cellChange.appendChild(textChange);\n	cellValue.appendChild(textValue);\n	newdiv.appendChild(cell);\n	newdiv.appendChild(cellName);\n	newdiv.appendChild(cellChange);\n	newdiv.appendChild(cellValue);\n	ni.appendChild(newdiv);\n}\n\n\nfunction fillInDataTable() {\n	portfolioController();\n	var tableRef = document.getElementById('currentdata');\n	while ( tableRef.rows.length > 0 )\n	{\n		tableRef.deleteRow(0);\n	}\n	var cn = document.getElementById('companyname').innerHTML=getName();\n	var ni = document.getElementById('currentdata');\n	var numi = document.getElementById('theValue');\n	var num = (document.getElementById('theValue').value -1)+ 2;\n	numi.value = num;\n	var newdiv = document.createElement('tr');\n	newdiv.className='clickableRow';\n\n	// newdiv.addEventListener('click', hidelist(Symbol));\n	cell = document.createElement(\"td\");\n	cellName = document.createElement(\"td\");\n	cellChange = document.createElement(\"td\");\n	cellValue = document.createElement(\"td\");\n	cellSave = document.createElement(\"td\");\n	textnode = document.createTextNode(Symbol);\n	textName = document.createTextNode(getName());\n	textChange = document.createTextNode(diadata[diadata.length-1].cl);\n	textValue = document.createTextNode(diadata[diadata.length-1].c);\n	textSave = document.createTextNode(\"Save\");\n	cellSave.setAttribute('onClick', 'hidelist(\"'+Symbol+'\",\"today\");');\n	cell.appendChild(textnode);\n	cellName.appendChild(textName);\n	cellChange.appendChild(textChange);\n	cellValue.appendChild(textValue);\n	cellSave.appendChild(textSave);\n	newdiv.appendChild(cell);\n	// newdiv.appendChild(cellName);\n	newdiv.appendChild(cellChange);\n	newdiv.appendChild(cellValue);\n	// newdiv.appendChild(cellSave);\n	ni.appendChild(newdiv);\n}\n\n\n\nfunction portfolioController() {\n	var sb = document.getElementById('save');\n	if (isStockSaved(Symbol) === true) {\n		console.log(\"Already in portfolio\");\n		sb.onclick = function() { deleteStock(Symbol);\n			document.getElementById('save').innerHTML = \"Save\";\n		}\n		document.getElementById('save').innerHTML = \"Remove\";\n	} else {\n		console.log(\"Not saved\");\n		sb.onclick = function() { saveStock(Symbol);\n			document.getElementById('save').innerHTML = \"Remove\";\n\n		}\n		document.getElementById('save').innerHTML = \"Save\";\n	}\n}\n\n\nfunction isStockSaved(symbol) {\n	if (localStorage[symbol] === undefined) {\n\n		return false;\n	}\n	else {\n\n		return true;\n	}\n}\n\nfunction saveStock(symbol) {\n	localStorage[symbol] = symbol;\n	console.log(\"saved\");\n	portfolioController();\n}\n\nfunction deleteStock(symbol) {\n	localStorage.removeItem(symbol);\n	console.log(\"deleted \"+isStockSaved(Symbol));\n	portfolioController();\n}\n\n\nfunction paintlinechart() {\n\n	{\n		$(\"#canvas\").dxChart({\n			title: {\n				text: 'Stock Price'\n			},\n			legend: {\n				verticalAlignment: \"bottom\",\n				visible:false,\n			},\n			dataSource: diadata,\n\n					valueAxis: {\n			title: { \n				text: \"EUR\"\n			},\n\n		},\n\n			series: {\n				argumentField: \"date\",\n				valueField: \"c\",\n				color: '#ffa500',\n				type: \"line\",\n			},\n			tooltip:{\n				enabled: true\n			}\n		});\n	}\n}\n\nfunction paintCandlestick() {\n	diagramdata = [];\n	dayHigh.reverse();\n	dayLow.reverse();\n	console.log(\"painting candlestick\");\n	for (var i = 0;i <= getDateList().length;i++) {\n		diagramdata.push({date: getDateList()[i],c: getLatestList()[i],o: openVallist[i],h: dayHigh[i],l:dayLow[i]});\n		console.log(\"diagramdata \" +diagramdata[i] +\" daylow \" +dayLow[i]  );\n	}\n\n	$(\"#canvas\").dxChart({\n		title: \"Stock Price\",\n		dataSource: diadata,\n		commonSeriesSettings: {\n			argumentField: \"date\",\n			type: \"candlestick\"\n		},\n		series: [\n		{ \n			name: \"STOCKS\",\n			openValueField: \"o\", \n			highValueField: \"h\", \n			lowValueField: \"l\", \n			closeValueField: \"c\", \n			reduction: {\n				color: \"red\"\n			}\n		}\n		],    \n		valueAxis: {\n			title: { \n				text: \"EUR\"\n			},\n\n		},\n		tooltip:{\n			enabled: true\n		},\n		argumentAxis: {\n			label: {\n				format: \"shortDate\"\n			}\n		}\n	});\n}\n\n\nfunction paintbarchart() {\n	var cl = getChangeList();\n	diagramdata = [];\n	for (var i = 0;i <= cl.length;i++) {\n		diagramdata.push({day: getDateList()[i],value: getChangeList()[i]});\n	}\n	\n	{\n		$(\"#canvas\").dxChart({\n			title: {\n				text: 'Change'\n			},\n			dataSource: diadata,\n\n					valueAxis: {\n			title: { \n				text: \"EUR\"\n			},\n\n		},\n\n			series: {\n				argumentField: \"date\",\n				valueField: \"cl\",\n				name: \"The daily change\",\n				type: \"bar\",\n				color: '#ffa500'\n			}\n		});\n	}\n}\n\n\nfunction chartPaintSelector() {\n	console.log(\"chartPaintSelector \"+getChartType());\n	if(getChartType() === \"bar\") {\n		paintbarchart();\n	}\n	if (getChartType() === \"line\") {\n		paintlinechart();\n	}\n	if (getChartType() === \"candle\") {\n		paintCandlestick();\n	}\n}\nfunction hideLine() {\n	paintbarchart();\n\n}\n\n\n\nfunction hidelist(Symbol,timeframe,name) {\n	setSymbol(Symbol);\n	con = document.querySelector(\"#listdisp\");\n	chart = document.querySelector(\"#statView\");\n	con.className = 'visuallyhidden';\n	chart.className = 'visible';\n	radiobtn = document.getElementById(\"day\");\n	radiobtn.checked = true;\n	setChartType(\"line\");\n	firstDataFill = true;\n	getstockhistory(Symbol,timeframe,name);\n\n\n}\n\n\nfunction showlist() {\n	con = document.querySelector(\"#listdisp\");\n	chart = document.querySelector(\"#statView\");\n	chart.className = 'visuallyhidden';\n	con.className = 'visible';\n\n}\n\nfunction sortArrayByTime(data) {\n	data.sort(function (a, b) {\n		a = a.value.updated;\n		b = b.value.updated;\n		return a.localeCompare(b);\n	});\n}\n\nfunction sortArrayBySymbol(data) {\n	data.sort(function (a, b) {\n		a = a.value.symbol;\n		b = b.value.symbol;\n		return a.localeCompare(b);\n	});\n}\n\n",
+			"file": "js/main.js",
+			"file_size": 11995,
+			"file_write_time": 130300535161887971,
+			"settings":
+			{
+				"buffer_size": 11813,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/Erlang/Erlang.sublime-build",
+	"command_palette":
+	{
+		"height": 81.0,
+		"selected_items":
+		[
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: i",
+				"Package Control: Install Package"
+			],
+			[
+				"subli",
+				"SublimeLint: Show All Errors"
+			],
+			[
+				"sub",
+				"SublimeLint: Next Error"
+			],
+			[
+				"Package Control:",
+				"Package Control: List Packages"
+			]
+		],
+		"width": 536.0
+	},
+	"console":
+	{
+		"height": 162.0,
+		"history":
+		[
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read())"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/WebApp/js/main.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/WebApp/css/main.css",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/WebApp/index.html",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/WebApp/js/getset.js",
+		"/C/Users/Magnus/Downloads/DevExpressChartJS-13.1.8/Demos/demos/Charts/Line And Point Series/Line.html",
+		"/E/Dropbox/SEM/T3/Html/WebApp/js/getset.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/nyse_e.erl",
+		"/C/Users/Magnus/Downloads/DevExpressChartJS-13.1.8/Demos/demos/Charts/Bar Series/Simplest Chart.html",
+		"/C/Users/Magnus/Downloads/DevExpressChartJS-13.1.8/Demos/demos/Charts/Financial Series/CandleStick.html",
+		"/C/Users/Magnus/Downloads/DevExpressChartJS-13.1.8/Demos/index.html",
+		"/E/Dropbox/SEM/T3/Html/WebApp/css/main.css",
+		"/E/Dropbox/SEM/T3/Html/WebApp/js/main.js",
+		"/E/Dropbox/SEM/T3/Html/WebApp/index.html",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/css/main.css",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/js/main.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/index.html",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/js/Chart.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/js/plugins.js",
+		"/C/Users/Magnus/Documents/GitHub/ico/index.html",
+		"/C/Users/Magnus/Desktop/Chart.js-master/samples/line.html",
+		"/C/Users/Magnus/AppData/Local/Temp/Temp1_Chart.js-master.zip/Chart.js-master/Chart.min.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/js/chart.js",
+		"/E/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/index.html",
+		"/E/Dropbox/SEM/T3/Html/h5bp-html5-boilerplate-72cdf1e/css/main.css",
+		"/C/Users/Magnus/Documents/GitHub/index.html",
+		"/E/Dropbox/SEM/T3/Html/test2.html",
+		"/E/Dropbox/SEM/T3/Html/css/style2.css",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/css/style.css",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Sublime Text Build 3047 x64/Data/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/test.html",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Html/css/c",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/nyse_e.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/nym.erl",
+		"/E/Dropbox/SEM/T3/Project/BISystem/ETL/src/omx_e.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Project/BISystem/ETL/src/loadstocks.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/nym.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/currency.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Project/BISystem/ETL/include/ETL.hrl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Project/BISystem/ETL/src/currency.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/examtest.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/answer2.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/seq_erlang.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/p2.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Project/BISystem/ETL/src/ETL.hrl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/examtest.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Project/BISystem/ETL/src/nyse_e.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/nyse_t.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/answer.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Sublime Text Build 3047 x64/Data/Packages/User/add_date.py",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Sublime Text Build 3047 x64/Data/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/Magnus/Downloads/dist_erlang.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/dist_erlang.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/seq_erlang.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/nyse_t.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/extractnyse2.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/mparse.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/extractnyse.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/dist_erlang.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/html.yrl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/html_parser.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/seq_erlang.beam",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/html_test.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/dist_erlang_test.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/echo.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/records.hrl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/records.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Javascript/echo-server.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Javascript/client.html",
+		"/C/Program Files (x86)/nodejs/node_modules/npm/node_modules/websocket/install.js",
+		"/E/Dropbox/SEM/T3/Javascript/client.html",
+		"/C/Users/Magnus/AppData/Local/Temp/npm-8128-FJHNWrKN/1379972837241-0.6787384636700153/package/builtin/child_process.js",
+		"/E/Dropbox/SEM/T3/Javascript/clien2.html",
+		"/E/Dropbox/SEM/T3/Javascript/webbserver.js",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/seq_erlang_eqc.beam",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/e",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/db.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/sorting.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/geometry.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/db.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/db.beam",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/recursionsum.erl",
+		"/E/Dropbox/SEM/T3/Erlang/erlfiles/intervalsum.erl",
+		"/E/Dropbox/SEM/T3/Erlang/Assignment 1/seq_erlang.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/printEven.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/createlist.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/createlist.beam",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/temp.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/pattern.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/demo.erl",
+		"/C/Users/Magnus/Dropbox/SEM/T3/Erlang/erlfiles/boolean.erl",
+		"/C/Users/Magnus/Dropbox/T3/Erlang/fixed.erl",
+		"/C/Users/Magnus/Dropbox/T3/Erlang/a.erl",
+		"/C/Users/Magnus/Dropbox/T3/Erlang/learn-you-some-erlang/calc.erl",
+		"/C/Users/Magnus/Dropbox/T3/Erlang/learn-you-some-erlang/road.erl",
+		"/C/Users/Magnus/Dropbox/T3/Erlang/learn-you-some-erlang/cases.erl"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"calibri",
+			"fillindat",
+			"update",
+			"barch",
+			"diad",
+			"diadata",
+			"console",
+			".len",
+			"paintcandles",
+			"chartpaint",
+			"candle",
+			"openvalli",
+			"setdatalist",
+			"setDataList",
+			"setchart",
+			"setch",
+			"datalist",
+			"setna",
+			"cl.",
+			"setdatalis",
+			"datalist",
+			"save",
+			"font",
+			"canvas",
+			"changelist",
+			"bardata",
+			"canvas",
+			"barcolorl",
+			"getstockh",
+			"getstock",
+			"canvas",
+			"type",
+			"getstock",
+			"save",
+			" \n",
+			"hidelis",
+			"getlatest",
+			"fillin",
+			"ajax",
+			"paintbar",
+			"focu",
+			"back",
+			"shad",
+			"naviga",
+			"listcont",
+			"listcon",
+			"mydiv",
+			"%;\n",
+			"float",
+			"min-w",
+			"fixed",
+			"barChartata",
+			"paintch",
+			"paintchart",
+			"paintlinechart",
+			"paintchart",
+			"sortArray",
+			"sortArrayBySymbol",
+			"sortArray",
+			"paintchart",
+			"Symbol",
+			"click",
+			"preven",
+			"preve",
+			"markbu",
+			"marketbu",
+			"marketbut",
+			"marketmen",
+			"onlick_handler(e)",
+			"handler",
+			"jsonpar",
+			"getst",
+			"scrip",
+			"}\n",
+			"<script>",
+			"</script>",
+			"/script>",
+			"Chart",
+			"function",
+			"jsonpa",
+			"type",
+			"class",
+			"type",
+			"jsonparser",
+			"jsonp",
+			"jsonparser1",
+			"hidden",
+			"marketmen",
+			"jsonparser1",
+			"\n<!--[",
+			"<!",
+			"hidde",
+			"/div",
+			"paintch",
+			"queryse",
+			"src=",
+			"addel",
+			"fixed",
+			"position",
+			"line",
+			"fixed",
+			"overflo",
+			"mydiv",
+			"overflo",
+			"color",
+			"font",
+			"yellow",
+			"oncli",
+			"htmll",
+			"getvars",
+			"addelemen",
+			"#myd",
+			"thevalue",
+			"visibili",
+			"visible",
+			"hidd",
+			"click",
+			"id2",
+			"length",
+			"//",
+			"sendd",
+			"change",
+			"senddata",
+			"sendda",
+			"change",
+			"flatt",
+			"openingva",
+			"receive"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7298,
+						"regions":
+						{
+							"TagLint":
+							{
+								"flags": 52,
+								"icon": "dot",
+								"regions":
+								[
+									[
+										5671,
+										5673
+									]
+								],
+								"scope": "variable.parameter"
+							}
+						},
+						"selection":
+						[
+							[
+								4973,
+								4979
+							]
+						],
+						"settings":
+						{
+							"is_xml": false,
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1005.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "css/main.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10610,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2245,
+								2245
+							]
+						],
+						"settings":
+						{
+							"codeintel": true,
+							"codeintel_config":
+							{
+								"JavaScript":
+								{
+									"codeintel_max_recursive_dir_depth": 2,
+									"codeintel_scan_files_in_project": false,
+									"javascriptExtraPaths":
+									[
+									]
+								},
+								"PHP":
+								{
+									"codeintel_max_recursive_dir_depth": 5,
+									"codeintel_scan_files_in_project": false,
+									"phpExtraPaths":
+									[
+									]
+								},
+								"Python":
+								{
+									"env":
+									{
+									}
+								}
+							},
+							"codeintel_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_live": true,
+							"codeintel_live_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_max_recursive_dir_depth": 10,
+							"codeintel_scan_exclude_dir":
+							{
+								"JavaScript":
+								[
+									"/build/",
+									"/min/"
+								]
+							},
+							"codeintel_scan_files_in_project": true,
+							"codeintel_selected_catalogs":
+							[
+								"PyWin32",
+								"jQuery",
+								"Rails"
+							],
+							"codeintel_snippets": true,
+							"codeintel_syntax_map":
+							{
+								"Python Django": "Python"
+							},
+							"codeintel_tooltips": "popup",
+							"sublime_auto_complete": true,
+							"syntax": "Packages/CSS/CSS.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 831.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "js/main.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11813,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4470,
+								4470
+							]
+						],
+						"settings":
+						{
+							"codeintel": true,
+							"codeintel_config":
+							{
+								"JavaScript":
+								{
+									"codeintel_max_recursive_dir_depth": 2,
+									"codeintel_scan_files_in_project": false,
+									"javascriptExtraPaths":
+									[
+									]
+								},
+								"PHP":
+								{
+									"codeintel_max_recursive_dir_depth": 5,
+									"codeintel_scan_files_in_project": false,
+									"phpExtraPaths":
+									[
+									]
+								},
+								"Python":
+								{
+									"env":
+									{
+									}
+								}
+							},
+							"codeintel_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_live": true,
+							"codeintel_live_enabled_languages":
+							[
+								"JavaScript",
+								"Mason",
+								"XBL",
+								"XUL",
+								"RHTML",
+								"SCSS",
+								"Python",
+								"HTML",
+								"Ruby",
+								"Python3",
+								"XML",
+								"Sass",
+								"XSLT",
+								"Django",
+								"HTML5",
+								"Perl",
+								"CSS",
+								"Twig",
+								"Less",
+								"Smarty",
+								"Node.js",
+								"Tcl",
+								"TemplateToolkit",
+								"PHP"
+							],
+							"codeintel_max_recursive_dir_depth": 10,
+							"codeintel_scan_exclude_dir":
+							{
+								"JavaScript":
+								[
+									"/build/",
+									"/min/"
+								]
+							},
+							"codeintel_scan_files_in_project": true,
+							"codeintel_selected_catalogs":
+							[
+								"PyWin32",
+								"jQuery",
+								"Rails"
+							],
+							"codeintel_snippets": true,
+							"codeintel_syntax_map":
+							{
+								"Python Django": "Python"
+							},
+							"codeintel_tooltips": "popup",
+							"sublime_auto_complete": true,
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1370.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 26.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 263.0
+	},
+	"project": "webappproject.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 625.0,
+		"selected_items":
+		[
+		],
+		"width": 475.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 188.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

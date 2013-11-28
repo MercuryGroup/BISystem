@@ -13,6 +13,7 @@
       <html class="no-js">
       <!--<![endif]-->
       <head>
+
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title></title>
@@ -103,7 +104,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr onClick=hidelist("AAP","today","AdvancedAutoParts"),hideBar();>
+                    <tr onClick=hidelist("AAP","today","AdvancedAutoParts");>
                       <th>value</th>
                     </tr>
                   </tbody>
@@ -127,6 +128,7 @@
                <input type="radio" name="days" id="day" value="today" onClick=getstockhistory(getSymbol(),"today") /> Today
                <input type="radio" name="charts" id="charts" value="Linechart" onClick=setChartType("line"),chartPaintSelector() /> Linechart
                <input type="radio" name="charts" id="charts" value="Barchart" onClick=setChartType("bar"),chartPaintSelector() /> Barchart
+                   <input type="radio" name="charts" id="charts" value="Candlestick" onClick=setChartType("candle"),chartPaintSelector() /> Candlestick
              </div>
              <div id="dataPresentation">
               <table>
