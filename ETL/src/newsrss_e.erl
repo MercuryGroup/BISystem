@@ -144,11 +144,9 @@ loop() ->
 			Processes = lists:map(RetrieveParseXML, SymbolsPost),
 			% Reading the results from the spawned processes
 			% Enabling synchronous behaviour.
-			% Using lists:append to merge all the lists returned by the
-			% spawned processes
-			Result = lists:append(retrieveResult(Processes)),
-			% Sending away the result
-			prepareToSend(Result),
+			% Using retrieveResult/1 for sending away the result
+			% from the spawned processes
+			retrieveResult(Processes),
 			loop()
 	end.
 
@@ -164,22 +162,12 @@ retrieveResult([]) ->
 retrieveResult([Process | Rest]) ->
 	receive
 		{Process, Result} ->
-			[Result | retrieveResult(Rest)]
+			sendData(Result),
+			retrieveResult(Rest)
+	after 30000 -> % Aborting after 30 secs,
+				   % if the spawned process e.g. crashes
+		ok
 	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Reads through a list and calling a function to send each element away.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(prepareToSend(list()) -> ok).
-prepareToSend([]) ->
-	ok;
-prepareToSend([Last | []]) ->
-	sendData(Last);
-prepareToSend([H | T]) ->
-	sendData(H),
-	prepareToSend(T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
