@@ -22,6 +22,7 @@ import android.widget.SearchView;
 
 public class MainActivity extends FragmentActivity implements TabListener {
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
+	private ArrayList<String> globalArrayTest = new ArrayList<String>();
 	
 	ActionBar actionBar;
 	ViewPager viewPager;
@@ -93,6 +94,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		return true;
 	}
 
+	public void addToArray(String s) {
+		globalArrayTest.add(s);
+	}
+	
+	public ArrayList<String> showArray() {
+		return globalArrayTest;
+	}
+	
+	
+	
 	@Override
 	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
 		// TODO Auto-generated method stub
