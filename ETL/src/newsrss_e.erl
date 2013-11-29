@@ -4,7 +4,7 @@
 %%% @doc
 %%% Server extract module for extracting stock market news.
 %%% Currently supporting Yahoo Finance News RSS Feed, but can be developed
-%%% to be generic. And is adapted to only retrieve the news for
+%%% to be generic. And is adapted to only retrieve the news published at
 %%% the current retrival date.
 %%%
 %%% Supports XML element filtering, and parsing of date & time strings.
@@ -14,7 +14,7 @@
 %%% the Yahoo Finance News RSS Feed API.
 %%% @end
 %%% Created : 11 Oct 2013 by <Robin Larsson@TM5741>
-%%% Modified: 28 Nov 2013 by <Robin Larsson@TM5741>
+%%% Modified: 29 Nov 2013 by <Robin Larsson@TM5741>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(newsrss_e).
 -author("Robin Larsson <Robin Larsson@TM5741>").
@@ -111,8 +111,6 @@ loop() ->
 			% news symbols, but unused ATM and remaining for
 			% future changes.
 			% ***
-			% Used for returning results from spawned processes
-			Pid = self(),
 			% Extracting each symbol into a separate string, stored in a list
 			SymbolsPost = string:tokens(Symbols, ","),
 			% For retrieving and parsing the XML data
@@ -136,41 +134,14 @@ loop() ->
 					{dateTimeField, pubDate},
 					{dateTimeFilter, currentDay},
 					{marketMapping, [{"l", "lse"}, {"st", "omx"}]}],
-					Pid ! {self(), processXML(Parsed, XMLSearchInfo)}
+         			% Sending away the processed data
+					prepareToSend(processXML(Parsed, XMLSearchInfo))
 				end)
 			end,
 			% Executing the parallel map that retrieves data for each
 			% symbol (each a spawned process).
-			Processes = lists:map(RetrieveParseXML, SymbolsPost),
-			% Reading the results from the spawned processes
-			% Enabling synchronous behaviour.
-			% Using retrieveResult/1 for sending away the result
-			% from the spawned processes
-			retrieveResult(Processes),
+			lists:map(RetrieveParseXML, SymbolsPost),
 			loop()
-	end.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% @doc
-%%% Reads the messages from each of the processes, and sending them away.
-%%% @end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--spec(retrieveResult([pid(), ...] | []) -> ok).
-retrieveResult([]) ->
-	ok;
-retrieveResult([Process | Rest]) ->
-	receive
-		{Process, Result} ->
-			case Result of
-				[] -> % No result was returned from the retrival process
-					ok;
-				_Result ->
-					prepareToSend(Result),
-					retrieveResult(Rest)
-			end
-	after 10000 -> % Aborting after 10 secs,
-				   % if the spawned process e.g. crashes
-		ok
 	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -348,8 +319,9 @@ extractChildElementsList(SymbolMarket, MarketMapping, ChildElementsList,
 			[_Symbol] -> % Exception case, no market == nyse
 				[_Symbol, "nyse"]
 		end,
-	PreResultSymbol = lists:append(PreResultType, [{symbol, Symbol}]),
-	lists:append(PreResultSymbol, [{market, Market}]).
+	PreResultSymbol = lists:append(PreResultType,
+		[{symbol, string:to_upper(Symbol)}]),
+	lists:append(PreResultSymbol, [{market, string:to_upper(Market)}]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -409,20 +381,18 @@ processChildElements(Element, FilterElements, DatabaseID) ->
 		% For adding the unique news item ID, specific for
 		% Yahoo Finance News Feed
 		DatabaseID ->
-			% Removing unecessary characters from the result.
-			{_, Result} = lists:split(length("yahoo_finance/"),
-				extract_XMLText(Element#xmlElement.content)),
-			% ToExtract = extract_XMLText(Element#xmlElement.content),
-			% % "Ugly" test for seeing if the symbol is not available
-			% % at the Yahoo Finance News Feed API.
-			% {_, Result} = case ToExtract of
-			% 	[] ->
-			% 		{error, no_valid_symbol};
-			% 	_ToExtract ->
-			% 		% Removing unecessary characters from the result.
-			% 		lists:split(length("yahoo_finance/"),
-			% 			_ToExtract)
-			% end,
+			ToExtract = extract_XMLText(Element#xmlElement.content),
+			% Test for seeing if the symbol is not available
+			% at the Yahoo Finance News Feed API.
+			{_, Result} = case ToExtract of
+				[] ->
+					erlang:throw(
+						{error, no_valid_symbol_or_no_news_available});
+				_ToExtract ->
+					% Removing unecessary characters from the result.
+					lists:split(length("yahoo_finance/"),
+						_ToExtract)
+			end,
 			{'_id', Result};
 		Other ->
 			% Filtering out the XML elements that shall not be included
