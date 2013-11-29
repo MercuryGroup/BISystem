@@ -17,13 +17,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec start() -> {ok, pid()}.
 start() ->
-	case whereis(?LOAD) of
-		undefined ->
-			register(?LOAD, spawn(?MODULE, init, [])),
-				{ok, whereis(?LOAD)};
-		_ ->
-			{ok, whereis(?LOAD)}
-	end.
+        case whereis(?LOAD) of
+                undefined ->
+                        register(?LOAD, spawn(?MODULE, init, [])),
+                                {ok, whereis(?LOAD)};
+                _ ->
+                        {ok, whereis(?LOAD)}
+        end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -31,13 +31,13 @@ start() ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 stop() ->
-	case whereis(?LOAD) of
-		undefined ->
-			already_stopped;
-		_ -> 
-			exit(whereis(?LOAD), ok),
-			stopped 
-	end.
+        case whereis(?LOAD) of
+                undefined ->
+                        already_stopped;
+                _ ->
+                        exit(whereis(?LOAD), ok),
+                        stopped
+        end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -45,17 +45,17 @@ stop() ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 init() ->
-	
-	application:start(sasl),
-	application:start(ibrowse),
-	application:start(asn1),
-	application:start(crypto),
-	application:start(public_key),
-	application:start(ssl),
-	application:start(couchbeam),
-	couchbeam:start(),
+        
+        application:start(sasl),
+        application:start(ibrowse),
+        application:start(asn1),
+        application:start(crypto),
+        application:start(public_key),
+        application:start(ssl),
+        application:start(couchbeam),
+        couchbeam:start(),
 
-	loop().	
+        loop().        
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -67,26 +67,26 @@ sendData(_, []) ->
 ok;
 
 sendData(_Type, List) ->
-	
-	  case _Type of 
-	  stock ->  
-	  		%	Market = extractMarket(List),
+        
+         case _Type of
+         stock ->
+                         %        Market = extractMarket(List),
                 Market = string:to_lower(extractMarket(List)),
-	            ReMapped = reMappMarket(Market),
-	            Val = extractSymbol(List),
-      	    
-      	    case ReMapped of
+         ReMapped = reMappMarket(Market),
+         Val = extractSymbol(List),
+              
+               case ReMapped of
 
-      	    	"fail" -> ?NEWS ! {self(), symbol, Val},
-      	    			io:format("~p~n", [Val]);
-                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped},
-                		io:format("~p~n", [Val ++ "." ++ ReMapped])
-                end;			 
-	     _ -> 	 ok
-	  end,
+                       "fail" -> ?NEWS ! {self(), symbol, Val};
+                                    %io:format("~p~n", [Val]);
+                _ -> ?NEWS ! {self(), symbol, Val ++ "." ++ ReMapped}
+                                    %io:format("~p~n", [Val ++ "." ++ ReMapped])
+                end;                        
+         _ ->          ok
+         end,
     
     Server = couchbeam:server_connection("localhost", 5984, "", []),
-		{ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),	
+                {ok, Db} = couchbeam:open_or_create_db(Server, ?DATABASE, []),        
     
     Doc = { listToBin(List)},
        {ok, DocResult} = couchbeam:save_doc(Db, Doc).
@@ -100,10 +100,10 @@ sendData(_Type, List) ->
 extractSymbol([]) -> [];
 
 extractSymbol([{Key, Val}|T]) ->
-	case Key of
-		symbol -> Val;
-		_ -> extractSymbol(T)
-	end.
+        case Key of
+                symbol -> Val;
+                _ -> extractSymbol(T)
+        end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -112,11 +112,11 @@ extractSymbol([{Key, Val}|T]) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 reMappMarket(Market) ->
     case Market of
-		 "omx" -> "st";
-		 "lse" -> "l";
-		 "nyse" -> "fail";
-		_ -> ok
-	end.
+                 "omx" -> "st";
+                 "lse" -> "l";
+                 "nyse" -> "fail";
+                _ -> ok
+        end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -126,10 +126,10 @@ reMappMarket(Market) ->
 extractMarket([]) -> [];
 
 extractMarket([{Key, Val}|T]) ->
-	case Key of
-		market -> Val;
-		_ -> extractMarket(T)
-	end.
+        case Key of
+                market -> Val;
+                _ -> extractMarket(T)
+        end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
@@ -137,10 +137,10 @@ extractMarket([{Key, Val}|T]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-listToBin([]) -> []; 
+listToBin([]) -> [];
 
 listToBin([{Key, Val}|T]) ->
-	[{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)]. 
+        [{unicode:characters_to_binary(atom_to_list(Key)), unicode:characters_to_binary(Val)}| listToBin(T)].
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,22 +149,22 @@ listToBin([{Key, Val}|T]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop() ->
-	receive
+        receive
 
-		{stock , List} ->
-			sendData(stock, List),
-			loop();
-		
-		{market , List} ->
-			sendData(market, List),
-			loop();
-		
-		{news, List} ->
-			io:format("~p~n", [List]),
-			sendData(news, List),
-			loop();
-		{action, stop} -> ok;
+                {stock , List} ->
+                        spawn(?MODULE, sendData, [stock, List]),
+                        loop();
+                
+                {market , List} ->
+                        spawn(?MODULE, sendData, [market, List]),
+                        loop();
+                
+                {news, List} ->
+                      % io:format("~p~n", [List]),
+                        spawn(?MODULE, sendData, [news, List]),
+                        loop();
+                {action, stop} -> ok;
 
-		{action, reload} -> load:loop()
+                {action, reload} -> load:loop()
 
     end.
