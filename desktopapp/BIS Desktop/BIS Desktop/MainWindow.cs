@@ -20,6 +20,7 @@ namespace BIS_Desktop
          * [X] Add label "beneath" move window
          * [X] Reset market buttons
          * [ ] Info display
+         * [ ] Market info display
          * [ ] Portfolio
          */
 
@@ -32,7 +33,7 @@ namespace BIS_Desktop
         private int marketPanelHeight;
         private String currentMarket, currentResultType;
         private Controller c;
-        public Font mercuryFont;
+        
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
@@ -67,9 +68,9 @@ namespace BIS_Desktop
             //Add result panels to left and right parent panels
             leftPanel.Controls.Add(leftPanelResults);
             rightPanel.Controls.Add(rightPanelResults);
+
+            //currentMarket = "lse";
             
-            //Set font
-            mercuryFont = new Font("Segoe UI", 10, FontStyle.Regular);
             //Set custom color for controls
             leftPanel.BackColor = c.loading;
             rightPanel.BackColor = c.loading;
@@ -165,7 +166,7 @@ namespace BIS_Desktop
              * TODO:
              * [X] Kolla vilken panel som skickade request
              * [X] Lägg på "loading" panel
-             * [ ] Ladda ny tråd för att hämta innehåll
+             * [X] Ladda ny tråd för att hämta innehåll
              */
             //Instantiate current panel
             ResultPanel panel = sender as ResultPanel;
@@ -255,15 +256,6 @@ namespace BIS_Desktop
         }
 
         /// <summary>
-        /// Stock button event handler.
-        /// </summary>
-        private void stocksButton_Click(object sender, EventArgs e)
-        {
-            enableMarketButtons();
-            menuClick(sender, "stocks");
-        }
-
-        /// <summary>
         /// Market button event handler.
         /// </summary>
         /// <param name="sender"></param>
@@ -271,7 +263,16 @@ namespace BIS_Desktop
         private void marketButton_Click(object sender, EventArgs e)
         {
             enableMarketButtons();
-            menuClick(sender, "market");
+            menuClick(sender, "info");
+        }
+
+        /// <summary>
+        /// Stock button event handler.
+        /// </summary>
+        private void stocksButton_Click(object sender, EventArgs e)
+        {
+            enableMarketButtons();
+            menuClick(sender, "stocks");
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Drawing;
+using System.Linq;
 
 namespace BIS_Desktop
 {
@@ -17,62 +18,104 @@ namespace BIS_Desktop
         private Series series;
         private RadioButton rbMonth, rbWeek, rbDay;
         private Panel buttonPanel;
-        private List<Stock> temp;
-        private int maximumLength;
+        private List<Stock> temp, stockSpan;
         private String typeOfChart = "candlestick";
         private String Symbol;
         private Panel chartPanel;
         private Controller c;
+        private DateTime dateBack;
         
         ToolTip tooltip;
         JsonHandler js;
         /*
          * Show day high and low for candlestick??
-         *
+         * TODO:
+         * [ ] Add panel to display latest values
+         * 
         */
         public InfoDisplay(String s)
         {
+            stockSpan = new List<Stock>();
             js = new JsonHandler();
             chartPanel = new Panel();
 
-            
+            c = new Controller();
             Symbol = s;
-            initilizeChart(typeOfChart);
+            temp = js.getSingleStock(Symbol, "month");
+            initilizeChart(typeOfChart, "month");
             this.BackColor = Color.White;
 
             initilizeRadioButtons();
-            //StockChart SC = new StockChart();
+            
 
             this.Controls.Add(chart);
             this.Controls.Add(buttonPanel);
-            //temp = js.getSingleStock(Symbol, "month");
+            
 
         }
-        private void initilizeChart(String typeOfChart)
+        private void initilizeChart(String typeOfChart, String timeSpan)
         {
             /**
              * TODO:
-             * [ ] Set y maximum value based on content
+             * [X] Set y maximum value based on content
              * [ ] Set interval based on day/week/month
-             * [ ] Get largest and smallest value
+             * [X] Get largest and smallest value
+             * [ ] Get list of stocks based on timestamp
              * CURRENT
              * [/] Add mouse hover listener to chart areas
              */
+
             
+
             chart = new Chart();
             chartArea = new ChartArea();
-
-            // set max and min values to the area
+            //Insert if-case for amount of days to show
+            switch (timeSpan)
+            {
+                case "day":
+                    //TEMP VALUE
+                    stockSpan = c.getFilteredList(temp, 1);
+                    chartArea.AxisX.Maximum = 4;
+                    break;
+                case "week":
+                    //TEMP VALUE
+                    stockSpan = c.getFilteredList(temp, 7);
+                    chartArea.AxisX.Maximum = 7;
+                    break;
+                case "month":
+                    stockSpan = temp;
+                    chartArea.AxisX.Maximum = stockSpan.Count();
+                    
+                    break;
+            }
+           
+            // set max and min y values to the area (plus padding)
+            double minYValue = c.getStockMinMaxValue(stockSpan, "min");
+            double maxYValue = c.getStockMinMaxValue(stockSpan, "max")*1.1;
+            chartArea.AxisY.Minimum = minYValue;
+            chartArea.AxisY.Maximum = maxYValue;
             chartArea.AxisX.Minimum = 0;
+            //Set intervals
+            
+            double xInterval = double.Parse(stockSpan.Count().ToString()) / 5;
+            double yInterval = ((maxYValue-minYValue)/5);
+            if (yInterval < 0)
+            {
+                yInterval *= -1;
+            }
 
-            //This value should be based on the dates
-            chartArea.AxisX.Maximum = 30;
-            chartArea.AxisX.Interval = 1;;
-
-            chartArea.AxisY.Minimum = 0;
-
-            //set y maximum value based
-            chartArea.AxisY.Maximum = 1000;
+            chartArea.AxisX.MajorGrid.Interval = xInterval;
+            chartArea.AxisX.Interval = xInterval;
+            chartArea.AxisY.MajorGrid.Interval = yInterval;
+            chartArea.AxisY.Interval = yInterval;
+            //Set colors
+            chartArea.AxisX.MajorGrid.LineColor = Color.LightGray;
+            chartArea.AxisY.MajorGrid.LineColor = Color.LightGray;
+            chartArea.BackColor = Color.Beige;
+            
+            //chartArea.AxisX.MinorGrid.Interval = 4;
+            Console.WriteLine("p " + chartArea.AxisY.Interval + " " + maxYValue);
+            
 
             chart.ChartAreas.Add(chartArea);
 
@@ -83,8 +126,7 @@ namespace BIS_Desktop
                     break;
             }
 
-            //Retreive data from json handler
-            temp = js.getSingleStock(Symbol, "month");
+            
 
             //Add buttons
             buttonPanel = new FlowLayoutPanel();
@@ -95,11 +137,12 @@ namespace BIS_Desktop
 
             // TEMPORARY
             RichTextBox sd = new RichTextBox();
+            sd.Text = "SYMBOL: " + temp.ElementAt(0).Symbol;
+            Controls.Add(sd);
 
             
-            maximumLength = 30;
 
-            Console.WriteLine("MAX: " + c.getMinMaxValue(temp, "max") + " MIN: " + c.getMinMaxValue(temp, "min"));
+            
             
         }
         
@@ -143,23 +186,21 @@ namespace BIS_Desktop
 
 
             //Print (BASED ON TEMP DATA LENGTH)
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < stockSpan.Count(); i++)
             {
                 ToolTip tip = new ToolTip();
                 //adding X and high
-                chart.Series["prices"].Points.AddXY(i, (i*20)+ 100);
+                chart.Series["prices"].Points.AddXY(i, i*20);
                 
-                //chart.Series["prices"].ToolTip = "X: #VALX\nY: #VALY";
-                chart.Series["prices"].Points[i].ToolTip = "";
-
+                chart.Series["prices"].Points[i].ToolTip = "X: #VALX\nY: #VALY";
+                
 
                 // adding low
                 chart.Series["prices"].Points[i].YValues[1] = i;
                 //adding open
                 chart.Series["prices"].Points[i].YValues[2] = ((i*2) + 50);
                 // adding close
-                chart.Series["prices"].Points[i].YValues[3] = ((i*2) + 300);   
-                
+                chart.Series["prices"].Points[i].YValues[3] = ((i*2) + 300);
             }
                
            
@@ -195,7 +236,7 @@ namespace BIS_Desktop
             
         }
 
-
+        
         
     }
 }
