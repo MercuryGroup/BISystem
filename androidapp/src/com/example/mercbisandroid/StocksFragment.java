@@ -81,6 +81,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
 					
                 	System.out.println(MainActivity.stockArray.get().get(position));
 					Intent StockActivity = new Intent(getActivity(),  StockActivity.class);
+					MainActivity.StockSymbol = STOCKS[position];
 					startActivity(StockActivity);
 					
 				} catch (InterruptedException e) {

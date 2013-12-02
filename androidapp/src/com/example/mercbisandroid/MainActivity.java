@@ -23,6 +23,7 @@ import android.widget.SearchView;
 public class MainActivity extends FragmentActivity implements TabListener {
 	
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
+	public static String StockSymbol;
 	
 	
 	private ArrayList<String> globalArrayTest = new ArrayList<String>();
@@ -164,7 +165,9 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	    if (networkInfo != null && networkInfo.isConnected()) {
     	    	System.out.println("A internet connection is available!");
     	    	stockArray = new StockThread().execute();
+    	    	
     	    } else {
+    	    	
     	        System.out.println("A Internet connection is not available!");
     	        System.exit(0);
     	    }
