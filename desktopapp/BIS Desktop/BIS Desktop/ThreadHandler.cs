@@ -22,36 +22,36 @@ namespace BIS_Desktop
             ResultPanel panel = sender as ResultPanel;
             if (resultType == "stocks")
             {
-                try
-                {
+               // try
+                //{
                     ResultList list = new ResultList(resultType, market, mainWindow);
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                     panel.Controls.Clear();
                     panel.setContent(list);
                     panel.updateSize();
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Add(list)));
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine("Exception in ThreadHandler: " + e.Data);
-                }
+                //}
+                //catch(Exception e)
+               // {
+                //    Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
              
             }
             else if (resultType == "info")
             {
-                try
-                {
+              //  try
+               // {
                     InfoDisplay info = new InfoDisplay(market);
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                     panel.Controls.Clear();
                     panel.setContent(info);
                     panel.updateSize();
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Add(info)));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Exception in ThreadHandler: " + e.Data);
-                }
+                //}
+                //catch (Exception e)
+                //{
+                 //   Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
                 
             }
             panel.setLoading(false);
