@@ -29,12 +29,12 @@ public class ChartView extends ImageView {
     private void intChart(){
         //Setting different width and height based on the orientation.
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bitmap = Bitmap.createBitmap(400, 200, Bitmap.Config.ARGB_8888);
-            rectArea = new RectShape(0.0, 0.0, 400, 200);
+            bitmap = Bitmap.createBitmap(200, 100, Bitmap.Config.RGB_565);
+            rectArea = new RectShape(0.0, 0.0, 200, 100);
         }
         
         else {
-            bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
             rectArea = new RectShape(0.0, 0.0, 200, 200);
         }
     }

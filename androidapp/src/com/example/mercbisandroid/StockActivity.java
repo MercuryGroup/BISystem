@@ -28,7 +28,7 @@ public class StockActivity extends Activity {
        CategoryDataset dataset = CreateDataSet(DetailedStockArray);
        ViewGroup viewGroup = (ViewGroup)getWindow().getDecorView().findViewById(android.R.id.content);
        ChartView chartView = new ChartView(this);
-       chartView.drawChart(ChartFactory.createBarChart( "Boink","Category","Value",dataset,PlotOrientation.VERTICAL,true,true,false));       
+       chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Date","Value",dataset,PlotOrientation.VERTICAL,true,true,false));       
 
        viewGroup.addView(chartView);
        
@@ -53,10 +53,13 @@ public static CategoryDataset CreateDataSet(AsyncTask<ArrayList<Object>, Void, A
 		 
 		JSONObject JOBJ = new JSONObject(detailedStockArray.get().get(i).toString());
 		
+		
 		String latest = JOBJ.getString("latest");
 		String updated = JOBJ.getString("updated");
+		System.out.println("latest :" + latest + " # "+" updated : " + updated);
 		
-		dataset.addValue(Integer.parseInt(latest), "Value", updated);
+		//dataset.addValue(Float.parseFloat(latest), "Value", updated);
+		dataset.addValue(Float.parseFloat(latest), "Value", "updated");
 		}
 	} catch (NumberFormatException e) {
 		// TODO Auto-generated catch block
