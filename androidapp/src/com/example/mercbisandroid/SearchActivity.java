@@ -85,8 +85,7 @@ public class SearchActivity extends ListActivity {
 
 	public void getListOfStocks() {
 
-		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread()
-				.execute();
+		AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
 
 		try {
 			Stocks = new String[execute.get().size()];

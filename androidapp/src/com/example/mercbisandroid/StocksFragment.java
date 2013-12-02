@@ -16,96 +16,104 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
- * 
- */
+* A simple {@link android.support.v4.app.Fragment} subclass.
+*
+*/
 public class StocksFragment extends ListFragment implements OnItemClickListener{
-	
-	JSONObject JOBJ = new JSONObject();
-	String[] STOCKS;
-public	ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
-	
-	public StocksFragment() {
-		// Required empty public constructor
-	}
-	
+        
+        JSONObject JOBJ = new JSONObject();
+        String[] STOCKS;
+public        ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
+        
+        public StocksFragment() {
+                // Required empty public constructor
+        }
+        
 public void onActivityCreated(Bundle savedInstanceState) {
-		
-	//	AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
-		
-		
-		try {
-			STOCKS = new String[MainActivity.stockArray.get().size()];
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		} catch (ExecutionException e1) {
-			e1.printStackTrace();
-		}
-		
-		
-		
-	    try {
-	    	for (int i = 0; i < MainActivity.stockArray.get().size(); i++){
-	    	    String JsonLine = MainActivity.stockArray.get().get(i).toString();
-	    		;
-				try {
-					
-					JOBJ = new JSONObject(JsonLine);
-					STOCKLIST.add(JOBJ);
-					STOCKS[i] = STOCKLIST.get(i).getString("symbol");
-					
-				} catch (JSONException e) {
-				
+                
+        //        AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
+                
+                
+                try {
+                        STOCKS = new String[MainActivity.stockArray.get().size()];
+                } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                } catch (ExecutionException e1) {
+                        e1.printStackTrace();
+                }
+                
+                
+                
+         try {
+                 for (int i = 0; i < MainActivity.stockArray.get().size(); i++){
+                  String JsonLine = MainActivity.stockArray.get().get(i).toString();
+                         ;
+                                try {
+                                        
+                                        JOBJ = new JSONObject(JsonLine);
+                                        STOCKLIST.add(JOBJ);
+                                        STOCKS[i] = STOCKLIST.get(i).getString("symbol");
+                                        
+                                } catch (JSONException e) {
+                                
+                                        e.printStackTrace();
+                                }
+                         
+                 }
+                 
+                } catch (InterruptedException e) {
+                        e.printStackTrace();
+                } catch (ExecutionException e) {
+                        e.printStackTrace();
+                }
+                
+                        setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
+                
+                        
+                        ListView listView = getListView(); //EX:
+                 listView.setTextFilterEnabled(true);
+                
+                 listView.setOnItemClickListener(new OnItemClickListener() {
+                 public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+                 // When clicked, show a toast with the TextView text
+                 try {
+					System.out.println(MainActivity.stockArray.get().get(position));
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-	    		
-	    	}
-	    	
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-		 
-			setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
-		    
-			
-			ListView listView = getListView(); //EX: 
-		    listView.setTextFilterEnabled(true);
-		    
-		    listView.setOnItemClickListener(new OnItemClickListener() {
-		        public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-		                // When clicked, show a toast with the TextView text
-		               System.out.println(STOCKLIST.get(position));
-		            }
-		        });
-		    
-		    
-		    registerForContextMenu(listView);
-		    super.onActivityCreated(savedInstanceState);
-		    return;
-		
-	}
+                 }
+                 });
+                
+                
+                 registerForContextMenu(listView);
+                 super.onActivityCreated(savedInstanceState);
+                 return;
+                
+        }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);		
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);                
  
-	}
+        }
 
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		System.out.println("Hello World");
-		
-	}
+        @Override
+        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                System.out.println("Hello World");
+                
+        }
  
-	
+        
 }
 
-//	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//			Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-//		return inflater.inflate(R.layout.fragment_stocks, container, false);
-//	}
 
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                        Bundle savedInstanceState) {
+                // Inflate the layout for this fragment
+//                return inflater.inflate(R.layout.fragment_stocks, container, false);
+//        }
 

@@ -22,82 +22,80 @@ protected void onProgressUpdate(Integer... progress) {
 }
 
 protected void onPostExecute(Long result) {
- //   showDialog("Downloaded " + result + " bytes");
+ // showDialog("Downloaded " + result + " bytes");
 }
 
 @Override
 protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
-	
-	  ArrayList<Object> JSONLIST = new ArrayList<Object>();  
-	  BufferedReader reader = null;
-	  StringBuffer jsonBuffer = new StringBuffer();
-	  String jsonLine = "";
-	  String line = "";
-	  
-	try {
-		  URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/lse?startkey=\"1383565318618\"&endkey=\"1383566000000\"");
-		  
-		  HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		  
-		  try {
-			    reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-			   
-			    
-			    while ((line = reader.readLine()) != null) {
-			       jsonBuffer.append(line);
-			    }
-			  } 
-		  		catch (IOException e) {
-			    e.printStackTrace();
-			  } 
-		  
-		  	finally {
-			    if (reader != null) {
-			      try {
-			        reader.close();
-			      } 
-			      catch (IOException e) {
-			        e.printStackTrace();
-			      }
-			    }
-			  }
-			
-				jsonLine = jsonBuffer.toString();
-				
-			  try {
-			  
-			  JSONObject jsonObjMain = new JSONObject(jsonLine);
-			  JSONArray jsonArray = jsonObjMain.getJSONArray("rows");
-			  
-			  for (int i = 0; i < jsonArray.length(); i++) {
-				  
-			  JSONObject jsonObjStock = new JSONObject(new String(jsonArray.getString(i)));
-		      JSONObject JSONObjStockVal = new JSONObject(jsonObjStock.getString("value"));
-			  
-		     
-		      JSONLIST.add(JSONObjStockVal);
-			  }
-			  
-			  } catch (JSONException e) {
-			  // TODO Auto-generated catch block
-			  e.printStackTrace();
-			  
-			  }
-			  
-			//  for(int i = 0; i < JSONLIST.size(); i++){
-			//	  System.out.println(JSONLIST.get(i).toString());
-		    // }
-			  
-			  return JSONLIST;
-		  
-	      
-		} catch (Exception e) {
-		  e.printStackTrace();
-		}	
-	
-	return null;
+        
+         ArrayList<Object> JSONLIST = new ArrayList<Object>();
+         BufferedReader reader = null;
+         StringBuffer jsonBuffer = new StringBuffer();
+         String jsonLine = "";
+         String line = "";
+        
+        try {
+                 URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=\"1384142400000\"&endkey=\"1384172149000\"");
+                
+                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                
+                 try {
+                         reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                        
+                        
+                         while ((line = reader.readLine()) != null) {
+                         jsonBuffer.append(line);
+                         }
+                         }
+                                 catch (IOException e) {
+                         e.printStackTrace();
+                         }
+                
+                         finally {
+                         if (reader != null) {
+                         try {
+                         reader.close();
+                         }
+                         catch (IOException e) {
+                         e.printStackTrace();
+                         }
+                         }
+                         }
+                        
+                                jsonLine = jsonBuffer.toString();
+                                
+                         try {
+                        
+                         JSONObject jsonObjMain = new JSONObject(jsonLine);
+                         JSONArray jsonArray = jsonObjMain.getJSONArray("rows");
+                        
+                         for (int i = 0; i < jsonArray.length(); i++) {
+                                
+                         JSONObject jsonObjStock = new JSONObject(new String(jsonArray.getString(i)));
+                 JSONObject JSONObjStockVal = new JSONObject(jsonObjStock.getString("value"));
+                        
+                
+                 JSONLIST.add(JSONObjStockVal);
+                         }
+                        
+                         } catch (JSONException e) {
+                         // TODO Auto-generated catch block
+                         e.printStackTrace();
+                        
+                         }
+                        
+                        // for(int i = 0; i < JSONLIST.size(); i++){
+                        //         System.out.println(JSONLIST.get(i).toString());
+                 // }
+                        
+                         return JSONLIST;
+                
+        
+                } catch (Exception e) {
+                 e.printStackTrace();
+                }        
+        
+        return null;
 }
 
 }
-	
-

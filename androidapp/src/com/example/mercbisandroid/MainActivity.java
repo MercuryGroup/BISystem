@@ -21,7 +21,10 @@ import android.view.Menu;
 import android.widget.SearchView;
 
 public class MainActivity extends FragmentActivity implements TabListener {
+	
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
+	
+	
 	private ArrayList<String> globalArrayTest = new ArrayList<String>();
 	
 	ActionBar actionBar;
