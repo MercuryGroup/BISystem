@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -77,7 +78,11 @@ public void onActivityCreated(Bundle savedInstanceState) {
                  public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
                  // When clicked, show a toast with the TextView text
                  try {
-					System.out.println(MainActivity.stockArray.get().get(position));
+					
+                	System.out.println(MainActivity.stockArray.get().get(position));
+					Intent StockActivity = new Intent(getActivity(),  StockActivity.class);
+					startActivity(StockActivity);
+					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
