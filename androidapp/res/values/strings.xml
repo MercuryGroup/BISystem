@@ -16,6 +16,8 @@
     <string name="search_title">Search</string>
     <string name="search_hint">Search stocks</string>
     <string name="title_activity_stock">Detailed Stock View</string>
-
+	<string name="StockNews">This is the StockNews fragment</string>
+	<string name="StockInfo">This is the StockInfo Fragment</string>
+	<string name="StockGraph">This is the StockGraph</string>
 
 </resources>
