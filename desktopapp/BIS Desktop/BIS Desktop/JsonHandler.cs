@@ -38,17 +38,66 @@ namespace BIS_Desktop
            client = new HttpClient();
         }
 
-     
-        public List<News> getNews(String Market)
+
+        public List<News> getAllNews(String Market)
         {
-          
-            return new List<News>(); 
+            List<News> news = new List<News>();
+
+            String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news";
+            try
+            {
+                using (var s = client.GetStreamAsync(url).Result)
+                using (StreamReader sr = new StreamReader(s))
+                {
+                    //JObject jo = (JObject)JToken.ReadFrom(new JsonTextReader(sr));
+                    //var children = jo["rows"];
+
+                    string json = sr.ReadToEnd();
+
+                    JObject jo = JObject.Parse(json);
+
+                    JArray JA = (JArray)jo["rows"];
+
+                    foreach (JObject n in JA)
+                    {
+
+                        News temp = parseNews(n);
+
+                        news.Add(temp);
+
+                    }
+                }
+                  
+            }catch (AggregateException e){
+                Console.WriteLine(e.Data);
+            }
+           
+
+            return news;
+        }
+
+        
+        public List<News> getSingleNews(String Symbol)
+        {
+
+            List<News> News = new List<News>();
+            URL += "news/day/index/" + Symbol;
+
+            for(int i=0; i<35; i++)
+            {
+               // News n = parseNews(i); 
+                //News.Add(n);
+            }
+           
+            return News; 
 
         }
+
         public List<Market> getSingleMarket(String marketSymbol, String Period){
 
             List<Market> marketData = new List<Market>();
 
+        
             URL += "markets/" + Period + "/index/" + marketSymbol;
 
             try
@@ -89,6 +138,7 @@ namespace BIS_Desktop
             */
             List<Stock> stocks = new List<Stock>();
 
+        
             URL += "stocks/" + Period + "/" + Symbol;
 
             try
@@ -123,7 +173,6 @@ namespace BIS_Desktop
 
             List<Stock> stocks = new List<Stock>();
 
-            //String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=\"1383565321852\"&endkey=\"1383565328964\"";
             String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22";
             try
             {
@@ -162,6 +211,26 @@ namespace BIS_Desktop
                 Console.WriteLine(e.Data); 
             }
             return stocks;
+        }
+
+        private News parseNews(JObject jo)
+        {
+            News news = new News();
+      
+
+            JObject temp = jo.Value<JObject>("value");
+
+            news.symbol = temp.Value<string>("symbol");
+            news.id = temp.Value<string>("id");
+            news.key = temp.Value<string>("key");
+            news.title = temp.Value<string>("title");
+            news.link = temp.Value<string>("link");
+            news.description = temp.Value<string>("description");
+            news.guid = temp.Value<string>("guid");
+            news.pubDate = temp.Value<string>("pubDate");
+            news.type = temp.Value<string>("type");
+
+            return news; 
         }
 
         private Market parseMarket(JObject jo)

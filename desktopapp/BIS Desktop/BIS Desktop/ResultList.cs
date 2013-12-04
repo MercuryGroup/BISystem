@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Drawing; 
 
 
 namespace BIS_Desktop
@@ -19,12 +18,35 @@ namespace BIS_Desktop
         // size variables
         private int panelWidth;
         private int panelHeigth;
-        private int buttonHeight = 35;
+        private int buttonHeight = 40;
+        
+        private int stockLabelWidth; // the width of the stock labels
+        private int newsLabelWidth; // the width of the news labels
 
-        private Label[] infoLabels; // array of info labels
-        private Button[] btns; // Array of buttons
-        private TableLayoutPanel infoPanel; // Panel with labels, with info for the stock list
+        private int numberOfButtonsPerPage = 10; // number of buttons listet per page, change depening on screen size
+        private int maxNumberOfPages; // maximum number of pages 
+        private int currentSide;  // the current side we are standing on, used for previuos and next labels
 
+
+        // Boolean for controlling the infoButtons sort functions, ie sort decendeing or acending
+        private Boolean SymbolInfoClicked = false;
+        private Boolean NameInfoClicked = false;
+        private Boolean LatestInfoClicked = false;
+        private Boolean ChangeInfoClicked = false;
+        private Boolean PercentInfoClicked = false;
+        private Boolean OpenValInfoClicked = false;
+
+        private Button[] stockInfoButtons; // array of stock info buttons
+        private Button[] newsInfoButtons; // array of news info buttons
+
+        private Label[,] stockLabels; // 2d Array of stockLabels
+        private Label[,] newsLabels; // 2d Array of newsLabels
+
+        private FlowLayoutPanel[] stockPanels; // array for stockPanels with labels
+        private FlowLayoutPanel[] newsPanels; // array for newsPanels with labels
+
+        private TableLayoutPanel stockInfoPanel; // Panel with labels, with info for the stock list
+        private TableLayoutPanel newsInfoPanel; // panel with labels, with info for the news list
 
         // Labels for traversing the list of buttons
         private Label first;
@@ -36,17 +58,14 @@ namespace BIS_Desktop
         private String DataButtonClicked; // variable for determening which data we are listing
         
         private Boolean listButtonClicked = false; // boolean for controling the colors of the buttonslist
-        private Boolean labelClicked = false; // boolean for controling the colors of the infoLabels when clicked
-        private Boolean leaveColor; // boolean for controlling the colors of the infoLabels when mouse enters or leaves them
+        private Boolean labelClicked = false; // boolean for controling the colors of the infoLabels when clicke
 
         private List<Stock> filteredStockList; // list with the stocks filtered after market
         
         private List<News> newsList; // list with ALL news from jsonhandler
         private List<Stock> allStocksList; // list with ALL stocks from jsonhandler
 
-        private int numberOfButtonsPerPage = 10; // number of buttons listet per page, change depening on screen size
-        private int maxNumberOfPages; // maximum number of pages 
-        private int currentSide;  // the current side we are standing on, used for previuos and next labels
+     
 
         // classes
         private MainWindow mw;
@@ -54,38 +73,30 @@ namespace BIS_Desktop
         private JsonHandler jh;
 
         public ResultList(String Data, String Market, object o){
-            
+
             // initilize classes
             mw = o as MainWindow;
             jh = new JsonHandler();
             c = new Controller(); 
-            
-            /*
-             * TO DO !!! ändra mängden på numberOfButtonsPerPage bereonde på storleken på panelen""" sad SOdhAKLFJADÖJFLÄFJADLF 
-             * FOOOONTS!! 
-            */
 
             DataButtonClicked = Data;
 
+            this.BackColor = c.mercuryBeige;
             // initilize all components except the list
             inilizeComponents();
 
             switch (DataButtonClicked)
             {
                 case "market":
-                    maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
                     break;
 
                 case "stocks":
                     allStocksList = jh.getAllStocks();
                     filteredStockList = filterStocks(allStocksList, Market);
-                    maxNumberOfPages = filteredStockList.Count / numberOfButtonsPerPage;
-
                     break;
 
                 case "news":
-                    newsList = jh.getNews(Market);
-                    maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
+                    newsList = jh.getAllNews(Market);
                     break; 
 
                 case "portfolio":
@@ -93,7 +104,8 @@ namespace BIS_Desktop
                     break; 
             }
 
-            contentAdder(1); 
+            currentSide = 1;
+            contentAdder(currentSide); 
 
         }
 
@@ -107,7 +119,6 @@ namespace BIS_Desktop
             List<Stock> stocks = new List<Stock>();
             foreach (Stock s in allStocks)
             {
-
                 if (s.Market =="NYSE") // nyse couse we get it from db, later change to Market
                 {
                     stocks.Add(s);
@@ -121,19 +132,48 @@ namespace BIS_Desktop
             switch (DataButtonClicked)
             {
                 case "market":
-                    maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
+                    if (newsList.Count % numberOfButtonsPerPage == 0)
+                    {
+                        maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
+                    }
+                    else
+                    {
+                        maxNumberOfPages = (newsList.Count / numberOfButtonsPerPage) + 1;
+                    }
+                    
                     break;
 
                 case "stocks":
-                    maxNumberOfPages = filteredStockList.Count / numberOfButtonsPerPage;
+                    if (filteredStockList.Count % numberOfButtonsPerPage == 0)
+                    {
+                        maxNumberOfPages = filteredStockList.Count / numberOfButtonsPerPage;
+                    }
+                    else
+                    {
+                        maxNumberOfPages = (filteredStockList.Count / numberOfButtonsPerPage) + 1;
+                    }
                     break;
 
                 case "news":
-                    maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
+                    if (newsList.Count % numberOfButtonsPerPage == 0)
+                    {
+                        maxNumberOfPages = newsList.Count / numberOfButtonsPerPage;
+                    }
+                    else
+                    {
+                        maxNumberOfPages = (newsList.Count / numberOfButtonsPerPage) + 1;
+                    }
                     break;
 
                 case "portfolio":
-                    maxNumberOfPages = filteredStockList.Count / numberOfButtonsPerPage;
+                    if (filteredStockList.Count % numberOfButtonsPerPage == 0)
+                    {
+                        maxNumberOfPages = filteredStockList.Count / numberOfButtonsPerPage;
+                    }
+                    else
+                    {
+                        maxNumberOfPages = (filteredStockList.Count / numberOfButtonsPerPage) + 1;
+                    }
                     break;
             } 
 
@@ -164,25 +204,25 @@ namespace BIS_Desktop
                     int marketStart;
 
                     // if the side times the number of buttons per page is less or equal to the size of the list
-                    if (side * numberOfButtonsPerPage <= newsList.Count)
+                    if (currentSide * numberOfButtonsPerPage <= newsList.Count)
                     {  
                         // stop equals side times number of buttons per page
-                        marketStop = side * numberOfButtonsPerPage;
+                        marketStop = currentSide * numberOfButtonsPerPage;
 
                         // since stop is the side * numberOfButtons per side we set start to stop minus number of buttons per side. 
                         marketStart = marketStop - numberOfButtonsPerPage;  
                     }
                     else
                     {
-                        // else stop is equal 
+                        // else stop is equal to the count of the list
                         marketStop = newsList.Count;
 
                         // since stop here is less than numberOfButtonsPerPage than start is equal to the size of the news list modulus the maxNumberOfPages
-                        marketStart = newsList.Count % maxNumberOfPages;  
+                        marketStart = marketStop - (filteredStockList.Count % numberOfButtonsPerPage);  
                     }
 
                     // if the list is less the the preffered number of buttons per page than set all buttons to enabled == false
-                    if (newsList.Count < numberOfButtonsPerPage)
+                    if (maxNumberOfPages == 1)
                     {
                         first.Enabled = false;
                         previous.Enabled = false;
@@ -191,7 +231,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the first side we set fist and previous to enabled == false
-                    else if (side * numberOfButtonsPerPage == numberOfButtonsPerPage)
+                    else if (currentSide * numberOfButtonsPerPage == numberOfButtonsPerPage)
                     {
                         first.Enabled = false;
                         next.Enabled = true;
@@ -201,7 +241,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the last side we set next and last to enabled == false
-                    else if (side == maxNumberOfPages)
+                    else if (currentSide == maxNumberOfPages)
                     {
 
                         first.Enabled = true;
@@ -224,13 +264,13 @@ namespace BIS_Desktop
                     initilizeNewsList(marketStart, marketStop);
 
                     // add buttons
-                    foreach (Button b in btns)
+                    foreach (Panel p in newsPanels)
                     {
-                        this.Controls.Add(b);
+                        this.Controls.Add(p);
                     }
 
                     // reset number buttons
-                    initilizeNumberButtons(side, marketStart, marketStop);
+                    initilizeNumberButtons(currentSide);
 
                     // add panel
                     this.Controls.Add(nextPreviousPanel);
@@ -243,25 +283,25 @@ namespace BIS_Desktop
                     int stockStart;
 
                     // if the side times the number of buttons per page is less or equal to the size of the list
-                    if (side * numberOfButtonsPerPage <= filteredStockList.Count)
+                    if (currentSide * numberOfButtonsPerPage <= filteredStockList.Count)
                     {  
                         // stop equals side times number of buttons per page
-                        stockStop = side * numberOfButtonsPerPage;
+                        stockStop = currentSide * numberOfButtonsPerPage;
 
                         // since stop is the side * numberOfButtons per side we set start to stop minus number of buttons per side. 
                         stockStart = stockStop - numberOfButtonsPerPage;  
                     }
                     else
                     {
-                        // else stop is equal 
+                        // else stop is equal to the count of the list
                         stockStop = filteredStockList.Count;
 
                         // since stop here is less than numberOfButtonsPerPage than start is equal to the size of the news list modulus the maxNumberOfPages
-                        stockStart = filteredStockList.Count % maxNumberOfPages;  
+                        stockStart = stockStop - (filteredStockList.Count % numberOfButtonsPerPage);  
                     }
 
                     // if the list is less the the preffered number of buttons per page than set all buttons to enabled == false
-                    if (filteredStockList.Count < numberOfButtonsPerPage)
+                    if (maxNumberOfPages == 1)
                     {
                         first.Enabled = false;
                         previous.Enabled = false;
@@ -270,7 +310,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the first side we set fist and previous to enabled == false
-                    else if (side * numberOfButtonsPerPage == numberOfButtonsPerPage)
+                    else if (currentSide * numberOfButtonsPerPage == numberOfButtonsPerPage)
                     {
                         first.Enabled = false;
                         next.Enabled = true;
@@ -280,7 +320,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the last side we set next and last to enabled == false
-                    else if (side == maxNumberOfPages)
+                    else if (currentSide == maxNumberOfPages)
                     {
 
                         first.Enabled = true;
@@ -303,14 +343,15 @@ namespace BIS_Desktop
                     initilizeStockList(stockStart, stockStop);
 
                     // add buttons
-                    foreach (Button b in btns)
+                    foreach (Panel p in stockPanels)
                     {
-                        this.Controls.Add(b);
+                        this.Controls.Add(p); 
                     }
 
 
                     // reset number buttons
-                    initilizeNumberButtons(side, stockStart, stockStop);
+                    Console.WriteLine("side: " + currentSide + "  stockStart: " + stockStart + "  stockStop: " + stockStop); 
+                    initilizeNumberButtons(currentSide);
 
                     // add panel
                     this.Controls.Add(nextPreviousPanel);
@@ -323,25 +364,25 @@ namespace BIS_Desktop
                     int newsStart;
 
                     // if the side times the number of buttons per page is less or equal to the size of the list
-                    if (side * numberOfButtonsPerPage <= newsList.Count)
-                    {  
+                    if (currentSide * numberOfButtonsPerPage <= newsList.Count)
+                    {
                         // stop equals side times number of buttons per page
-                        newsStop = side * numberOfButtonsPerPage;
+                        newsStop = currentSide * numberOfButtonsPerPage;
 
                         // since stop is the side * numberOfButtons per side we set start to stop minus number of buttons per side. 
-                        newsStart = newsStop - numberOfButtonsPerPage;  
+                        newsStart = newsStop - numberOfButtonsPerPage;
                     }
                     else
                     {
-                        // else stop is equal 
+                        // else stop is equal to the count of the list
                         newsStop = newsList.Count;
 
                         // since stop here is less than numberOfButtonsPerPage than start is equal to the size of the news list modulus the maxNumberOfPages
-                        newsStart = newsList.Count % maxNumberOfPages;  
+                        newsStart = newsStop - (newsList.Count % numberOfButtonsPerPage);
                     }
 
                     // if the list is less the the preffered number of buttons per page than set all buttons to enabled == false
-                    if (newsList.Count < numberOfButtonsPerPage)
+                    if (maxNumberOfPages == 1)
                     {
                         first.Enabled = false;
                         previous.Enabled = false;
@@ -350,7 +391,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the first side we set fist and previous to enabled == false
-                    else if (side * numberOfButtonsPerPage == numberOfButtonsPerPage)
+                    else if (currentSide * numberOfButtonsPerPage == numberOfButtonsPerPage)
                     {
                         first.Enabled = false;
                         next.Enabled = true;
@@ -360,7 +401,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the last side we set next and last to enabled == false
-                    else if (side == maxNumberOfPages)
+                    else if (currentSide == maxNumberOfPages)
                     {
 
                         first.Enabled = true;
@@ -368,7 +409,7 @@ namespace BIS_Desktop
                         previous.Enabled = true;
                         last.Enabled = false;
                     }
-                    
+
                     // else if none of the above match me must be somewhere in the middle of the list and therefore every label is set to enabled == true
                     else
                     {
@@ -377,19 +418,20 @@ namespace BIS_Desktop
                         previous.Enabled = true;
                         last.Enabled = true;
                     }
-       
+
 
                     // initilize buttons
                     initilizeNewsList(newsStart, newsStop);
 
                     // add buttons
-                    foreach (Button b in btns)
+                    foreach (Panel p in newsPanels)
                     {
-                        this.Controls.Add(b);
+                        this.Controls.Add(p);
                     }
 
                     // reset number buttons
-                    initilizeNumberButtons(side, newsStart, newsStop);
+                    Console.WriteLine("side: " + currentSide + "  newsStart: " + newsStart + "  newsStop: " + newsStop); 
+                    initilizeNumberButtons(currentSide);
 
                     // add panel
                     this.Controls.Add(nextPreviousPanel);
@@ -402,25 +444,25 @@ namespace BIS_Desktop
                     int portfolioStart;
 
                     // if the side times the number of buttons per page is less or equal to the size of the list
-                    if (side * numberOfButtonsPerPage <= newsList.Count)
+                    if (currentSide * numberOfButtonsPerPage <= newsList.Count)
                     {  
                         // stop equals side times number of buttons per page
-                        portfolioStop = side * numberOfButtonsPerPage;
+                        portfolioStop = currentSide * numberOfButtonsPerPage;
 
                         // since stop is the side * numberOfButtons per side we set start to stop minus number of buttons per side. 
                         portfolioStart = portfolioStop - numberOfButtonsPerPage;  
                     }
                     else
                     {
-                        // else stop is equal 
+                        // else stop is equal to the count of the list
                         portfolioStop = newsList.Count;
 
                         // since stop here is less than numberOfButtonsPerPage than start is equal to the size of the news list modulus the maxNumberOfPages
-                        portfolioStart = newsList.Count % maxNumberOfPages;  
+                        portfolioStart = portfolioStop - (filteredStockList.Count % numberOfButtonsPerPage);
                     }
 
                     // if the list is less the the preffered number of buttons per page than set all buttons to enabled == false
-                    if (newsList.Count < numberOfButtonsPerPage)
+                    if (maxNumberOfPages == 1)
                     {
                         first.Enabled = false;
                         previous.Enabled = false;
@@ -429,7 +471,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the first side we set fist and previous to enabled == false
-                    else if (side * numberOfButtonsPerPage == numberOfButtonsPerPage)
+                    else if (currentSide * numberOfButtonsPerPage == numberOfButtonsPerPage)
                     {
                         first.Enabled = false;
                         next.Enabled = true;
@@ -439,7 +481,7 @@ namespace BIS_Desktop
                     }
 
                     // if we are on the last side we set next and last to enabled == false
-                    else if (side == maxNumberOfPages)
+                    else if (currentSide == maxNumberOfPages)
                     {
 
                         first.Enabled = true;
@@ -462,13 +504,13 @@ namespace BIS_Desktop
                     initilizeNewsList(portfolioStart, portfolioStop);
 
                     // add buttons
-                    foreach (Button b in btns)
+                    foreach (Panel p in newsPanels)
                     {
-                        this.Controls.Add(b);
+                        this.Controls.Add(p);
                     }
 
                     // reset number buttons
-                    initilizeNumberButtons(side, portfolioStart, portfolioStop);
+                    initilizeNumberButtons(currentSide);
 
                     // add panel
                     this.Controls.Add(nextPreviousPanel);
@@ -482,10 +524,10 @@ namespace BIS_Desktop
         private void initilizeStockList(int start, int stop)
         {
             // add the info labels
-            this.Controls.Add(infoPanel);
+            this.Controls.Add(stockInfoPanel);
 
             // create btns array
-            btns = new Button[stop - start];
+            stockLabels = new Label[stop - start, 6];
 
             // variable for iterating the btns[]
             int j = 0;
@@ -496,33 +538,140 @@ namespace BIS_Desktop
    
                 Stock s = filteredStockList[i];
 
-                btns[j] = new Button();
-                btns[j].Text = s.Symbol + " " + s.Name + " " + s.Latest + " " + s.Change + " " + s.Percent + " " + s.Volume + " " + s.OpenVal;
-                btns[j].TextAlign = ContentAlignment.MiddleCenter;
-                btns[j].Font = mw.Font; 
-                btns[j].AutoSize = false;
-                btns[j].Width = panelWidth;
-                btns[j].Height = buttonHeight;
-                btns[j].TabStop = false;
-                btns[j].FlatStyle = FlatStyle.Flat;
-                btns[j].FlatAppearance.BorderSize = 0;
-                btns[j].Margin = new Padding(0);
-   
+                Label symbolLabel = new Label();
+                symbolLabel.Text = s.Symbol;
+                symbolLabel.TextAlign = ContentAlignment.MiddleCenter;
+                symbolLabel.Font = mw.Font;
+                symbolLabel.Height = buttonHeight;
+                symbolLabel.Width = stockLabelWidth; 
+                symbolLabel.Margin = new Padding(0);
+                symbolLabel.BackColor = Color.White; 
+                symbolLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                symbolLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                symbolLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); }; 
 
-                // add event handler
-                btns[j].Click += (sender, e) => { stock_clicked(sender, e, s); };
+                Label nameLabel = new Label();
+                nameLabel.Text = s.Name;
+                nameLabel.TextAlign = ContentAlignment.MiddleCenter;
+                nameLabel.Font = mw.Font;
+                nameLabel.Height = buttonHeight;
+                nameLabel.Width = stockLabelWidth; 
+                nameLabel.Margin = new Padding(0);
+                nameLabel.BackColor = Color.White; 
+                nameLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                nameLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                nameLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); }; 
+
+                Label latestLabel = new Label();
+                latestLabel.Text = s.Latest;
+                latestLabel.TextAlign = ContentAlignment.MiddleCenter;
+                latestLabel.Font = mw.Font;
+                latestLabel.Height = buttonHeight;
+                latestLabel.Width = stockLabelWidth; 
+                latestLabel.Margin = new Padding(0);
+                latestLabel.BackColor = Color.White; 
+                latestLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                latestLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                latestLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); }; 
+
+                Label changeLabel = new Label();
+                changeLabel.Text = s.Change;
+                changeLabel.TextAlign = ContentAlignment.MiddleCenter;
+                changeLabel.Font = mw.Font;
+                changeLabel.Height = buttonHeight;
+                changeLabel.Width = stockLabelWidth; 
+                changeLabel.Margin = new Padding(0);
+                changeLabel.BackColor = Color.White;
+
+                if (changeLabel.Text[0] == '-')
+                {
+                    changeLabel.ForeColor = Color.Red;
+                }
+                else if (changeLabel.Text[0] == '+')
+                {
+                    changeLabel.ForeColor = Color.Green;
+                }
+
+                changeLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                changeLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                changeLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); }; 
+
+
+                Label percentLabel = new Label();
+                percentLabel.Text = s.Percent;
+                percentLabel.TextAlign = ContentAlignment.MiddleCenter;
+                percentLabel.Font = mw.Font;
+                percentLabel.Height = buttonHeight;
+                percentLabel.Width = stockLabelWidth; 
+                percentLabel.Margin = new Padding(0);
+                percentLabel.BackColor = Color.White;
+
+                if (percentLabel.Text[0] == '-')
+                {
+                    percentLabel.ForeColor = Color.Red;
+                }
+                else if (percentLabel.Text[0] == '+')
+                {
+                    percentLabel.ForeColor = Color.Green;
+                }
+             
+                
+                percentLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                percentLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                percentLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); }; 
+
+                Label openLabel = new Label();
+                openLabel.Text = s.OpenVal;
+                openLabel.TextAlign = ContentAlignment.MiddleCenter;
+                openLabel.Font = mw.Font;
+                openLabel.Height = buttonHeight;
+                openLabel.Width = stockLabelWidth; 
+                openLabel.Margin = new Padding(0);
+                openLabel.BackColor = Color.White; 
+                openLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
+                openLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+                openLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); };
+
+
+                stockLabels[j, 0] = symbolLabel; 
+                stockLabels[j, 1] = nameLabel;
+                stockLabels[j, 2] = latestLabel;
+                stockLabels[j, 3] = changeLabel;
+                stockLabels[j, 4] = percentLabel;
+                stockLabels[j, 5] = openLabel; 
+  
                 j++; 
+             
             }
-            // set color to buttons
-            setButtonColors(btns);
+
+            //setStockLabelColors(); 
+
+            stockPanels = new FlowLayoutPanel[numberOfButtonsPerPage]; 
+
+            for (int i = 0; i < stockLabels.GetLength(0); i++)
+            {
+                FlowLayoutPanel stockPanel = new FlowLayoutPanel();
+                stockPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+                stockPanel.Height = buttonHeight;
+                stockPanel.Width = panelWidth; 
+
+                for (int k = 0; k < stockLabels.GetLength(1); k++)
+                {
+                    stockPanel.Controls.Add(stockLabels[i, k]);
+                }
+
+                stockPanels[i] = stockPanel; 
+            }
           
         }
 
         private void initilizeNewsList(int start, int stop)
         {
-          
+
+            this.Controls.Add(newsInfoPanel); 
+
             // create btns array
-            btns = new Button[stop - start];
+            newsLabels = new Label[stop - start, 3];
 
             // variable for iterating the btns[]
             int j = 0;
@@ -533,29 +682,72 @@ namespace BIS_Desktop
      
                News n = newsList[i];
 
-               btns[j] = new Button();
-               btns[j].Text = n.title;
-               btns[j].TextAlign = ContentAlignment.MiddleCenter;
-               btns[j].Font = mw.Font;
-               btns[j].AutoSize = false;
-               btns[j].Width = panelWidth;
-               btns[j].Height = buttonHeight;
-               btns[j].TabStop = false;
-               btns[j].FlatStyle = FlatStyle.Flat;
-               btns[j].FlatAppearance.BorderSize = 0;
-               btns[j].Margin = new Padding(0);
+               Label symbolLabel = new Label();
+               symbolLabel.Text = n.symbol;
+               symbolLabel.TextAlign = ContentAlignment.MiddleCenter;
+               symbolLabel.Font = mw.Font;
+               symbolLabel.Height = buttonHeight;
+               symbolLabel.Width = newsLabelWidth;
+               symbolLabel.Margin = new Padding(0);
+               symbolLabel.BackColor = Color.White;
+               symbolLabel.Click += (sender, e) => { news_clicked(sender, e, n); };
+               symbolLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+               symbolLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); };
 
-               // add event handler
-               btns[j].Click += (sender, e) => { news_clicked(sender, e, n); };
+               Label titleLabel = new Label();
+               titleLabel.Text = n.title;
+               titleLabel.TextAlign = ContentAlignment.MiddleCenter;
+               titleLabel.Font = mw.Font;
+               titleLabel.Height = buttonHeight;
+               titleLabel.Width = newsLabelWidth;
+               titleLabel.Margin = new Padding(0);
+               titleLabel.BackColor = Color.White;
+               titleLabel.Click += (sender, e) => { news_clicked(sender, e, n); };
+               titleLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+               titleLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); };
+
+               Label updatedLabel = new Label();
+               updatedLabel.Text = n.pubDate;
+               updatedLabel.TextAlign = ContentAlignment.MiddleCenter;
+               updatedLabel.Font = mw.Font;
+               updatedLabel.Height = buttonHeight;
+               updatedLabel.Width = newsLabelWidth;
+               updatedLabel.Margin = new Padding(0);
+               updatedLabel.BackColor = Color.White;
+               updatedLabel.Click += (sender, e) => { news_clicked(sender, e, n); };
+               updatedLabel.MouseEnter += (sender, e) => { highlightStock_MouseEnter(sender, e, j); };
+               updatedLabel.MouseLeave += (sender, e) => { highlightStock_MouseLeave(sender, e, j); };
+
+
+               newsLabels[j, 0] = symbolLabel;
+               newsLabels[j, 1] = titleLabel;
+               newsLabels[j, 2] = updatedLabel;
 
                j++; 
             }
-            // set color to buttons
-            setButtonColors(btns);
+
+            newsPanels = new FlowLayoutPanel[numberOfButtonsPerPage];
+
+            for (int i = 0; i < newsLabels.GetLength(0); i++)
+            {
+                FlowLayoutPanel newsPanel = new FlowLayoutPanel();
+                newsPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+                newsPanel.Height = buttonHeight;
+                newsPanel.Width = panelWidth;
+
+                for (int k = 0; k < newsLabels.GetLength(1); k++)
+                {
+                    newsPanel.Controls.Add(newsLabels[i, k]);
+                }
+
+                newsPanels[i] = newsPanel; 
+            }
+          
+    
 
         }
 
-        private void initilizeNumberButtons(int side, int start, int stop)
+        private void initilizeNumberButtons(int side)
         {
 
             // clear the panel
@@ -569,8 +761,15 @@ namespace BIS_Desktop
             int numberStop;
             int numberStart;
 
+            if(maxNumberOfPages < 10)
+            {
+                numberStart = 1;
+                numberStop = maxNumberOfPages + 1;
+                
+            }       
+            
             // if the side is more than or equal to the max number of pages minus 10, 10 beeing the number of numberlabels we display. 
-            if (side >= maxNumberOfPages - 10)
+            else if (side >= maxNumberOfPages - 10)
             {
 
                 // numberStart is equal to maxNumberOfpages minus 10
@@ -588,7 +787,7 @@ namespace BIS_Desktop
                 numberStart = side;
             }
 
-
+            Console.WriteLine("numberStart: " + numberStart); 
             // loop the number labels intervall
             for (int i = numberStart; i < numberStop; i++)
             {
@@ -610,7 +809,7 @@ namespace BIS_Desktop
                 // set the current side to c.mercuryBlue
                 if (i == side)
                 {
-                    number.ForeColor = c.mercuryRed; 
+                    number.ForeColor = c.mercuryBlue; 
                 }
 
             }
@@ -619,9 +818,35 @@ namespace BIS_Desktop
             nextPreviousPanel.Controls.Add(last);
         }
 
-        private void setLabelColors(Label[] labels)
+
+        private void setStockLabelColors()
         {
-            foreach (Label l in labels)
+       
+            for (int i = 0; i <= stockLabels.GetLength(0); i++)
+            {
+                for (int k = 0; k <= stockLabels.GetLength(1); k++)
+                {
+                    if (i % 2 == 1)
+                    {
+                        stockLabels[i, k].BackColor = Color.White;
+                        stockLabels[i, k].ForeColor = Color.Black;
+                    }
+                    else
+                    {
+                        stockLabels[i, k].BackColor = Color.White;
+                        stockLabels[i, k].ForeColor = Color.Black;
+                    }
+                
+                }
+                         
+            }
+        
+    }
+
+
+        private void setInfoColors(Button[] infoButtons)
+        {
+            foreach (Button l in infoButtons)
             {
                 l.BackColor = c.mercuryGrey;
                 l.ForeColor = Color.White;
@@ -632,40 +857,37 @@ namespace BIS_Desktop
         private void setButtonColors(Button[] buttons)
         {
             for (int i = 0; i < buttons.Length; i++)
-
+            {
                 if (i % 2 == 1)
                 {
-                    btns[i].BackColor = System.Drawing.ColorTranslator.FromHtml("#A2A2A2");
-                    btns[i].ForeColor = Color.Black;
+                    buttons[i].BackColor = Color.White;
+                    buttons[i].ForeColor = Color.Black;
                 }
 
                 else
                 {
-                    btns[i].BackColor = Color.LightGray; 
-                    btns[i].ForeColor = Color.Black;
+                    buttons[i].BackColor = Color.White;
+                    buttons[i].ForeColor = Color.Black;
                 }
+            }               
+              
         }
-   
-       private void highlightLabel_MouseEnter(object sender, System.EventArgs e)
+
+       private void highlightStock_MouseEnter(object sender, System.EventArgs e, int j)
        {
-           Console.WriteLine("enter"); 
-           Label L = sender as Label;
-           L.BackColor = Color.Black;
+           
+
        }
 
-       private void highlightLabel_MouseLeave(object sender, System.EventArgs e)
+       private void highlightStock_MouseLeave(object sender, System.EventArgs e, int j)
        {
-           Console.WriteLine("leave");
-           Label L = sender as Label;
-           L.BackColor = c.mercuryGrey;
-                   
+         
        }
 
        private void highlightNum_MouseEnter(object sender, System.EventArgs e)
        {
-           
            Label L = sender as Label;
-           L.ForeColor = c.mercuryRed;
+           L.ForeColor = Color.LightBlue;
        }
 
        private void highlightNum_MouseLeave(object sender, System.EventArgs e)
@@ -726,16 +948,13 @@ namespace BIS_Desktop
            contentAdder(currentSide + 1);
        }
 
-       private void infoLabel_clicked(object sender, System.EventArgs e, String sortAfter)
+       private void newsInfoButton_clicked(object sender, System.EventArgs e, String sortAfter)
        {
+            Button b = sender as Button;
 
-           leaveColor = false; 
-           Label b = sender as Label;
-
-           Console.WriteLine("clicked"); 
            if (labelClicked == true)
            {
-               setLabelColors(infoLabels);
+               setInfoColors(newsInfoButtons);
                b.BackColor = c.mercuryBlue;
                b.ForeColor = Color.White;
                labelClicked = true;
@@ -746,37 +965,190 @@ namespace BIS_Desktop
                b.ForeColor = Color.White;
                labelClicked = true;
            }
-           
-           //filteredStockList = Controller.sort(filteredStockList, sortAfter);
+
+           var temp = b.Text;
+
+           switch (temp)
+           {
+               case "Symbol":
+
+                   if (SymbolInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       SymbolInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       SymbolInfoClicked = true;
+                   }
+
+                   break; 
+
+               case "Title":
+
+                   if (NameInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       NameInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       NameInfoClicked = true;
+                   }
+
+                   break;
+
+               case "Updated":
+                   if (LatestInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       LatestInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       LatestInfoClicked = true;
+                   }
+
+                   break; 
+           }
+
            contentAdder(1);
        }
 
-       private void stock_clicked(object sender, System.EventArgs e, Stock s)
+       private void stockInfoButton_clicked(object sender, System.EventArgs e, String sortAfter)
        {
            Button b = sender as Button;
 
-           if (listButtonClicked == true)
+           if (labelClicked == true)
            {
-               setButtonColors(btns);
+               setInfoColors(stockInfoButtons);
                b.BackColor = c.mercuryBlue;
                b.ForeColor = Color.White;
-               listButtonClicked = true;
+               labelClicked = true;
            }
            else
            {
                b.BackColor = c.mercuryBlue;
                b.ForeColor = Color.White;
-               listButtonClicked = true;
+               labelClicked = true;
            }
 
+           var temp = b.Text;
+
+           switch (temp)
+           {
+               case "Symbol":
+                   if(SymbolInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       SymbolInfoClicked = false; 
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       SymbolInfoClicked = true;
+                   }
+                        
+                   break;
+
+               case "Name":
+                   if (NameInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       NameInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       NameInfoClicked = true;
+                   }
+
+                   break;
+
+               case "Latest":
+                   if (LatestInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       LatestInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       LatestInfoClicked = true;
+                   }
+
+                   break;
+
+               case "Change":
+                   if (ChangeInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       ChangeInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       ChangeInfoClicked = true;
+                   }
+
+                   break;
+
+               case "Percent":
+                   if (PercentInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       PercentInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       PercentInfoClicked = true;
+                   }
+
+                   break;
+
+               case "Opening value":
+                   if (OpenValInfoClicked)
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
+                       OpenValInfoClicked = false;
+                   }
+
+                   else
+                   {
+                       filteredStockList = c.sortStockList(filteredStockList, sortAfter, false);
+                       OpenValInfoClicked = true;
+                   }
+
+                   break;
+ 
+           }
+           
+           contentAdder(1);
+       }
+
+       private void stock_clicked(object sender, System.EventArgs e, Stock s, int num)
+       {
            ResultPanel temp = mw.rightPanelResults as ResultPanel;
            mw.loadResult(temp, "info", s.Symbol, mw);
-
        }
 
        private void news_clicked(object sender, System.EventArgs e, News n)
        {
-           Button b = sender as Button;
+            //String news = n.symbol + "#" + n.title +"#"+ n.link +"#"+ n.description +"#"+ n.guid +"#"+ n.pubDate;
+            ResultPanel temp = mw.rightPanelResults as ResultPanel;
+            mw.loadNewsResult(temp, "newsReader", mw, n);
        }
 
        public void setSize(int W, int H)
@@ -792,338 +1164,292 @@ namespace BIS_Desktop
            // reset nextPreviousPanel width
            nextPreviousPanel.Width = this.Width;
 
-           // reset number of buttons per page
-           numberOfButtonsPerPage = (H / buttonHeight) - 2;
-         
-
            if (this.DataButtonClicked == "stocks" || this.DataButtonClicked == "portfolio")
            {
-               foreach (Button b in btns)
+
+               foreach (FlowLayoutPanel p in stockPanels)
                {
-                   b.Width = W;
-                   b.Height = buttonHeight;
+                   p.Width = W;
+                   p.Height = buttonHeight; 
                }
 
-               infoPanel.Width = W;
-               infoPanel.Height = buttonHeight;
-               //indentText(W);
+
+               stockLabelWidth = W / 6;
+
+               foreach (Button btn in stockInfoButtons)
+               {
+                   btn.Width = stockLabelWidth;
+               }
+
+               stockInfoPanel.Width = W;
+               stockInfoPanel.Height = buttonHeight; 
+
+               // reset number of buttons per page
+               if ((H / buttonHeight) - 2  < filteredStockList.Count)
+                {                     
+                    numberOfButtonsPerPage = (H / buttonHeight) - 4;
+
+                }
+                    
            }
 
            else if (this.DataButtonClicked == "market" || this.DataButtonClicked == "news")
            {
-               foreach (Button b in btns)
+
+               newsLabelWidth = W / 3; 
+
+               foreach (Button btn in newsInfoButtons)
                {
-                   b.Width = W;
-                   b.Height = buttonHeight;
+                   btn.Width = newsLabelWidth;
+               }
+
+               newsInfoPanel.Width = W;
+               newsInfoPanel.Height = buttonHeight; 
+
+               // reset number of buttons per page
+               if ((H / buttonHeight) - 2 < newsList.Count)
+               {
+                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
                }
            }
+
+           panelWidth = W;
+           newsInfoPanel.Width = W;
+           newsInfoPanel.Height = buttonHeight;
 
            contentAdder(currentSide); 
 
        }
 
-        private void inilizeComponents(){
-
-            // create the infoLabel for stocks list
-            infoPanel = new TableLayoutPanel();
-
-            infoLabels = new Label[7]; 
-
-            Label SymbolLabel = new Label();
-            SymbolLabel.Text = "Symbol";
-            SymbolLabel.TextAlign = ContentAlignment.MiddleCenter;
-            SymbolLabel.Font = mw.Font;
-            SymbolLabel.BackColor = c.mercuryGrey;
-            SymbolLabel.ForeColor = Color.White;
-            SymbolLabel.Size = new Size(60, 35);
-            SymbolLabel.TabStop = false;
-            SymbolLabel.Margin = new Padding(0);
-
-            SymbolLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, SymbolLabel.Text); };
-            SymbolLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            SymbolLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label NameLabel = new Label();
-            NameLabel.Text = "Name";
-            NameLabel.TextAlign = ContentAlignment.MiddleCenter;
-            NameLabel.Font = mw.Font;
-            NameLabel.BackColor = c.mercuryGrey;
-            NameLabel.ForeColor = Color.White;
-            NameLabel.Size = new Size(60, 35);
-            NameLabel.TabStop = false;
-            NameLabel.Margin = new Padding(0);
-
-            NameLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, NameLabel.Text); };
-            NameLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            NameLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label LatestLabel = new Label();
-            LatestLabel.Text = "Latest";
-            LatestLabel.TextAlign = ContentAlignment.MiddleCenter;
-            LatestLabel.Font = mw.Font;
-            LatestLabel.BackColor = c.mercuryGrey;
-            LatestLabel.ForeColor = Color.White;
-            LatestLabel.Size = new Size(60, 35);
-            LatestLabel.TabStop = false;
-            LatestLabel.Margin = new Padding(0);
-
-            LatestLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, LatestLabel.Text); };
-            LatestLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            LatestLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label ChangeLabel = new Label();
-            ChangeLabel.Text = "Change";
-            ChangeLabel.TextAlign = ContentAlignment.MiddleCenter;
-            ChangeLabel.Font = mw.Font;
-            ChangeLabel.BackColor = c.mercuryGrey;
-            ChangeLabel.ForeColor = Color.White;
-            ChangeLabel.Size = new Size(60, 35);
-            ChangeLabel.TabStop = false;
-            ChangeLabel.Margin = new Padding(0);
-
-            ChangeLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, ChangeLabel.Text); };
-            ChangeLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            ChangeLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label PercentLabel = new Label();
-            PercentLabel.Text = "Percent";
-            PercentLabel.TextAlign = ContentAlignment.MiddleCenter;
-            PercentLabel.Font = mw.Font;
-            PercentLabel.BackColor = c.mercuryGrey;
-            PercentLabel.ForeColor = Color.White;
-            PercentLabel.Size = new Size(60, 35);
-            PercentLabel.TabStop = false;
-            PercentLabel.Margin = new Padding(0);
-
-            PercentLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, PercentLabel.Text); };
-            PercentLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            PercentLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label VolumeLabel = new Label();
-            VolumeLabel.Text = "Volume";
-            VolumeLabel.TextAlign = ContentAlignment.MiddleCenter;
-            VolumeLabel.Font = mw.Font;
-            VolumeLabel.BackColor = c.mercuryGrey;
-            VolumeLabel.ForeColor = Color.White;
-            VolumeLabel.Size = new Size(60, 35);
-            VolumeLabel.TabStop = false;
-            VolumeLabel.Margin = new Padding(0);
-
-            VolumeLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, VolumeLabel.Text); };
-            VolumeLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            VolumeLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            Label OpenValueLabel = new Label();
-            OpenValueLabel.Text = "Open Value";
-            OpenValueLabel.TextAlign = ContentAlignment.MiddleCenter;
-            OpenValueLabel.Font = mw.Font;
-            OpenValueLabel.BackColor = c.mercuryGrey;
-            OpenValueLabel.ForeColor = Color.White;
-            OpenValueLabel.Size = new Size(60, 35);
-            OpenValueLabel.TabStop = false;
-            OpenValueLabel.Margin = new Padding(0);
-
-            OpenValueLabel.Click += (sender, e) => { infoLabel_clicked(sender, e, OpenValueLabel.Text); };
-            OpenValueLabel.MouseEnter += (sender, e) => { highlightLabel_MouseEnter(sender, e); };
-            OpenValueLabel.MouseLeave += (sender, e) => { highlightLabel_MouseLeave(sender, e); };
-
-            // add the labels to the panel
-            infoPanel.Controls.Add(SymbolLabel, 1, 1);
-            infoPanel.Controls.Add(NameLabel, 3, 1);
-            infoPanel.Controls.Add(LatestLabel, 5, 1);
-            infoPanel.Controls.Add(ChangeLabel, 7, 1);
-            infoPanel.Controls.Add(PercentLabel, 9, 1);
-            infoPanel.Controls.Add(VolumeLabel, 11, 1);
-            infoPanel.Controls.Add(OpenValueLabel, 13, 1);
-
-            // add the labels to the array
-            infoLabels[0] = SymbolLabel;
-            infoLabels[1] = NameLabel;
-            infoLabels[2] = LatestLabel;
-            infoLabels[3] = ChangeLabel;
-            infoLabels[4] = PercentLabel;
-            infoLabels[5] = VolumeLabel;
-            infoLabels[6] = OpenValueLabel;
-
-
-
-            // next and previous buttons for traversing the list
-            first = new Label();
-            last = new Label(); 
-            next = new Label();
-            previous = new Label();
-
-            last.Text = ">>";
-            last.Font = mw.Font;
-            last.AutoSize = false;
-            last.Size = new System.Drawing.Size(30, 20);
-            last.FlatStyle = FlatStyle.Flat;
-            last.Margin = new Padding(0);
-            last.Click += (sender, e) => { last_clicked(sender, e); };
-            last.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
-            last.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
-
-            first.Text = "<<";
-            first.Font = mw.Font;
-            first.AutoSize = false;
-            first.Size = new System.Drawing.Size(30, 20);
-            first.FlatStyle = FlatStyle.Flat;
-            first.Margin = new Padding(0);
-            first.Click += (sender, e) => { first_clicked(sender, e); };
-            first.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
-            first.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
-
-            next.Text = ">";
-            next.Font = mw.Font;
-            next.AutoSize = false;
-            next.Size = new System.Drawing.Size(20, 20);
-            next.FlatStyle = FlatStyle.Flat;
-            next.Margin = new Padding(0);
-            next.Click += (sender, e) => { next_clicked(sender, e); };
-            next.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
-            next.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
-
-            previous.Text = "<";
-            previous.Font = mw.Font;
-            previous.AutoSize = false;
-            previous.Size = new System.Drawing.Size(20, 20);
-            previous.FlatStyle = FlatStyle.Flat;
-            previous.Margin = new Padding(0);
-            previous.Click += (sender, e) => { previous_clicked(sender, e); };
-            previous.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
-            previous.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
-
-            nextPreviousPanel = new FlowLayoutPanel();
-            nextPreviousPanel.Height = 20;
-      
-        }
-
-
-       public void indentText(int Width)
+       private void inilizeComponents()
        {
-           int symbol = 0;
-           int name = 0;
-           int latest = 0;
-           int change = 0;
-           int percent = 0;
-           int volume = 0;
-           int openval = 0;
 
-           Graphics grpx = Graphics.FromImage(new Bitmap(1, 1));
+           newsInfoPanel = new TableLayoutPanel();
+           
+           Button NewsNameButton = new Button();
+           NewsNameButton.Text = "Symbol";
+           NewsNameButton.TextAlign = ContentAlignment.MiddleCenter;
+           NewsNameButton.Font = mw.Font;
+           NewsNameButton.BackColor = c.mercuryGrey;
+           NewsNameButton.ForeColor = Color.White;
+           NewsNameButton.Height = 35;
+           NewsNameButton.TabStop = false;
+           NewsNameButton.Margin = new Padding(0);
+           NewsNameButton.FlatStyle = FlatStyle.Flat;
+           NewsNameButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "symbol"); };
 
-           for (int i = 0; i < 8; i++)
-           {
+           Button NewsTitleButton = new Button();
+           NewsTitleButton.Text = "Title";
+           NewsTitleButton.TextAlign = ContentAlignment.MiddleCenter;
+           NewsTitleButton.Font = mw.Font;
+           NewsTitleButton.BackColor = c.mercuryGrey;
+           NewsTitleButton.ForeColor = Color.White;
+           NewsTitleButton.Height = 35;
+           NewsTitleButton.TabStop = false;
+           NewsTitleButton.Margin = new Padding(0);
+           NewsTitleButton.FlatStyle = FlatStyle.Flat;
+           NewsTitleButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "title"); };
 
-               foreach (Stock s in filteredStockList)
-               {
-                   switch (i)
-                   {
+           Button NewsUpdatedButton = new Button();
+           NewsUpdatedButton.Text = "Updated";
+           NewsUpdatedButton.TextAlign = ContentAlignment.MiddleCenter;
+           NewsUpdatedButton.Font = mw.Font;
+           NewsUpdatedButton.BackColor = c.mercuryGrey;
+           NewsUpdatedButton.ForeColor = Color.White;
+           NewsUpdatedButton.Height = 35;
+           NewsUpdatedButton.TabStop = false;
+           NewsUpdatedButton.Margin = new Padding(0);
+           NewsUpdatedButton.FlatStyle = FlatStyle.Flat;
+           NewsUpdatedButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "updated"); };
 
-                       case 1:
-                           var symbolsWidth = s.Symbol.Length;
-                           if (symbolsWidth > symbol)
-                           {
-                               symbol = symbolsWidth;
-                           }
-                           break;
+           newsInfoPanel.Controls.Add(NewsNameButton, 1, 1);
+           newsInfoPanel.Controls.Add(NewsTitleButton, 2, 1);
+           newsInfoPanel.Controls.Add(NewsUpdatedButton, 3, 1);
 
-                       case 2:
-                           var nameWidth = s.Name.Length;
-                           if (nameWidth > name)
-                           {
-                               name = nameWidth;
-                           }
-                           break;
+           newsInfoButtons = new Button[3]; 
 
-                       case 3:
+           // add the labels to the array
+           newsInfoButtons[0] = NewsUpdatedButton;
+           newsInfoButtons[1] = NewsTitleButton;
+           newsInfoButtons[2] = NewsNameButton;
+    
+           // create the infoLabel for stocks list
+           stockInfoPanel = new TableLayoutPanel();
 
-                           var latestWidth = (int)grpx.MeasureString(s.Latest, btns[0].Font).Width;
-                           if (latestWidth > latest)
-                           {
-                               latest = latestWidth;
-                           }
-                           break;
+           stockInfoButtons = new Button[6];
 
-                       case 4:
+           Button SymbolButton = new Button();
+           SymbolButton.Text = "Symbol";
+           SymbolButton.TextAlign = ContentAlignment.MiddleCenter;
+           SymbolButton.Font = mw.Font;
+           SymbolButton.BackColor = c.mercuryGrey;
+           SymbolButton.ForeColor = Color.White;
+           SymbolButton.Height = 35;
+           SymbolButton.TabStop = false;
+           SymbolButton.Margin = new Padding(0);
+           SymbolButton.FlatStyle = FlatStyle.Flat;
 
-                           var changeWidth = (int)grpx.MeasureString(s.Change, btns[0].Font).Width;
-                           if (changeWidth > change)
-                           {
-                               change = changeWidth;
-                           }
-                           break;
+           SymbolButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, SymbolButton.Text); };
+           SymbolButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           SymbolButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
 
-                       case 5:
+           Button NameButton = new Button();
+           NameButton.Text = "Name";
+           NameButton.TextAlign = ContentAlignment.MiddleCenter;
+           NameButton.Font = mw.Font;
+           NameButton.BackColor = c.mercuryGrey;
+           NameButton.ForeColor = Color.White;
+           NameButton.Height = 35;
+           NameButton.TabStop = false;
+           NameButton.Margin = new Padding(0);
+           NameButton.FlatStyle = FlatStyle.Flat;
 
-                           var percentWidth = (int)grpx.MeasureString(s.Percent, btns[0].Font).Width;
-                           if (percentWidth > percent)
-                           {
-                               percent = percentWidth;
-                           }
-                           break;
+           NameButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, NameButton.Text); };
+           NameButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           NameButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
 
-                       case 6:
+           Button LatestButton = new Button();
+           LatestButton.Text = "Latest";
+           LatestButton.TextAlign = ContentAlignment.MiddleCenter;
+           LatestButton.Font = mw.Font;
+           LatestButton.BackColor = c.mercuryGrey;
+           LatestButton.ForeColor = Color.White;
+           LatestButton.Height = 35;
+           LatestButton.TabStop = false;
+           LatestButton.Margin = new Padding(0);
+           LatestButton.FlatStyle = FlatStyle.Flat;
 
-                           var volumeWidth = (int)grpx.MeasureString(s.Volume, btns[0].Font).Width;
-                           if (volumeWidth > volume)
-                           {
-                               volume = volumeWidth;
-                           }
-                           break;
+           LatestButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, LatestButton.Text); };
+           LatestButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           LatestButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
 
-                       case 7:
+           Button ChangeButton = new Button();
+           ChangeButton.Text = "Change";
+           ChangeButton.TextAlign = ContentAlignment.MiddleCenter;
+           ChangeButton.Font = mw.Font;
+           ChangeButton.BackColor = c.mercuryGrey;
+           ChangeButton.ForeColor = Color.White;
+           ChangeButton.Height = 35;
+           ChangeButton.TabStop = false;
+           ChangeButton.Margin = new Padding(0);
+           ChangeButton.FlatStyle = FlatStyle.Flat;
 
-                           var openValWidth = (int)grpx.MeasureString(s.OpenVal, btns[0].Font).Width;
-                           if (openValWidth > openval)
-                           {
-                               openval = openValWidth;
-                           }
-                           break;
-                   }
+           ChangeButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, ChangeButton.Text); };
+           ChangeButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           ChangeButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
+
+           Button PercentButton = new Button();
+           PercentButton.Text = "Percent";
+           PercentButton.TextAlign = ContentAlignment.MiddleCenter;
+           PercentButton.Font = mw.Font;
+           PercentButton.BackColor = c.mercuryGrey;
+           PercentButton.ForeColor = Color.White;
+           PercentButton.Height = 35;
+           PercentButton.TabStop = false;
+           PercentButton.Margin = new Padding(0);
+           PercentButton.FlatStyle = FlatStyle.Flat;
+
+           PercentButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, PercentButton.Text); };
+           PercentButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           PercentButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
+
+           Button VolumeButton = new Button();
+           VolumeButton.Text = "Volume";
+           VolumeButton.TextAlign = ContentAlignment.MiddleCenter;
+           VolumeButton.Font = mw.Font;
+           VolumeButton.BackColor = c.mercuryGrey;
+           VolumeButton.ForeColor = Color.White;
+           VolumeButton.Height = 35;
+           VolumeButton.TabStop = false;
+           VolumeButton.Margin = new Padding(0);
+           VolumeButton.FlatStyle = FlatStyle.Flat;
+
+           VolumeButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, VolumeButton.Text); };
+           VolumeButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           VolumeButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
+
+           Button OpenValueButton = new Button();
+           OpenValueButton.Text = "Opening";
+           OpenValueButton.TextAlign = ContentAlignment.MiddleCenter;
+           OpenValueButton.Font = mw.Font;
+           OpenValueButton.BackColor = c.mercuryGrey;
+           OpenValueButton.ForeColor = Color.White;
+           OpenValueButton.Height = 35;
+           OpenValueButton.TabStop = false;
+           OpenValueButton.Margin = new Padding(0);
+           OpenValueButton.FlatStyle = FlatStyle.Flat;
+
+           OpenValueButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "OpenVal"); };
+           OpenValueButton.FlatAppearance.MouseOverBackColor = Color.Black;
+           OpenValueButton.FlatAppearance.MouseDownBackColor = c.mercuryRed;
+
+           // add the labels to the panel
+           stockInfoPanel.Controls.Add(SymbolButton, 1, 1);
+           stockInfoPanel.Controls.Add(NameButton, 3, 1);
+           stockInfoPanel.Controls.Add(LatestButton, 5, 1);
+           stockInfoPanel.Controls.Add(ChangeButton, 7, 1);
+           stockInfoPanel.Controls.Add(PercentButton, 9, 1);
+           stockInfoPanel.Controls.Add(OpenValueButton, 13, 1);
+
+           // add the labels to the array
+           stockInfoButtons[0] = SymbolButton;
+           stockInfoButtons[1] = NameButton;
+           stockInfoButtons[2] = LatestButton;
+           stockInfoButtons[3] = ChangeButton;
+           stockInfoButtons[4] = PercentButton;
+           stockInfoButtons[5] = OpenValueButton;
 
 
-               }
 
+           // next and previous buttons for traversing the list
+           first = new Label();
+           last = new Label();
+           next = new Label();
+           previous = new Label();
 
+           last.Text = ">>";
+           last.Font = mw.Font;
+           last.AutoSize = false;
+           last.Size = new System.Drawing.Size(30, 20);
+           last.FlatStyle = FlatStyle.Flat;
+           last.Margin = new Padding(0);
+           last.Click += (sender, e) => { last_clicked(sender, e); };
+           last.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
+           last.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
 
-           }
+           first.Text = "<<";
+           first.Font = mw.Font;
+           first.AutoSize = false;
+           first.Size = new System.Drawing.Size(30, 20);
+           first.FlatStyle = FlatStyle.Flat;
+           first.Margin = new Padding(0);
+           first.Click += (sender, e) => { first_clicked(sender, e); };
+           first.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
+           first.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
 
+           next.Text = ">";
+           next.Font = mw.Font;
+           next.AutoSize = false;
+           next.Size = new System.Drawing.Size(20, 20);
+           next.FlatStyle = FlatStyle.Flat;
+           next.Margin = new Padding(0);
+           next.Click += (sender, e) => { next_clicked(sender, e); };
+           next.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
+           next.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
 
-           String symbolIndent, nameIndent, latestIndent, changeIndent, percentIndent, volumeIndent, openvalIndent;
+           previous.Text = "<";
+           previous.Font = mw.Font;
+           previous.AutoSize = false;
+           previous.Size = new System.Drawing.Size(20, 20);
+           previous.FlatStyle = FlatStyle.Flat;
+           previous.Margin = new Padding(0);
+           previous.Click += (sender, e) => { previous_clicked(sender, e); };
+           previous.MouseEnter += (sender, e) => { highlightNum_MouseEnter(sender, e); };
+           previous.MouseLeave += (sender, e) => { highlightNum_MouseLeave(sender, e); };
 
-           int j = 0;
-           foreach (Stock s in filteredStockList)
-           {
-
-               var currentSymbolWidth = s.Symbol.Length;
-               symbolIndent = s.Symbol + new string(' ', (symbol - currentSymbolWidth) + 5);
-
-               var currentNameWidth = s.Name.Length;
-               nameIndent = s.Name + new string('.', (name - currentNameWidth) + 5);
-               Console.WriteLine("currentSymbolWidth " + (name - currentNameWidth) + 5);
-
-               var currentLatestWidth = (int)grpx.MeasureString(s.Latest, btns[0].Font).Width;
-               latestIndent = s.Latest + new string(' ', (latest - currentLatestWidth) + 1);
-
-               var currentChangeWidth = (int)grpx.MeasureString(s.Change, btns[0].Font).Width;
-               changeIndent = s.Change + new string(' ', (change - currentChangeWidth) + 1);
-
-               var currentPercentWidth = (int)grpx.MeasureString(s.Percent, btns[0].Font).Width;
-               percentIndent = s.Percent + new string(' ', (percent - currentPercentWidth) + 1);
-
-               var currentVolumeWidth = (int)grpx.MeasureString(s.Percent, btns[0].Font).Width;
-               volumeIndent = s.Volume + new string(' ', (percent - currentVolumeWidth) + 1);
-
-               var currentOpenvalWidth = (int)grpx.MeasureString(s.OpenVal, btns[0].Font).Width;
-               openvalIndent = s.OpenVal + new string(' ', (openval - currentOpenvalWidth) + 1);
-
-               btns[j].Text = symbolIndent + nameIndent + latestIndent + changeIndent + percentIndent + volumeIndent + openvalIndent;
-               btns[j].TextAlign = ContentAlignment.MiddleLeft;
-
-               j++;
-           }
+           nextPreviousPanel = new FlowLayoutPanel();
+           nextPreviousPanel.Height = 20;
 
        }
-
     }
 }

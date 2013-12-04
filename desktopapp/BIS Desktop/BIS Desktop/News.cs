@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace BIS_Desktop
 {
-    class News
+   public class News
     {
+        public String symbol { get; set; }
 
-        public String Id { get; set; }
+        public String id { get; set; }
 
-        public String Key { get; set; }
+        public String key { get; set; }
 
         public String title { get; set; }
 

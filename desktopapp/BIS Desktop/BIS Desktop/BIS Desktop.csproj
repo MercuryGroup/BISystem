@@ -66,6 +66,9 @@
     </Compile>
     <Compile Include="Market.cs" />
     <Compile Include="News.cs" />
+    <Compile Include="NewsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ResultPanel.cs">
       <SubType>Component</SubType>
     </Compile>

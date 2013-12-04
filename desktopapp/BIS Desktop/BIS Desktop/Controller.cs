@@ -44,22 +44,22 @@ namespace BIS_Desktop
             {
                 return values_.Min();
             }
-            return 0.0;
+            return 0.0; 
         }
-        public List<Object> sortObjectList(List<Object> list_, String type_, Boolean descending_)
+        public List<Stock> sortStockList(List<Stock> list_, String type_, Boolean descending_)
         {
             
             Console.WriteLine("Size of list entered: " + list_.Count);
             Object sTemp = list_[0];
             if (sTemp.GetType().GetProperty(type_) != null)
             {
-                List<Object> newList_ = quickSort(list_, type_, descending_);
+                List<Stock> newList_ = quickSort(list_, type_, descending_);
                 return newList_;
             } 
             return null;
         }
 
-        private List<Object> quickSort(List<Object> list, String type_, Boolean descending){
+        private List<Stock> quickSort(List<Stock> list, String type_, Boolean descending){
             Console.Write("");
             //Return list if size is 1 or less
             if (list.Count() == 1)
@@ -67,23 +67,23 @@ namespace BIS_Desktop
                 return list;
             }
             //Create new list
-            List<Object> newList = new List<Object>();
+            List<Stock> newList = new List<Stock>();
             //Create pivot Object
-            Object pivot = list[0];
+            Stock pivot = list[0];
             //Remove pivot Object from list
             list.RemoveAt(0);
             //Get value of pivot Object
             String tempPivotVal_ = pivot.GetType().GetProperty(type_).GetValue(pivot, null).ToString();
             //Create list for each side of pivot
-            List<Object> l = new List<Object>();
-            List<Object> g = new List<Object>();
+            List<Stock> l = new List<Stock>();
+            List<Stock> g = new List<Stock>();
             
             
             try
             {
                 //Get value of Object (in double)
                 Double PivotVal_ = double.Parse(tempPivotVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-                foreach (Object s in list)
+                foreach (Stock s in list)
                 {
                     String tempVal_ = s.GetType().GetProperty(type_).GetValue(s, null).ToString();
                     Double ObjectVal_ = double.Parse(tempVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);

@@ -13,10 +13,17 @@ namespace BIS_Desktop
         Thread t;
         public void fetchResult(Object sender, String resultType, String market, object mainWindow)
         {
-            t = new Thread(() => fetchResultThread(sender, resultType, market, mainWindow));
+            t = new Thread(() => fetchResultThread(sender, resultType, market, null, mainWindow));
             t.Start();
         }
-        private void fetchResultThread(Object sender, String resultType, String market, object mainWindow)
+
+        public void fetchNewsResult(Object sender, String resultType, object mainWindow, News n)
+        {
+            t = new Thread(() => fetchResultThread(sender, resultType, "", n, mainWindow));
+            t.Start();
+        }
+
+        private void fetchResultThread(Object sender, String resultType, String market, Object o, object mainWindow)
         {
             Console.WriteLine(resultType);        
             ResultPanel panel = sender as ResultPanel;
@@ -54,6 +61,44 @@ namespace BIS_Desktop
                 //}
                 
             }
+
+            else if (resultType == "news")
+            {
+                //  try
+                // {
+                ResultList newsDisplay = new ResultList(resultType, market, mainWindow);
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                panel.Controls.Clear();
+                panel.setContent(newsDisplay);
+                panel.updateSize();
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(newsDisplay)));
+                //}
+                //catch (Exception e)
+                //{
+                //   Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
+
+            }
+
+
+            else if (resultType == "newsReader")
+            {
+                //  try
+                // {
+                NewsPanel newsDisplay = new NewsPanel(o);
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                panel.Controls.Clear();
+                panel.setContent(newsDisplay);
+                panel.updateSize();
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(newsDisplay)));
+                //}
+                //catch (Exception e)
+                //{
+                //   Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
+
+            }
+
             panel.setLoading(false);
         }
     }
