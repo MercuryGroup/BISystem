@@ -21,21 +21,21 @@ public class ChartView extends ImageView {
         super(context, attributeSet);
     }
 
-    public ChartView( Context context ){
-        super(context);
+    public ChartView( Context stockGraphFragment ){
+        super(stockGraphFragment);
         intChart();
     }
 
-    private void intChart(){
+	private void intChart(){
         //Setting different width and height based on the orientation.
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bitmap = Bitmap.createBitmap(200, 100, Bitmap.Config.RGB_565);
-            rectArea = new RectShape(0.0, 0.0, 200, 100);
+            bitmap = Bitmap.createBitmap(600, 300, Bitmap.Config.ARGB_8888);
+            rectArea = new RectShape(0.0, 0.0, 600, 300);
         }
         
         else {
-            bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565);
-            rectArea = new RectShape(0.0, 0.0, 200, 200);
+            bitmap = Bitmap.createBitmap(600, 300, Bitmap.Config.ARGB_8888);
+            rectArea = new RectShape(0.0, 0.0, 600, 300);
         }
     }
 

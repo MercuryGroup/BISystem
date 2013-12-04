@@ -71,7 +71,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
                         setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
                 
                         
-                        ListView listView = getListView(); //EX:
+                 ListView listView = getListView(); //EX:
                  listView.setTextFilterEnabled(true);
                 
                  listView.setOnItemClickListener(new OnItemClickListener() {

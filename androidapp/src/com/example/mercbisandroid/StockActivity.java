@@ -1,5 +1,13 @@
 package com.example.mercbisandroid;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+import org.afree.chart.ChartFactory;
+import org.afree.chart.plot.PlotOrientation;
+import org.afree.data.category.CategoryDataset;
+import org.afree.data.category.DefaultCategoryDataset;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -7,8 +15,6 @@ import android.app.ActionBar.TabListener;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,10 +23,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.view.ViewGroup;
 import android.widget.SearchView;
 //import com.example.mercbisandroid.*;
 
 public class StockActivity extends FragmentActivity implements TabListener {
+	
+	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> DetailedStockArray;
 	
 	private ArrayList<String> globalArrayTest = new ArrayList<String>();
 	
@@ -31,7 +40,16 @@ public class StockActivity extends FragmentActivity implements TabListener {
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.activity_main);
+		
+		DetailedStockArray = new DetailedStockThread().execute();
+		
+		 CategoryDataset dataset = CreateDataSet(DetailedStockArray);
+         ViewGroup viewGroup = (ViewGroup)getWindow().getDecorView().findViewById(android.R.id.content);
+         ChartView chartView = new ChartView(this);
+         chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Date","Value",dataset,PlotOrientation.VERTICAL,true,true,false));      
+         viewGroup.addView(chartView);
 
+		
 		
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
 		viewPager.setAdapter(new adapter(getSupportFragmentManager()));
@@ -146,91 +164,53 @@ public class StockActivity extends FragmentActivity implements TabListener {
 			// TODO Auto-generated method stub
 			return 3;
 		}
+	
 	}
-	}
+	
+public static CategoryDataset CreateDataSet(AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> detailedStockArray){
+		
+      DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+      
+      try {
+              System.out.println(detailedStockArray.get().size());
+      } catch (InterruptedException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+      } catch (ExecutionException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+      }
+      
+      try {
+              for(int i = 0; i < detailedStockArray.get().size(); i++){
+              
+              JSONObject JOBJ = new JSONObject(detailedStockArray.get().get(i).toString());
+              
+              
+              String latest = JOBJ.getString("latest");
+              String updated = JOBJ.getString("updated");
+              System.out.println("latest :" + latest + " # "+" updated : " + updated);
+              
+              //dataset.addValue(Float.parseFloat(latest), "Value", updated);
+              dataset.addValue(Float.parseFloat(latest), "Value", "updated");
+              }
+      } catch (NumberFormatException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+      } catch (InterruptedException e) {
+              // TODO Auto-generated catch block
+		e.printStackTrace();
+      } catch (ExecutionException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+      } catch (JSONException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+      }
+      return dataset;
+}
+
+}
 
 
 
-	//Rickard Bremer
-
-//package com.example.mercbisandroid;
-//
-//import java.util.ArrayList;
-//import java.util.concurrent.ExecutionException;
-//
-//import org.afree.chart.ChartFactory;
-//import org.afree.chart.plot.PlotOrientation;
-//import org.afree.data.category.CategoryDataset;
-//import org.afree.data.category.DefaultCategoryDataset;
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//
-//import android.app.Activity;
-//import android.os.AsyncTask;
-//import android.os.Bundle;
-//import android.view.ViewGroup;
-//
-//public class StockActivity extends Activity {
-//	
-//	public AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> DetailedStockArray;
-//	
-//	@Override
-//    public void onCreate(Bundle savedInstanceState) {   
-//       super.onCreate(savedInstanceState);    
-//       setContentView(R.layout.activity_stock);
-//       DetailedStockArray = new DetailedStockThread().execute();
-//     
-//       CategoryDataset dataset = CreateDataSet(DetailedStockArray);
-//       ViewGroup viewGroup = (ViewGroup)getWindow().getDecorView().findViewById(android.R.id.content);
-//       ChartView chartView = new ChartView(this);
-//       chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Date","Value",dataset,PlotOrientation.VERTICAL,true,true,false));       
-//
-//       viewGroup.addView(chartView);
-//       
-//   }
-//
-//public static CategoryDataset CreateDataSet(AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> detailedStockArray){
-//	
-//	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//	
-//	try {
-//		System.out.println(detailedStockArray.get().size());
-//	} catch (InterruptedException e1) {
-//		// TODO Auto-generated catch block
-//		e1.printStackTrace();
-//	} catch (ExecutionException e1) {
-//		// TODO Auto-generated catch block
-//		e1.printStackTrace();
-//	}
-//	
-//	try {
-//		for(int i = 0; i < detailedStockArray.get().size(); i++){
-//		 
-//		JSONObject JOBJ = new JSONObject(detailedStockArray.get().get(i).toString());
-//		
-//		
-//		String latest = JOBJ.getString("latest");
-//		String updated = JOBJ.getString("updated");
-//		System.out.println("latest :" + latest + " # "+" updated : " + updated);
-//		
-//		//dataset.addValue(Float.parseFloat(latest), "Value", updated);
-//		dataset.addValue(Float.parseFloat(latest), "Value", "updated");
-//		}
-//	} catch (NumberFormatException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	} catch (InterruptedException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	} catch (ExecutionException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	} catch (JSONException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	}
-//	return dataset; 
-//}
-//
-//
-//}
