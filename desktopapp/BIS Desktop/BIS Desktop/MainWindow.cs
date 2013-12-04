@@ -162,12 +162,6 @@ namespace BIS_Desktop
         /// <param name="resultCategory"></param>
         public void loadResult(object sender, String resultType, String resultSource, object mainWindow)
         {
-            /**
-             * TODO:
-             * [X] Kolla vilken panel som skickade request
-             * [X] Lägg på "loading" panel
-             * [X] Ladda ny tråd för att hämta innehåll
-             */
             //Instantiate current panel
             ResultPanel panel = sender as ResultPanel;
             
@@ -218,6 +212,60 @@ namespace BIS_Desktop
             }
             
             
+        }
+
+        public void loadNewsResult(object sender, String resultType, object mainWindow, News n)
+        {
+            //Instantiate current panel
+            ResultPanel panel = sender as ResultPanel;
+
+            //Set current panel to loading (if the panel isn't already loading content)
+            if (!panel.getLoading())
+            {
+                //Clear current panel
+                panel.Controls.Clear();
+                //Create loading panel
+                Panel loadingPanel = new Panel();
+                //Create loading label
+                Label loadingLabel = new Label();
+                //Set loading panel do fill
+                loadingPanel.Dock = DockStyle.Fill;
+                /*
+                 * Set custom position for loading label.
+                 * The Y position should always be based on 
+                 * the right panel since that panel is the biggest.
+                 */
+                int x = (panel.Width / 2) - (loadingLabel.Width / 2);
+                int y = (panel.Height / 2) - (loadingLabel.Height / 2);
+                int yDiff = (panel.Height / 2 - rightPanel.Height / 2);
+                loadingLabel.Location = new Point(x, y + yDiff);
+
+                //Set font for loading label
+                loadingLabel.Font = new Font("Segoe UI", 15, FontStyle.Bold);
+                //Set label to base its size on the content
+                loadingLabel.AutoSize = true;
+                //Add loading text to label
+                loadingLabel.Text = "Loading...";
+                //Set backcolor of loading label
+                loadingPanel.BackColor = c.loading;
+                //Set text aligntment of text inside label
+                loadingLabel.TextAlign = ContentAlignment.TopCenter;
+                //Add label to loading panel
+                loadingPanel.Controls.Add(loadingLabel);
+                //Add to current panel
+                panel.Controls.Add(loadingPanel);
+                //Save the loading panel as the current content
+                panel.setContent(loadingPanel);
+                panel.setLoading(true);
+                //Createnew instance of class for threading
+                th = new ThreadHandler();
+
+                th.fetchNewsResult(panel, resultType, mainWindow, n);
+
+
+            }
+
+
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace BIS_Desktop
         private String Symbol;
         private Panel chartPanel;
         private Controller c;
-        private DateTime dateBack;
+        
         
         ToolTip tooltip;
         JsonHandler js;
@@ -42,6 +42,8 @@ namespace BIS_Desktop
             c = new Controller();
             Symbol = s;
             temp = js.getSingleStock(Symbol, "month");
+            
+            
             initilizeChart(typeOfChart, "month");
             this.BackColor = Color.White;
 
@@ -74,24 +76,27 @@ namespace BIS_Desktop
             {
                 case "day":
                     //TEMP VALUE
-                    stockSpan = c.getFilteredList(temp, 1);
+                    stockSpan = c.getFilteredList(c.sortStockList(temp, "Updated", false), DateTime.Today, -1);
                     chartArea.AxisX.Maximum = 4;
                     break;
                 case "week":
                     //TEMP VALUE
-                    stockSpan = c.getFilteredList(temp, 7);
+                    stockSpan = c.getFilteredList(c.sortStockList(temp, "Updated", false), DateTime.Today, -7);
                     chartArea.AxisX.Maximum = 7;
                     break;
                 case "month":
-                    stockSpan = temp;
+                    stockSpan = c.sortStockList(temp,"Updated", false);
+                    foreach (Stock ste in stockSpan)
+                    {
+                        //Console.WriteLine("Opening: " + ste.Updated);
+                    }
                     chartArea.AxisX.Maximum = stockSpan.Count();
-                    
                     break;
             }
            
             // set max and min y values to the area (plus padding)
-            double minYValue = c.getStockMinMaxValue(stockSpan, "min");
-            double maxYValue = c.getStockMinMaxValue(stockSpan, "max")*1.1;
+            double minYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "min")/1.1, 1);
+            double maxYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "max")*1.1, 1);
             chartArea.AxisY.Minimum = minYValue;
             chartArea.AxisY.Maximum = maxYValue;
             chartArea.AxisX.Minimum = 0;
@@ -104,17 +109,19 @@ namespace BIS_Desktop
                 yInterval *= -1;
             }
 
-            chartArea.AxisX.MajorGrid.Interval = xInterval;
+            chartArea.AxisX.MajorGrid.Interval = chartArea.AxisX.Maximum+1;
             chartArea.AxisX.Interval = xInterval;
             chartArea.AxisY.MajorGrid.Interval = yInterval;
             chartArea.AxisY.Interval = yInterval;
+            
             //Set colors
             chartArea.AxisX.MajorGrid.LineColor = Color.LightGray;
             chartArea.AxisY.MajorGrid.LineColor = Color.LightGray;
-            chartArea.BackColor = Color.Beige;
+            //chartArea.BackColor = Color.Beige;
             
-            //chartArea.AxisX.MinorGrid.Interval = 4;
-            Console.WriteLine("p " + chartArea.AxisY.Interval + " " + maxYValue);
+            
+            //Console.WriteLine("Candle: " + test.Count);
+            
             
 
             chart.ChartAreas.Add(chartArea);
@@ -122,6 +129,12 @@ namespace BIS_Desktop
             switch (typeOfChart)
             {
                 case "candlestick":
+                    //Get candlestick values
+                    List<double[]> test = getCandleStickValues(stockSpan);
+                    foreach (double[] candle in test)
+                    {
+                        Console.WriteLine("Opening value: " + candle[0] + " lowest: " + candle[1] + " highest: " + candle[2] + " closing: " + candle[3]);
+                    }
                     initilizeCandeleStick();
                     break;
             }
@@ -140,13 +153,81 @@ namespace BIS_Desktop
             sd.Text = "SYMBOL: " + temp.ElementAt(0).Symbol;
             Controls.Add(sd);
 
+        }
+        private List<Double[]> getCandleStickValues(List<Stock> stocks)
+        {
+            List<Stock> tempStocks = stocks;
+            Console.WriteLine("<-" + stocks.Count);
+            //List containing all candlestick values
+            List<double[]> candleStickList = new List<double[]>();
             
+            List<DateTime> dates = new List<DateTime>();
+            DateTime currentDate = c.getDate(stocks[0].Updated);
+            //Iterate through all stocks and extract all days
+            for (int s = 0; s < stocks.Count; s++)
+            {
+                //Get temporary date at current stock
+                DateTime tempDate = c.getDate(stocks[s].Updated);
+                
+                //Add temporary date and set to current if it's not the same as the current
+                if (currentDate.Date != tempDate.Date)
+                {
+                    dates.Add(currentDate);
+                    currentDate = c.getDate(stocks[s].Updated);
+                    Console.WriteLine("ADD");
+                }
+                Console.WriteLine("Date: " + tempDate + " OpenVal: " + stocks[s].OpenVal + " Latest: " + stocks[s].Latest);
 
-            
-            
+            }
+            //TEMP
+            dates.Add(c.getDate(tempStocks[tempStocks.Count-1].Updated));
+            Console.WriteLine("List of dates: " + dates.Count);
+            //Iterate through all dates
+            for (int dateCount = 0; dateCount < dates.Count; dateCount++)
+            {
+                List<double> dayValues = new List<double>();
+                Boolean gotOpenVal = false;
+                double openVal_ = double.Parse(stocks[0].OpenVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture); ;
+                //Iterate through all stocks and compare dates
+                for (int s = 0; s < tempStocks.Count; s++)
+                {
+                    Stock currentStock = tempStocks[s];
+                    //Get date for current stock
+                    DateTime currentStockDate = c.getDate(currentStock.Updated);
+                    //Check if stock date is same as current date in date list
+                    if (dates[dateCount].Date == currentStockDate.Date)
+                    {
+                        
+                        //Get first opening value for stock
+                        if (!gotOpenVal)
+                        {
+                            openVal_ = double.Parse(currentStock.OpenVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+                            gotOpenVal = true;
+                        }
+                        //Add value to current day
+                        dayValues.Add(double.Parse(stocks[s].OpenVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
+                        dayValues.Add(double.Parse(stocks[s].Latest, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
+                    }
+                }
+                //Reset boolean required for getting opening val
+                gotOpenVal = false;
+                //Create new array for candlestick information
+                double[] candleStick = new double[4];
+                //Add opening value
+                candleStick[0] = openVal_;
+                //Get lowest value
+                candleStick[1] = dayValues.Min();
+                //Add highest value
+                candleStick[2] = dayValues.Max();
+                //Add closing value
+                candleStick[3] = dayValues[dayValues.Count - 1];
+                //Add candlestick to list
+                candleStickList.Add(candleStick);
+                
+            }
+            return candleStickList;
         }
         
-
         public void initilizeRadioButtons()
         {
 
@@ -172,8 +253,8 @@ namespace BIS_Desktop
 
 
             series = new Series("prices");
-          
-            series.Color = System.Drawing.Color.Blue;
+
+            series.Color = c.mercuryRed;
             chart.Series.Add(series);
 
             chart.Series["prices"].ChartType = SeriesChartType.Candlestick;          
@@ -189,6 +270,8 @@ namespace BIS_Desktop
             for (int i = 0; i < stockSpan.Count(); i++)
             {
                 ToolTip tip = new ToolTip();
+                //Get stock list for one day
+
                 //adding X and high
                 chart.Series["prices"].Points.AddXY(i, i*20);
                 

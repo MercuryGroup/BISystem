@@ -22,7 +22,7 @@ namespace BIS_Desktop
             //Set color for different buttons
             mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
-            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC352");
+            mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC3522");
             highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAFA");
             mercuryBeige = System.Drawing.ColorTranslator.FromHtml("#D9CB9E");
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
@@ -34,7 +34,6 @@ namespace BIS_Desktop
             List<double> values_ = new List<double>();
             foreach (Stock s in stocks_)
             {
-                //Console.WriteLine("L " + s.Latest);
                 values_.Add(double.Parse(s.Latest, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
             }
             if (minMax == "max")
@@ -47,49 +46,49 @@ namespace BIS_Desktop
             }
             return 0.0;
         }
-        public List<Stock> sortStockList(List<Stock> list_, String type_, Boolean descending_)
+        public List<Object> sortObjectList(List<Object> list_, String type_, Boolean descending_)
         {
-            Stock s = new Stock();
-            if (s.GetType().GetProperty(type_) != null)
+            
+            Console.WriteLine("Size of list entered: " + list_.Count);
+            Object sTemp = list_[0];
+            if (sTemp.GetType().GetProperty(type_) != null)
             {
-                return quickSort(list_, type_, descending_);
-            }
-    
-            
-            
-        return null;
+                List<Object> newList_ = quickSort(list_, type_, descending_);
+                return newList_;
+            } 
+            return null;
         }
 
-        private List<Stock> quickSort(List<Stock> list_, String type_, Boolean descending){
+        private List<Object> quickSort(List<Object> list, String type_, Boolean descending){
+            Console.Write("");
             //Return list if size is 1 or less
-            if (list_.Count() <= 1)
+            if (list.Count() == 1)
             {
-                return list_;
+                return list;
             }
             //Create new list
-            List<Stock> newList = new List<Stock>();
-            //Create pivot stock
-            Stock pivot = list_[0];
-            //Remove pivot stock from list
-            list_.RemoveAt(0);
-            //Get value of pivot stock
+            List<Object> newList = new List<Object>();
+            //Create pivot Object
+            Object pivot = list[0];
+            //Remove pivot Object from list
+            list.RemoveAt(0);
+            //Get value of pivot Object
             String tempPivotVal_ = pivot.GetType().GetProperty(type_).GetValue(pivot, null).ToString();
             //Create list for each side of pivot
-            List<Stock> l = new List<Stock>();
-            List<Stock> g = new List<Stock>();
+            List<Object> l = new List<Object>();
+            List<Object> g = new List<Object>();
             
             
             try
             {
-                //Get value of stock (in double)
-               
+                //Get value of Object (in double)
                 Double PivotVal_ = double.Parse(tempPivotVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-                foreach (Stock s in list_)
+                foreach (Object s in list)
                 {
                     String tempVal_ = s.GetType().GetProperty(type_).GetValue(s, null).ToString();
-                    Double stockVal_ = double.Parse(tempVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+                    Double ObjectVal_ = double.Parse(tempVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
                     //Compare value with pivot value
-                    if (stockVal_ >= PivotVal_)
+                    if (ObjectVal_ >= PivotVal_)
                     {
                         if (!descending){
                             g.Add(s);
@@ -103,7 +102,6 @@ namespace BIS_Desktop
                         if (!descending)
                         {
                             l.Add(s);
-                            
                         }
                         else
                         {
@@ -115,13 +113,13 @@ namespace BIS_Desktop
             }
             catch (FormatException e)
             {
-                if (descending)
+                if (!descending)
                 {
-                    newList = list_.OrderBy(s => s.GetType().GetProperty(type_).GetValue(s, null)).ToList();
+                    newList = list.OrderBy(s => s.GetType().GetProperty(type_).GetValue(s, null)).ToList();
                 }
                 else
                 {
-                    newList = list_.OrderByDescending(s => s.GetType().GetProperty(type_).GetValue(s, null)).ToList();
+                    newList = list.OrderByDescending(s => s.GetType().GetProperty(type_).GetValue(s, null)).ToList();
                 }
             }
             if (l.Count() > 0)
@@ -133,25 +131,32 @@ namespace BIS_Desktop
             {
                 newList.AddRange(quickSort(g, type_, descending));
             }
+            
             return newList;
         }
-        public List<Stock> getFilteredList(List<Stock> list_, int days)
+        public List<Stock> getFilteredList(List<Stock> list, DateTime date, int days)
         {
             try
             {
-                DateTime date = DateTime.Today.AddDays(days * -1);
-                var timestamp = date.ToUniversalTime().Subtract(
-                    new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                list_ = sortStockList(list_, "Updated", true);
-                for (int i = 0; i < list_.Count(); i++)
+                
+                for (int i = 0; i < list.Count(); i++)
                 {
-                    Console.WriteLine(long.Parse(list_.ElementAt(i).Updated) + " " + timestamp + " " +i);
-                     if (long.Parse(list_.ElementAt(i).Updated) <= timestamp)
-                     {
-                        return list_.GetRange(0, i);
-                     }
+                    DateTime stockDate_ = getDate(list.ElementAt(i).Updated);
+                    Console.WriteLine("Current date: " + stockDate_);
+                    int difference = (date-stockDate_).Days;
+                    Console.WriteLine("Difference: " + difference);
+                    if (difference < 0){
+                        difference *=-1;
+                    }
+                    if (difference > days)
+                    {
+                        {
+                            return list.GetRange(0, i);
+                        }
+                    }
+                    
                 }
-                return list_;
+                return list;
             }
             catch (Exception e)
             {
@@ -159,6 +164,16 @@ namespace BIS_Desktop
             }
             return null;
         }
-        
+        public DateTime getDate(String microSec)
+        {
+            long milliSec = (long.Parse(microSec));
+            DateTime startTime = new DateTime(1970, 1, 1);
+
+            TimeSpan time = TimeSpan.FromMilliseconds(milliSec);
+            DateTime date = startTime.Add(time);
+            return date;
+        }
+
+
     }
 }
