@@ -96,6 +96,8 @@ loop(ModuleList) ->
 			ok;
 
 		{action, reload} ->
+			purge_all(ModuleList),
+			load_all(ModuleList),
 			send_to_all(ModuleList, {action, reload}),
 			etl:loop(ModuleList);
 
@@ -173,3 +175,33 @@ revive([Head | Tail], Pid) when Head#moduleinfo.pid == Pid ->
 	[module_factory(Head#moduleinfo.module) | Tail];
 revive([Head | Tail], Pid) ->
 	[Head | revive(Tail, Pid)].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% purge_all/1 - 	Calls code:purge/1 on all the modules in the list and finaly
+%%%					on this module itself.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(purge_all([record(), ...]) -> ok).
+purge_all([]) ->
+	code:purge(?MODULE),
+	ok;
+
+purge_all([Head | Tail]) ->
+	code:purge(Head#moduleinfo.module),
+	purge_all(Tail).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% load_all/1 - 	Calls code:load_file/1 on all the modules in the list and finaly
+%%%					on this module itself.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-spec(load_all([record(), ...]) -> ok).
+load_all([]) ->
+	code:load_file(?MODULE),
+	ok;
+
+load_all([Head | Tail]) ->
+	code:load_file(Head#moduleinfo.module),
+	load_all(Tail).

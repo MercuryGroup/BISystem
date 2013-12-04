@@ -71,7 +71,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
                         setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
                 
                         
-                        ListView listView = getListView(); //EX:
+                 ListView listView = getListView(); //EX:
                  listView.setTextFilterEnabled(true);
                 
                  listView.setOnItemClickListener(new OnItemClickListener() {
@@ -81,6 +81,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
 					
                 	System.out.println(MainActivity.stockArray.get().get(position));
 					Intent StockActivity = new Intent(getActivity(),  StockActivity.class);
+					MainActivity.StockSymbol = STOCKS[position];
 					startActivity(StockActivity);
 					
 				} catch (InterruptedException e) {
@@ -90,7 +91,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                 }
+            }
                  });
                 
                 

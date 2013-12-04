@@ -15,17 +15,9 @@
     <string name="title_activity_search">SearchActivity</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Search stocks</string>
-
-   <!--  <string-array name ="list">
-        <item>apple</item>
-        <item>banana</item>
-        <item>pear</item>
-        <item>bean</item>
-        <item>grape</item>
-        <item>cucumber</item>
-        <item>pepper</item>
-        <item>watermelon</item>
-    </string-array> 
- -->
+    <string name="title_activity_stock">Detailed Stock View</string>
+	<string name="StockNews">This is the StockNews fragment</string>
+	<string name="StockInfo">This is the StockInfo Fragment</string>
+	<string name="StockGraph">This is the StockGraph</string>
 
 </resources>
