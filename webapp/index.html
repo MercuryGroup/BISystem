@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7">
 <![endif]-->
@@ -27,11 +28,13 @@
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <script src="js/date.js"></script>
         <script src="js/getset.js"></script>
-        <script src="js/Chart.js"></script>
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="js/knockout-2.2.1.js"></script>
         <script src="js/globalize.min.js"></script>
         <script src="js/dx.chartjs.js"></script>
+        <script src="js/spin.js"></script>
+
       </head>
       
       <script src="js/main.js"></script>
@@ -104,18 +107,23 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr onClick=hidelist("AAP","today","AdvancedAutoParts");>
+                    <tr onClick=hidelist("ABX","today","Barrick_Gold_Corp");>
                       <th>value</th>
                     </tr>
                   </tbody>
                 </table>
 
               </div>
+              <div id="navigators">
+                     <div id="pagenavigator"></div>
+                           <div id="letternavigator"></div>
+                           </div>
             </div>
             <div id="statView" class="hidden">
+            <button id="backbutton" onclick=showlist()>Back</button>
               <h1 id="companyname"></h1>
               <button id="save"></button>
-              <div id="canvas"  onclick=showlist()></div>
+              <div id="canvas"></div>
               <!-- <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas> -->
               <br>
               <br>
@@ -130,6 +138,8 @@
                <input type="radio" name="charts" id="charts" value="Barchart" onClick=setChartType("bar"),chartPaintSelector() /> Barchart
                    <input type="radio" name="charts" id="charts" value="Candlestick" onClick=setChartType("candle"),chartPaintSelector() /> Candlestick
              </div>
+
+            
              <div id="dataPresentation">
               <table>
                 <caption></caption>
@@ -138,10 +148,8 @@
                     <th>
                       Symbol
                     </th>
-
                     <th>
                      Change
-
                    </th>
                    <th>
                      Latest
@@ -155,7 +163,24 @@
               </tbody>
             </table>
           </div>
+           <div id="stocknews"><table id="newstable">
+            <caption>News in the latest 24 hr period</caption>
+            <thead>
+              <tr>
+                <th>header</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>data</td>
+              </tr>
+            </tbody>
+          </table>
+
+          </div>          <div id="newsdisplay" class="hidden">            <button id="backbutton" onclick=showNewsList()>Back</button><h2 id='newsheadline'></h2><p id='newstext'></p><a id="newslink">Read more</a>
         </div>
+
+         </div>
 
       </div>
 
