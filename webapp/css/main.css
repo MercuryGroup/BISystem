@@ -134,7 +134,6 @@
 -moz-box-shadow:    0px 0px 16px rgba(50, 50, 50, 0.45);
 box-shadow:         0px 0px 16px rgba(50, 50, 50, 0.45);
     width: 900px;
-    background: #F6F6F6;
     /*DC352      D9CB9E     374140     2A2C2B       1E1E20*/
     /*background: #FFFFFF;*/
     background: #F6F6F8;
@@ -260,7 +259,7 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 
 }
 
-#resultList tr td {
+#resultList tr td,tr td {
         color: rgba(55,65,64,0.9);
 }
 
@@ -284,6 +283,7 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 
   #currentdata tr td {
  background: #D9CB9E;
+ border-width: 0px;
 
 border: 1px solid black;
 width: 600px;
@@ -298,7 +298,7 @@ border: 1px;
  nav ul li:focus{
         background:  rgba(55,65,64,0.5);
  }
- nav ul li:hover,table tbody tr:hover{
+ nav ul li:hover, tr:hover{
    background:  rgba(55,65,64,0.5); //Colorgray
  }
  nav ul li:active{
@@ -391,6 +391,17 @@ font-weight:normal;
     margin: 0 auto;
 }
 
+#backbutton {
+  width: 45px;
+  float:left;
+
+}
+#backbutton:hover {
+    color: rgba(220,53,34,0.7);
+    -webkit-transform: scale(1.0);
+
+}
+
 button {
 -webkit-transition: all 100ms ease;
 -moz-transition: all 100ms ease;
@@ -437,6 +448,10 @@ td {
       overflow:auto;
     }
     */
+#newstable {
+    margin: 0 auto;
+  min-width: 600px;
+}
 
 /* ==========================================================================
    Helper classes

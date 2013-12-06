@@ -107,7 +107,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr onClick=hidelist("AAP","today","AdvancedAutoParts");>
+                    <tr onClick=hidelist("ABX","today","Barrick_Gold_Corp");>
                       <th>value</th>
                     </tr>
                   </tbody>
@@ -120,9 +120,10 @@
                            </div>
             </div>
             <div id="statView" class="hidden">
+            <button id="backbutton" onclick=showlist()>Back</button>
               <h1 id="companyname"></h1>
               <button id="save"></button>
-              <div id="canvas"  onclick=showlist()></div>
+              <div id="canvas"></div>
               <!-- <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas> -->
               <br>
               <br>
@@ -147,10 +148,8 @@
                     <th>
                       Symbol
                     </th>
-
                     <th>
                      Change
-
                    </th>
                    <th>
                      Latest
@@ -164,7 +163,23 @@
               </tbody>
             </table>
           </div>
+           <div id="stocknews"><table id="newstable">
+            <caption>News in the latest 24 hr period</caption>
+            <thead>
+              <tr>
+                <th>header</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>data</td>
+              </tr>
+            </tbody>
+          </table>
+
+          </div>          <div id="newsdisplay" class="hidden">            <button id="backbutton" onclick=showNewsList()>Back</button><h2 id='newsheadline'></h2><p id='newstext'></p><a id="newslink">Read more</a>
         </div>
+
          </div>
 
       </div>

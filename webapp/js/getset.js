@@ -53,8 +53,8 @@ function getSymbol() {
 }
 
 
-function getVars() {
-	console.log(Topic+Market);
+function getMarket() {
+	return Market;
 }
 
 function setChartType(ctype) {
@@ -85,4 +85,12 @@ function setValue(value) {
 
 function getValue() {
 	return value;
+}
+
+function setNewsArray(narray) {
+	newsarray = narray;
+}
+
+function getNewsArray() {
+	return newsarray;
 }

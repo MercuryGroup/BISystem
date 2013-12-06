@@ -32,11 +32,12 @@ function jsonparser() {
 		var target = document.getElementById("letternavigator");
 	document.getElementById("letternavigator").innerHTML = "";
 	var firstInList = null;
-	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22', function(url_data) {
+		$.getJSON('tempj/nyse'
+		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
+		, function(url_data) {
 		$.each(url_data, function (i,element) {
 			if ($.isArray(element) === true) {
 				setStockData(element);
-				console.log("getstockdata name " +getStockData()[1].value.name);
 				sortArrayBySymbol(element);
 				$.each(element, function (i,value) {
 					setFirstLetter(value.value.symbol.substr(0,1));
@@ -117,8 +118,6 @@ function addElementsForPage(pcount) {
 			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest); 
 		} else if(getFirstLetter() === value.value.symbol.substr(0,1)) {count++;}
 	});
-	console.log(count);
-
 }
 
 function search() {
@@ -126,6 +125,7 @@ function search() {
 	var spinner = new Spinner(opts).spin(target);
 	var tableRef = document.getElementById('resultList');
 	var searchterm = document.getElementById("sok").value.toLowerCase();
+	showlist();
 	spinner.spin();
 	while ( tableRef.rows.length > 0 )
 	{
@@ -146,6 +146,7 @@ function search() {
 		});
 			}
 		});
+
 		spinner.stop();
 	});
 }    
@@ -158,7 +159,9 @@ function portfoliobuilder() {
 		tableRef.deleteRow(0);
 	}
 
-	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22', function(url_data) {
+	$.getJSON('tempj/'
+		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
+		, function(url_data) {
 		$.each(url_data, function (i,element) {
 			if ($.isArray(element) === true) {
 				sortArrayBySymbol(element);
@@ -172,8 +175,24 @@ function portfoliobuilder() {
 	});
 }      
 
-
-
+function getNewsItems() {
+	var symbol = getSymbol();
+	// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+symbol+'%22,%22NYSE%22]', function(url_data) {
+	// $.getJSON('tempj/abxnews.txt', function(url_data) {
+		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%221386201600000%22&endkey=%221386284340000%22', function(url_data) {
+		$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]', function(url_data) {
+$.each(url_data, function (i,element) {
+	if ($.isArray(element) === true) {
+				setNewsArray(element);
+				$.each(getNewsArray(), function (i,value) {
+					// console.log(value.value.title);
+					addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubdate});
+					// p = {title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubdate};
+				});
+			}
+});
+});
+}
 
 function getstockhistory(symbol,timeframe,name) {
 	setName(name);
@@ -219,12 +238,10 @@ function getstockhistory(symbol,timeframe,name) {
 	console.log('http://mercury.dyndns.org:8080/JAXRS-BISystem/api/stocks/'+timeframe+'/'+symbol);
 	// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]', function(url_data) {
 		$.getJSON('http://mercury.dyndns.org:8080/JAXRS-BISystem/api/stocks/'+timeframe+'/'+symbol, function(url_data) {
+		// $.getJSON('tempj/ABXday', function(url_data) {
 			sortArrayByTime(url_data);
 			url_data.reverse();
-			setStockData(url_data);
 			$.each(url_data, function (i,element) {
-				console.log(element.value.name);
-
 			// if ($.isArray(element) === true) {
 
 
@@ -251,7 +268,6 @@ function getstockhistory(symbol,timeframe,name) {
 							Lat = parseFloat(element.value.latest);
 							Dhi = null;
 							Dlow = null;
-							console.log({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl: Chan});
 							diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl: Chan});
 						// changelist.push(parseFloat(value.value.change));
 					} 
@@ -318,7 +334,20 @@ function dateConvert(timeString) {
 }
 
 
+function addNewsListItem(newsitem) {
+	var theitem = newsitem;
+	var newstable = document.getElementById('newstable');
+		var newdiv = document.createElement('tr');
+	newdiv.className='clickableRow';
+	newdiv.onclick = function() {
+		hideNewsList(theitem); };
+		cell = document.createElement("td");
+		textnode = document.createTextNode(newsitem.title);
+		cell.appendChild(textnode);
+		newdiv.appendChild(cell);
+		newstable.appendChild(newdiv);
 
+}
 
 function addElement(Symbol,Name,Change,Value) {
 	var ni = document.getElementsByTagName('tbody').item(0);
@@ -485,7 +514,6 @@ function paintCandlestick() {
 	console.log("painting candlestick");
 	for (var i = 0;i <= getDateList().length;i++) {
 		diagramdata.push({date: getDateList()[i],c: getLatestList()[i],o: openVallist[i],h: dayHigh[i],l:dayLow[i]});
-		console.log("diagramdata " +diagramdata[i] +" daylow " +dayLow[i]  );
 	}
 
 	$("#canvas").dxChart({
@@ -588,7 +616,35 @@ function hidelist(Symbol,timeframe,name) {
 	setChartType("line");
 	firstDataFill = true;
 	getstockhistory(Symbol,timeframe,name);
+		getNewsItems();
+}
 
+function showNewsList() {
+	nlist = document.querySelector("#stocknews");
+	nitem = document.querySelector("#newsdisplay");
+	nlist.className = 'visible';
+	nitem.className = 'visuallyhidden';
+}
+
+function hideNewsList(newsitem) {
+	nlist = document.querySelector("#stocknews");
+	nitem = document.querySelector("#newsdisplay");
+	nlist.className = 'visuallyhidden';
+	nitem.className = 'visible';
+
+var newslink = document.getElementById('newslink');
+newslink.href = newsitem.link;
+	var newsdisplay = document.getElementById('newsdisplay');
+	var nheadline = document.getElementById('newsheadline').innerHTML = newsitem.title;
+	var newsdisplay = document.getElementById('newstext').innerHTML = newsitem.description;
+
+	// newdiv.className='clickableRow';
+	// newdiv.setAttribute('onClick', 'hideNewsList("'+newsitem+'");');
+		// cell = document.createElement("td");
+		// textnode = document.createTextNode(newsitem.title);
+		// cell.appendChild(textnode);
+		// newdiv.appendChild(cell);
+		// newstable.appendChild(newdiv);
 
 }
 
