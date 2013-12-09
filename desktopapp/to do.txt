@@ -1,0 +1,4 @@
+ * istället för att ladda om news och stock fönstret när man klickar på 
+   marknadsknapparna så skicka bara den parametern till klassen
+
+* ändra jsonHandler, 30 7 oc 1 dags query direkt till db
