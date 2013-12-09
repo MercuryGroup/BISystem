@@ -11,19 +11,19 @@ namespace BIS_Desktop
     class ThreadHandler
     {
         Thread t;
-        public void fetchResult(Object sender, String resultType, String market, object mainWindow)
+        public void fetchResult(Object sender, String resultType, String source, String Market, object mainWindow)
         {
-            t = new Thread(() => fetchResultThread(sender, resultType, market, null, mainWindow));
+            t = new Thread(() => fetchResultThread(sender, resultType, source, null, Market, mainWindow));
             t.Start();
         }
 
         public void fetchNewsResult(Object sender, String resultType, object mainWindow, News n)
         {
-            t = new Thread(() => fetchResultThread(sender, resultType, "", n, mainWindow));
+            t = new Thread(() => fetchResultThread(sender, resultType, "", n, "", mainWindow));
             t.Start();
         }
 
-        private void fetchResultThread(Object sender, String resultType, String market, Object o, object mainWindow)
+        private void fetchResultThread(Object sender, String resultType, String source, News n, String Market, object mainWindow)
         {
             Console.WriteLine(resultType);        
             ResultPanel panel = sender as ResultPanel;
@@ -31,7 +31,7 @@ namespace BIS_Desktop
             {
                // try
                 //{
-                    ResultList list = new ResultList(resultType, market, mainWindow);
+                    ResultList list = new ResultList(resultType, source, mainWindow);
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                     panel.Controls.Clear();
                     panel.setContent(list);
@@ -44,11 +44,30 @@ namespace BIS_Desktop
                 //}
              
             }
-            else if (resultType == "info")
+            else if (resultType == "portfolio")
+            {
+                // try
+                //{
+                ResultList list = new ResultList(resultType, source, mainWindow);
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                panel.Controls.Clear();
+                panel.setContent(list);
+                panel.updateSize();
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(list)));
+                //}
+                //catch(Exception e)
+                // {
+                //    Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
+
+            }
+
+            else if (resultType == "stockinfo")
             {
               //  try
                // {
-                    InfoDisplay info = new InfoDisplay(market);
+                    //InfoDisplay info = new InfoDisplay(market, mw);
+                    InfoDisplay info = new InfoDisplay("stock", source, Market);
                     panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                     panel.Controls.Clear();
                     panel.setContent(info);
@@ -61,12 +80,30 @@ namespace BIS_Desktop
                 //}
                 
             }
+            else if (resultType == "marketinfo")
+            {
+                //  try
+                // {
+                //InfoDisplay info = new InfoDisplay(market, mw);
+                InfoDisplay info = new InfoDisplay("market", source, Market);
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                panel.Controls.Clear();
+                panel.setContent(info);
+                panel.updateSize();
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(info)));
+                //}
+                //catch (Exception e)
+                //{
+                //   Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
+
+            }
 
             else if (resultType == "news")
             {
                 //  try
                 // {
-                ResultList newsDisplay = new ResultList(resultType, market, mainWindow);
+                ResultList newsDisplay = new ResultList(resultType, source, mainWindow);
                 panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
                 panel.Controls.Clear();
                 panel.setContent(newsDisplay);
@@ -85,12 +122,15 @@ namespace BIS_Desktop
             {
                 //  try
                 // {
-                NewsPanel newsDisplay = new NewsPanel(o);
-                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
-                panel.Controls.Clear();
-                panel.setContent(newsDisplay);
-                panel.updateSize();
-                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(newsDisplay)));
+
+                    NewsPanel newsPanel = new NewsPanel(n);
+                    panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                    panel.Controls.Clear();
+                    panel.setContent(newsPanel);
+                    panel.updateSize();
+                    panel.Invoke((MethodInvoker)(() => panel.Controls.Add(newsPanel)));
+
+                
                 //}
                 //catch (Exception e)
                 //{

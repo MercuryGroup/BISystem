@@ -21,10 +21,10 @@ namespace BIS_Desktop
 
         public String description { get; set; } 
 
-        public String guid { get; set; }
-
         public String pubDate { get; set; }
 
         public String type { get; set; }
+
+        public String market { get; set; }
     }
 }

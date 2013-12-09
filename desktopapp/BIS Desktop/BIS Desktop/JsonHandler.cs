@@ -31,27 +31,79 @@ namespace BIS_Desktop
 
 
         private HttpClient client;
-        private String URL = "http://mercury.dyndns.org:8080/JAXRS-BISystem/api/"; 
- 
+        private Controller c; 
+
+        private String URL = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/";
+
+        private DateTime now;
+        private DateTime pastDate;
         public JsonHandler()
         {
            client = new HttpClient();
+           c = new Controller(); 
         }
 
+        public List<Stock> getDummyStocks()
+        {
+            List<Stock> stocks = new List<Stock>();
 
-        public List<News> getAllNews(String Market)
+            string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            Console.WriteLine(dir);
+            String filePath = Path.Combine(dir, "\\nyse.txt");
+
+             try
+            {
+
+                using (StreamReader sr = new StreamReader(filePath))
+                {
+
+                    string json = sr.ReadToEnd();
+
+                    JObject jo = JObject.Parse(json);
+
+                    JArray JA = (JArray)jo["rows"];
+
+                    foreach (JObject stock in JA)
+                    {
+
+                        Stock st = parseStock(stock);
+
+                        stocks.Add(st);
+
+                    }
+
+                }
+
+            }
+            catch (AggregateException e)
+            {
+                Console.WriteLine(e.Data);
+            }
+
+            return stocks;
+        
+        }
+  
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>news list with all the news from a 24 hour span</returns>
+        public List<News> getAllNews()
         {
             List<News> news = new List<News>();
 
-            String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news";
+            // get the news within the lastest 24 hours
+            now = DateTime.Now;
+
+            pastDate = now.AddDays(-1);
+
+            URL += "news_list?startkey=\"" + c.getTimeStamp(pastDate) + "\"&endkey=\"" + c.getTimeStamp(now) + "\"";
+            Console.WriteLine(URL);
             try
             {
-                using (var s = client.GetStreamAsync(url).Result)
+                using (var s = client.GetStreamAsync(URL).Result)
                 using (StreamReader sr = new StreamReader(s))
                 {
-                    //JObject jo = (JObject)JToken.ReadFrom(new JsonTextReader(sr));
-                    //var children = jo["rows"];
-
                     string json = sr.ReadToEnd();
 
                     JObject jo = JObject.Parse(json);
@@ -71,65 +123,108 @@ namespace BIS_Desktop
             }catch (AggregateException e){
                 Console.WriteLine(e.Data);
             }
-           
 
             return news;
         }
 
-        
-        public List<News> getSingleNews(String Symbol)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Symbol"></param>
+        /// <param name="Market"></param>
+        /// <returns> A list containing all the news from a single stock</returns>
+        public List<News> getSingleNews(String Symbol, String Market)
         {
 
-            List<News> News = new List<News>();
-            URL += "news/day/index/" + Symbol;
-
-            for(int i=0; i<35; i++)
-            {
-               // News n = parseNews(i); 
-                //News.Add(n);
-            }
-           
-            return News; 
-
-        }
-
-        public List<Market> getSingleMarket(String marketSymbol, String Period){
-
-            List<Market> marketData = new List<Market>();
-
-        
-            URL += "markets/" + Period + "/index/" + marketSymbol;
+            List<News> news = new List<News>();
+            URL += "news?key=[\"" + Symbol + "\",\"" + Market + "\"]";
 
             try
             {
                 using (var s = client.GetStreamAsync(URL).Result)
                 using (StreamReader sr = new StreamReader(s))
                 {
+
                     string json = sr.ReadToEnd();
 
-                    JArray JA = JArray.Parse(json);
+                    JObject jo = JObject.Parse(json);
 
-                    foreach (JObject market in JA)
+                    JArray JA = (JArray)jo["rows"];
+
+                    foreach (JObject n in JA)
                     {
 
-                        Market m = parseMarket(market);
+                        News temp = parseNews(n);
 
-                        marketData.Add(m);
+                        news.Add(temp);
 
                     }
                 }
 
-            }catch (AggregateException e){
+            }
+            catch (AggregateException e)
+            {
                 Console.WriteLine(e.Data);
             }
-           
+
+            return news;
+
+        }
+
+        public List<Market> getSingleMarket(String Market, String Period){
+
+            List<Market> marketData = new List<Market>();
+            
+            now = DateTime.Now;
+
+            if (Period == "day")
+            {
+                pastDate = now.AddDays(-1);
+            }
+            else if (Period == "week")
+            {
+                pastDate = now.AddDays(-7);
+            }
+            else if (Period == "month")
+            {
+                pastDate = now.AddDays(-30);
+                Console.WriteLine("DATE: " + pastDate); 
+            } 
+
+            URL += Market.ToLower() + "_market?startkey=\"" + c.getTimeStamp(pastDate) + "\"&endkey=\"" + c.getTimeStamp(now) + "\"";
+            Console.WriteLine(URL); 
+            try
+            {
+                using (var s = client.GetStreamAsync(URL).Result)
+                using (StreamReader sr = new StreamReader(s))
+                {
+
+                    string json = sr.ReadToEnd();
+
+                    JObject jo = JObject.Parse(json);
+
+                    JArray JA = (JArray)jo["rows"];
+
+                    foreach (JObject n in JA)
+                    {
+
+                        Market temp = parseMarket(n);
+
+                        marketData.Add(temp);
+
+                    }
+                }
+
+            }
+            catch (AggregateException e)
+            {
+                Console.WriteLine(e.Data);
+            }
 
             return marketData;
         }
-        
-
      
-        public List<Stock> getSingleStock(String Symbol, String Period)
+        public List<Stock> getSingleStock(String Market, String Symbol, String Period)
         {
 
             /* Period = month week or day
@@ -138,49 +233,31 @@ namespace BIS_Desktop
             */
             List<Stock> stocks = new List<Stock>();
 
-        
-            URL += "stocks/" + Period + "/" + Symbol;
+            now = DateTime.Now;
+
+            if (Period == "day")
+            {
+                pastDate = now.AddDays(-1);
+            }
+            else if (Period == "week")
+            {
+                pastDate = now.AddDays(-7);
+            }
+            else if (Period == "month")
+            {
+                pastDate = now.AddDays(-30);
+            }
+            
+            string temp = Market.ToLower();
+            URL += "nyse" + "_stock?startkey=[\""+Symbol+ "\",\"" + c.getTimeStamp(pastDate) + "\"]&endkey=[\"" +Symbol + "," + c.getTimeStamp(now) + "\"]";
+                //&endkey=[\""+Symbol+"\",\""+ c.getTimeStamp(now) + "\"]";
+            Console.WriteLine("LALALLALALA: " + URL); 
 
             try
             {
                 using (var s = client.GetStreamAsync(URL).Result)
                 using (StreamReader sr = new StreamReader(s))
                 {
-                    string json = sr.ReadToEnd();
-
-                    JArray JA = JArray.Parse(json);
-
-                    foreach (JObject stock in JA)
-                    {
-
-                        Stock st = parseStock(stock);
-
-                        stocks.Add(st);
-
-                    }
-                }
-
-            }catch (AggregateException e){
-                Console.WriteLine(e.Data); 
-            }
-
-                return stocks;
-        }
-           
-
-        public List<Stock> getAllStocks(){
-            
-
-            List<Stock> stocks = new List<Stock>();
-
-            String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22";
-            try
-            {
-                using (var s = client.GetStreamAsync(url).Result)
-                using (StreamReader sr = new StreamReader(s))
-                {
-                    //JObject jo = (JObject)JToken.ReadFrom(new JsonTextReader(sr));
-                    //var children = jo["rows"];
 
                     string json = sr.ReadToEnd();
 
@@ -197,19 +274,51 @@ namespace BIS_Desktop
 
                     }
 
-                    //foreach (JObject stock in children.ToList())
-                   // {
-                      //  Stock st = parseStock(stock);
+                }
 
-                      //  stocks.Add(st); ;
-                   // }
+            }
+            catch (AggregateException e)
+            {
+                Console.WriteLine(e.Data);
+            }
 
+            return stocks;
+        }
+           
+
+        public List<Stock> getAllStocks(){
+            
+
+            List<Stock> stocks = new List<Stock>();
+
+            String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22";
+            try
+            {
+                using (var s = client.GetStreamAsync(url).Result)
+                using (StreamReader sr = new StreamReader(s))
+                {
+
+                    string json = sr.ReadToEnd();
+
+                    JObject jo = JObject.Parse(json);
+
+                    JArray JA = (JArray)jo["rows"];
+
+                    foreach (JObject stock in JA)
+                    {
+
+                        Stock st = parseStock(stock);
+
+                        stocks.Add(st);
+
+                    }
 
                 }
 
             }catch (AggregateException e){
                 Console.WriteLine(e.Data); 
             }
+         
             return stocks;
         }
 
@@ -226,9 +335,9 @@ namespace BIS_Desktop
             news.title = temp.Value<string>("title");
             news.link = temp.Value<string>("link");
             news.description = temp.Value<string>("description");
-            news.guid = temp.Value<string>("guid");
             news.pubDate = temp.Value<string>("pubDate");
             news.type = temp.Value<string>("type");
+            news.market = temp.Value<string>("market");
 
             return news; 
         }
@@ -245,7 +354,7 @@ namespace BIS_Desktop
             market.Highest = temp.Value<string>("highest");
             market.Lowest = temp.Value<string>("lowest");
             market.ClosingValue = temp.Value<string>("closingVal");
-            market.OpeningValue = temp.Value<string>("openVal");
+            market.OpenVal = temp.Value<string>("openVal");
             market.Updated = temp.Value<string>("updated");
             market.MarketName = temp.Value<string>("market");
 

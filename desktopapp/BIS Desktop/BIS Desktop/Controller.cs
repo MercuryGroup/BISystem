@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.IO;
+
 namespace BIS_Desktop
 {
     class Controller
@@ -17,8 +19,12 @@ namespace BIS_Desktop
            highlightWhite,
            mercuryBeige,
            loading;
+
+        private string filePath; 
+        
         public Controller()
-        {
+        {           
+
             //Set color for different buttons
             mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
@@ -28,6 +34,12 @@ namespace BIS_Desktop
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
             //Set font
             mercuryFont = new Font("Segoe UI", 10, FontStyle.Regular);
+
+            //string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.ToString();
+            string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            Console.WriteLine(dir); 
+            filePath = Path.Combine(dir, "\\portfolio.txt"); 
+
         }
         public double getStockMinMaxValue(List<Stock> stocks_, String minMax)
         {
@@ -163,7 +175,8 @@ namespace BIS_Desktop
                 Console.WriteLine("adasdasasd " + e.Message);
             }
             return null;
-        }
+        } 
+
         public DateTime getDate(String microSec)
         {
             long milliSec = (long.Parse(microSec));
@@ -174,6 +187,125 @@ namespace BIS_Desktop
             return date;
         }
 
+        public long getTimeStamp(DateTime date)
+        {
+            DateTime startTime = new DateTime(1970, 1, 1);
+            TimeSpan time = date - startTime;
 
+            long timeStamp = (long)time.TotalMilliseconds; 
+            return timeStamp; 
+        }
+
+        public void addToPortfolio(Stock s)
+        {  
+
+            if (File.Exists(filePath))
+            {
+                
+                Boolean isDuplicate = false;
+                List<Stock> temp = readFromPortfolio(); // temp list for checking for duplicates in portfolio.txt
+            
+         
+                foreach (Stock stockInPortfolio in temp)
+                {
+                    if (s.Symbol == stockInPortfolio.Symbol)
+                    {
+                        isDuplicate = true;
+                    }
+                }
+
+                if (!isDuplicate)
+                {
+                    try
+                    {
+                        using (TextWriter writer = new StreamWriter(filePath, true))
+                        {
+                            writer.WriteLine(s.Id + "\\#" + s.Symbol + "\\#" + s.Name + "\\#" + s.Latest + "\\#" + s.Change + "\\#" + s.Percent + "\\#" + s.Volume + s.OpenVal + "\\#" + s.Updated + "\\#" + s.Market + "\\#" + s.Type);
+                            writer.Close();
+                        }
+                    }
+                    catch(IOException e)
+                    {
+                        Console.WriteLine("Error while writing to portfolio: " + e.Data);
+                    }
+                   
+                }
+            }
+            else
+            {
+                try 
+                {
+                    using (TextWriter writer = new StreamWriter(filePath, true))
+                    {
+                        writer.WriteLine(s.Id + "\\#" + s.Symbol + "\\#" + s.Name + "\\#" + s.Latest + "\\#" + s.Change + "\\#" + s.Percent + "\\#" + s.Volume  + s.OpenVal + "\\#" + s.Updated + "\\#" + s.Market + "\\#" + s.Type);
+                        writer.Close();
+                    }
+                }
+                catch(IOException e)
+                {
+                    Console.WriteLine("Error while writing to portfolio: " + e.Data);
+                }
+                
+
+            }
+            
+
+        }
+
+      
+      
+        public List<Stock> readFromPortfolio()
+        {
+            List<Stock> stocks = new List<Stock>();;
+
+            try
+            {
+
+                if (File.Exists(filePath))
+                {
+                   
+                    using (TextReader reader = new StreamReader(filePath))
+                    {
+                        string line;
+
+                        while ((line = reader.ReadLine()) != null)
+                        {
+
+                            string[] splitArray = line.Split(new[] { "\\#" }, StringSplitOptions.None);
+
+                            Stock s = new Stock();
+
+                            s.Id = splitArray[0];
+                            s.Symbol = splitArray[1];
+                            s.Name = splitArray[2];
+                            s.Latest = splitArray[3];
+                            s.Change = splitArray[4];
+                            s.Percent = splitArray[5];
+                            s.OpenVal = splitArray[6];
+                            s.Updated = splitArray[7];
+                            s.Market = splitArray[8];
+                            s.Type = splitArray[9];
+
+                            stocks.Add(s);
+
+                        }
+
+                        reader.Close();
+
+                    }
+                }
+                else
+                {
+                    stocks = null;
+                }
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Error while adding to portfolio: " + e.Data);
+            }
+           
+            return stocks; 
+        
+        }       
     }
 }

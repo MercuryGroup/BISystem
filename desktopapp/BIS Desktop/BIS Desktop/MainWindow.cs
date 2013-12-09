@@ -140,7 +140,7 @@ namespace BIS_Desktop
                 lseButton.BackColor = c.mercuryBlue;
                 lseButton.ForeColor = Color.White;
             }
-            loadResult(leftPanelResults, currentResultType, currentMarket, this);
+            loadResult(leftPanelResults, currentResultType, currentMarket, currentMarket, this);
             
         }
 
@@ -151,7 +151,7 @@ namespace BIS_Desktop
             //button_.BackColor = mercuryBlue;
             //button_.ForeColor = Color.White;
             currentMarket = market_;
-            loadResult(leftPanelResults, currentResultType, currentMarket, this);
+            loadResult(leftPanelResults, currentResultType, currentMarket, currentMarket, this);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace BIS_Desktop
         /// <param name="sender"></param>
         /// <param name="contentType"></param>
         /// <param name="resultCategory"></param>
-        public void loadResult(object sender, String resultType, String resultSource, object mainWindow)
+        public void loadResult(object sender, String resultType, String resultSource, String Market, object mainWindow)
         {
             //Instantiate current panel
             ResultPanel panel = sender as ResultPanel;
@@ -206,7 +206,7 @@ namespace BIS_Desktop
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
                 
-                th.fetchResult(panel, resultType, resultSource, mainWindow);
+                th.fetchResult(panel, resultType, resultSource, Market, mainWindow);
                 
                 
             }
@@ -311,7 +311,7 @@ namespace BIS_Desktop
         private void marketButton_Click(object sender, EventArgs e)
         {
             enableMarketButtons();
-            menuClick(sender, "info");
+            menuClick(sender, "marketinfo");
         }
 
         /// <summary>
@@ -521,7 +521,7 @@ namespace BIS_Desktop
             if (e.KeyCode == Keys.Enter)
             {
                 resetMenuButtons();
-                loadResult(leftPanelResults, "stocks", searchField.Text, this);
+                loadResult(leftPanelResults, "stocks", searchField.Text,"", this);
                 disableMarketButtons();
                 searchField.Text = "";
                 mainContentPanel.Focus();

@@ -26,7 +26,7 @@ namespace BIS_Desktop
         private Series series;
         private RadioButton rbMonth, rbWeek, rbDay;
         private Panel buttonPanel;
-        private List<Stock> temp, stockSpan;
+        private List<Stock> stockList, stockSpan;
         private String typeOfChart = "candlestick";
         private String Symbol;
         private Panel chartPanel;
@@ -42,7 +42,7 @@ namespace BIS_Desktop
          * [ ] Add panel to display latest values
          * 
         */
-        public InfoDisplay(String s)
+        public InfoDisplay(String type, String s, String Market)
         {
             stockSpan = new List<Stock>();
             js = new JsonHandler();
@@ -50,9 +50,28 @@ namespace BIS_Desktop
 
             c = new Controller();
             Symbol = s;
-            temp = js.getSingleStock(Symbol, "month");
+            if (type == "stock")
+            {
+                stockList = js.getSingleStock(Market, Symbol, "month");
+            }
+            else if (type == "market")
+            {
+                stockList = new List<Stock>();
+                List<Market> marketList = js.getSingleMarket("omx", "month");
+                foreach (Market m in marketList)
+                {
+                    Stock tempStock = new Stock();
+                    tempStock.Latest = m.Latest;
+                    tempStock.OpenVal = m.OpenVal;
+                    tempStock.Updated = m.Updated;
+                    stockList.Add(tempStock);
+                }
+            }
+
             
-            
+
+    
+
             initilizeChart(typeOfChart, "month");
             this.BackColor = Color.White;
 
@@ -84,15 +103,15 @@ namespace BIS_Desktop
             switch (timeSpan)
             {
                 case "day":
-                    stockSpan = c.getFilteredList(c.sortStockList(temp, "Updated", false), DateTime.Today, -1);
+                    stockSpan = c.getFilteredList(c.sortStockList(stockList, "Updated", false), DateTime.Today, -1);
                     
                     break;
                 case "week":
-                    stockSpan = c.getFilteredList(c.sortStockList(temp, "Updated", false), DateTime.Today, -7);
+                    stockSpan = c.getFilteredList(c.sortStockList(stockList, "Updated", false), DateTime.Today, -7);
                     
                     break;
                 case "month":
-                    stockSpan = c.sortStockList(temp,"Updated", false); 
+                    stockSpan = c.sortStockList(stockList,"Updated", false); 
                     break;
             }
             //Get all days for the stocks
@@ -155,7 +174,7 @@ namespace BIS_Desktop
 
             // TEMPORARY
             RichTextBox sd = new RichTextBox();
-            sd.Text = "SYMBOL: " + temp.ElementAt(0).Symbol;
+            sd.Text = "SYMBOL: " + stockList.ElementAt(0).Symbol;
             Controls.Add(sd);
 
         }

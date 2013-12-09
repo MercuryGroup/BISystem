@@ -44,6 +44,19 @@ namespace BIS_Desktop
                 InfoDisplay temp = content as InfoDisplay;
                 temp.setSize(this.Width, this.Height);
             }
+
+            else if (content is NewsPanel)
+            {
+                NewsPanel temp = content as NewsPanel;
+                temp.setSize(this.Width, this.Height);
+            }
+
+            else if (content is StockNews)
+            {
+                StockNews temp = content as StockNews;
+                temp.setSize(this.Width, this.Height);
+            }
+
             content.Width = this.Width;
             content.Height = this.Height;
             Console.WriteLine(this.Height);

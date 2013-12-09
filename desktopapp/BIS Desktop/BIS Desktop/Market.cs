@@ -21,7 +21,7 @@ namespace BIS_Desktop
 
         public String ClosingValue{ get; set; }
 
-        public String OpeningValue{ get; set; }
+        public String OpenVal{ get; set; }
 
         public String Updated{ get; set; }
 

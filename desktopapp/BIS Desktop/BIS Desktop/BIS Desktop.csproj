@@ -85,6 +85,9 @@
     <Compile Include="ResultList.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="StockNews.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ThreadHandler.cs" />
     <EmbeddedResource Include="InfoDisplay.resx">
       <DependentUpon>InfoDisplay.cs</DependentUpon>
