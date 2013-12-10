@@ -13,6 +13,10 @@ namespace BIS_Desktop
         Thread t;
         public void fetchResult(Object sender, String resultType, String source, String Market, object mainWindow)
         {
+            if (t != null)
+            {
+                t.Abort();
+            }
             t = new Thread(() => fetchResultThread(sender, resultType, source, null, Market, mainWindow));
             t.Start();
         }

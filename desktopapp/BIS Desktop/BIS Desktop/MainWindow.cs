@@ -75,8 +75,11 @@ namespace BIS_Desktop
             leftPanel.BackColor = c.loading;
             rightPanel.BackColor = c.loading;
             leftParentPanel.BackColor = c.loading;
+            mainContentPanel.BackColor = c.loading;
             menu.BackColor = c.mercuryBeige;
             searchField.BackColor = c.mercuryGrey;
+            dragPanel.BackColor = c.highlightWhite;
+            marketPanel.BackColor = c.highlightWhite;
 
             //Reset buttons
             resetMenuButtons();

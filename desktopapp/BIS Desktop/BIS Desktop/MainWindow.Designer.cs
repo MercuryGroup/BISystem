@@ -252,7 +252,7 @@
             // 
             // mainContentPanel
             // 
-            this.mainContentPanel.BackColor = System.Drawing.Color.White;
+            this.mainContentPanel.BackColor = System.Drawing.Color.LightGray;
             this.mainContentPanel.Controls.Add(this.rightPanel);
             this.mainContentPanel.Controls.Add(this.leftParentPanel);
             this.mainContentPanel.Controls.Add(this.menu);

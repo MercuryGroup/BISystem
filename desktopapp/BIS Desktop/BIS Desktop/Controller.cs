@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
@@ -29,7 +30,7 @@ namespace BIS_Desktop
             mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
             mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC3522");
-            highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAFA");
+            highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAF6");
             mercuryBeige = System.Drawing.ColorTranslator.FromHtml("#D9CB9E");
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
             //Set font
@@ -146,7 +147,7 @@ namespace BIS_Desktop
             
             return newList;
         }
-        public List<Stock> getFilteredList(List<Stock> list, DateTime date, int days)
+        public List<Stock> getFilteredList2(List<Stock> list, DateTime date, int days)
         {
             try
             {
@@ -160,10 +161,10 @@ namespace BIS_Desktop
                     if (difference < 0){
                         difference *=-1;
                     }
-                    if (difference > days)
+                    if (difference <= days)
                     {
                         {
-                            return list.GetRange(0, i);
+                            return list.GetRange((list.Count-difference), list.Count-1);
                         }
                     }
                     
@@ -175,8 +176,38 @@ namespace BIS_Desktop
                 Console.WriteLine("adasdasasd " + e.Message);
             }
             return null;
-        } 
+        }
+        public List<Stock> getFilteredList(List<Stock> list, DateTime date, int days)
+        {
+            try
+            {
 
+                for (int i = 0; i < list.Count(); i++)
+                {
+                    DateTime stockDate_ = getDate(list.ElementAt(i).Updated);
+                    Console.WriteLine("Current date: " + stockDate_);
+                    int difference = (date - stockDate_).Days;
+                    Console.WriteLine("Difference: " + difference);
+                    if (difference < 0)
+                    {
+                        difference *= -1;
+                    }
+                    if (difference <= days)
+                    {
+                        {
+                            return list.GetRange(i, list.Count - i);
+                        }
+                    }
+
+                }
+                return list;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("adasdasasd " + e.Message);
+            }
+            return null;
+        } 
         public DateTime getDate(String microSec)
         {
             long milliSec = (long.Parse(microSec));
@@ -305,7 +336,67 @@ namespace BIS_Desktop
             }
            
             return stocks; 
+        }
+        /// <summary>
+        /// Reset button
+        /// </summary>
+        public void resetButton(object sender)
+        {
+            mercuryButton b = sender as mercuryButton;
+            //Set clicked boolean to true
+            b.clicked = false;
+            //Change back color 
+            if (b.Enabled == false)
+            {
+                b.BackColor = Color.LightGray;
+            }
+            else
+            {
+                b.BackColor = System.Drawing.ColorTranslator.FromHtml("#374140");
+            }
+            
+        }
         
-        }       
     }
+    public class mercuryButton : Button
+    {
+        //Boolean to check if button is clicked
+        public Boolean clicked;
+        public String buttonType;
+        //Constructor
+        public mercuryButton(String text_, String buttonType_)
+        {
+            buttonType = buttonType_;
+            Controller c = new Controller();
+            //Reset values and color
+            c.resetButton(this);
+            //Fore color
+            ForeColor = Color.White;
+            //Set text
+            Text = text_;
+            TextAlign = ContentAlignment.MiddleCenter;
+            //Appeance settings (flat)
+            FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            FlatAppearance.BorderColor = Color.White;
+            FlatAppearance.BorderSize = 0;
+            FlatAppearance.MouseDownBackColor = System.Drawing.ColorTranslator.FromHtml("#DC3522");
+            FlatAppearance.MouseOverBackColor = Color.Black;
+            //Add event handler
+            Click += new EventHandler(buttonClicked);
+        }
+        public void buttonClicked(object sender, EventArgs e)
+        {
+            //If button hasn't yet been clicked
+            if (!clicked)
+            {
+                //Change back color
+                BackColor = System.Drawing.ColorTranslator.FromHtml("#354A69");
+                //Set button to clicked
+                clicked = true;
+                Console.WriteLine("My name is mercury button, i am clicked!");
+            }
+        }
+        
+    }
+    
 }

@@ -60,7 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller.cs" />
+    <Compile Include="Controller.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="InfoDisplay.cs">
       <SubType>Component</SubType>
     </Compile>

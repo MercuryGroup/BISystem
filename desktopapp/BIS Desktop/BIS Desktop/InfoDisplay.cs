@@ -25,15 +25,27 @@ namespace BIS_Desktop
         private double yInterval;
         private Series series;
         private RadioButton rbMonth, rbWeek, rbDay;
-        private Panel buttonPanel;
+        private Panel chartTypePanel;
+        private Panel timeSpanPanel;
         private List<Stock> stockList, stockSpan;
         private String typeOfChart = "candlestick";
-        private String Symbol;
+        private String symbol;
+        private String market;
+        private String timeSpan = "month";
+        private String typeOfStock;
         private Panel chartPanel;
         private Controller c;
         private List<DateTime> days;
         private int currentPointHover = -1;
-        private Boolean addToPortfolio;
+        private Boolean addToPortfolio = true;
+        private int marketHighest;
+        private int marketLowest;
+        private Button candlestickButton;
+        private Button lineChartButton;
+        private Button barChartButton;
+        private Button dayButton;
+        private Button weekButton;
+        private Button monthButton;
         ToolTip tooltip;
         JsonHandler js;
         /*
@@ -42,91 +54,141 @@ namespace BIS_Desktop
          * [ ] Add panel to display latest values
          * 
         */
-        public InfoDisplay(String type, String s, String Market)
+        public InfoDisplay(String type, String s, String m)
         {
             stockSpan = new List<Stock>();
             js = new JsonHandler();
             chartPanel = new Panel();
 
             c = new Controller();
-            Symbol = s;
-            if (type == "stock")
+            symbol = s;
+            market = m;
+            typeOfStock = type;
+            if (typeOfStock == "stock")
             {
-                stockList = js.getSingleStock(Market, Symbol, "month");
+                stockList = js.getSingleStock(market, symbol, "month");
             }
-            else if (type == "market")
+            else if (typeOfStock == "market")
             {
+                addToPortfolio = false;
                 stockList = new List<Stock>();
-                List<Market> marketList = js.getSingleMarket("omx", "month");
-                foreach (Market m in marketList)
+                List<Market> marketList = js.getSingleMarket(market, "month");
+                foreach (Market temp in marketList)
                 {
                     Stock tempStock = new Stock();
-                    tempStock.Latest = m.Latest;
-                    tempStock.OpenVal = m.OpenVal;
-                    tempStock.Updated = m.Updated;
+                    tempStock.Latest = temp.Latest;
+                    tempStock.OpenVal = temp.OpenVal;
+                    tempStock.Updated = temp.Updated;
                     stockList.Add(tempStock);
                 }
             }
+            stockList = c.sortStockList(stockList, "Updated", false);
+            
+            
+            this.BackColor = c.highlightWhite;
 
             
 
-    
-
-            initilizeChart(typeOfChart, "month");
-            this.BackColor = Color.White;
-
-            
+            // TEMPORARY
+            RichTextBox sd = new RichTextBox();
+            sd.Text = "SYMBOL: " + stockList.ElementAt(0).Symbol;
+            Controls.Add(sd);
             
 
-            this.Controls.Add(chart);
-            this.Controls.Add(buttonPanel);
             
+
+            chartTypePanel = new FlowLayoutPanel();
+            timeSpanPanel = new FlowLayoutPanel();
+            timeSpanPanel.Anchor = AnchorStyles.Bottom;
+
+            //Create and add buttons to chart panel
+            candlestickButton = new mercuryButton("Candlestick", "candlestick");
+            candlestickButton.Click += new EventHandler(chooseChartType);
+            lineChartButton = new mercuryButton("Line", "line");
+            lineChartButton.Click += new EventHandler(chooseChartType);
+            barChartButton = new mercuryButton("Bar", "bar");
+            barChartButton.Click += new EventHandler(chooseChartType);
+            chartTypePanel.Controls.Add(candlestickButton);
+            chartTypePanel.Controls.Add(lineChartButton);
+            chartTypePanel.Controls.Add(barChartButton);
+            
+            //Add event listener to control timespan value 
+            dayButton = new mercuryButton("Day", "day");
+            dayButton.Click += new EventHandler(chooseTimeSpan);
+            weekButton = new mercuryButton("Week", "week");
+            weekButton.Click += new EventHandler(chooseTimeSpan);
+            monthButton = new mercuryButton("Month", "month");
+            monthButton.Click += new EventHandler(chooseTimeSpan);
+            timeSpanPanel.Controls.Add(dayButton);
+            timeSpanPanel.Controls.Add(weekButton);
+            timeSpanPanel.Controls.Add(monthButton);
+            
+            
+            
+            this.Controls.Add(chartPanel);
+            monthButton.BackColor = c.mercuryBlue;
+            dayButton.Enabled = false;
+            resetchartButtons();
+            resetTimeSpanButtons();
+            initilizeChart("candlestick", timeSpan);
+            this.Controls.Add(chartTypePanel);
+            this.Controls.Add(timeSpanPanel);
+
+
+            /*
+             * 
+             * 
+             * -----------------------------------
+             * HÄR KAN DU SLÄNGA IN KLASSEN, ALEX!
+             * -----------------------------------
+             * glöm inte att lägga till:
+             * this.controls.add(din klass)
+             * 
+             */
+
+
 
         }
-        private void initilizeChart(String typeOfChart, String timeSpan)
+        private void initilizeChart(String typeOfChart_, String timeSpan_)
         {
             /**
              * TODO:
              * [X] Set y maximum value based on content
-             * [ ] Set interval based on day/week/month
+             * [X] Set interval based on day/week/month
              * [X] Get largest and smallest value
-             * [ ] Get list of stocks based on timestamp
+             * [X] Get list of stocks based on timestamp
              * CURRENT
-             * [/] Add mouse hover listener to chart areas
+             * [X] Add mouse hover listener to chart areas
              */
-
-            
-
-            chart = new Chart();
-            chartArea = new ChartArea();
-            //Insert if-case for amount of days to show
-            switch (timeSpan)
+            switch (timeSpan_)
             {
                 case "day":
-                    stockSpan = c.getFilteredList(c.sortStockList(stockList, "Updated", false), DateTime.Today, -1);
-                    
+                    stockSpan = c.getFilteredList(stockList, DateTime.Now, 1);
                     break;
                 case "week":
-                    stockSpan = c.getFilteredList(c.sortStockList(stockList, "Updated", false), DateTime.Today, -7);
-                    
+                    stockSpan = c.getFilteredList(stockList, DateTime.Now, 7);
                     break;
                 case "month":
-                    stockSpan = c.sortStockList(stockList,"Updated", false); 
+                    stockSpan = stockList;
                     break;
             }
-            //Get all days for the stocks
-             days = getStockDays(stockSpan);
+
+            chartPanel.Controls.Clear();
+            chart = new Chart();
+            chartArea = new ChartArea();
             
+            //Get all days for the stocks
+            days = getStockDays(stockSpan);
             //Set maximum X axis
             chartArea.AxisX.Maximum = days.Count();
+            double paddingValue = (c.getStockMinMaxValue(stockSpan, "max")*1.05)-c.getStockMinMaxValue(stockSpan, "max");
             // set max and min y values to the area (plus padding)
-            double minYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "min")/1.02, 2);
-            double maxYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "max")*1.01, 1);
+            double minYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "min")-paddingValue, 1);
+            double maxYValue = Math.Round(c.getStockMinMaxValue(stockSpan, "max")+paddingValue, 1);
             chartArea.AxisY.Minimum = minYValue;
             chartArea.AxisY.Maximum = maxYValue;
             chartArea.AxisX.Minimum = 0;
             //Set intervals
-            //double xInterval = double.Parse(stockSpan.Count().ToString()) / 5;
             xInterval = 1;
             yInterval = ((maxYValue-minYValue)/5);
             if (yInterval < 0)
@@ -143,40 +205,69 @@ namespace BIS_Desktop
             chartArea.AxisX.MajorGrid.LineColor = Color.LightGray;
             chartArea.AxisY.MajorGrid.LineColor = Color.LightGray;
             //chartArea.BackColor = Color.Beige;
-
-            
-            
-            
-
             chart.ChartAreas.Add(chartArea);
-
-            switch (typeOfChart)
+            switch (typeOfChart_)
             {
                 case "candlestick":
                     //Set custom max value
                     chartArea.AxisX.Maximum = days.Count()+1;
                     //Get candlestick values
                     List<double[]> candleStickList = getCandleStickValues2(stockSpan);
-                    initilizeCandeleStick(candleStickList);
+                    initilizeCandleStick(candleStickList);
                     break;
             }
             //Add mouse listener
-            this.chart.MouseLeave += new EventHandler(chart_MouseExit);
-            this.chart.MouseDown += new MouseEventHandler(chart_MouseDown);
-            //Add event listener to control stock value labels
-            chart.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.getHoverLabel);
-            //Add buttons
-            buttonPanel = new FlowLayoutPanel();
-         
-            buttonPanel.Controls.Add(rbMonth);
-            buttonPanel.Controls.Add(rbWeek);
-            buttonPanel.Controls.Add(rbDay);
-
-            // TEMPORARY
-            RichTextBox sd = new RichTextBox();
-            sd.Text = "SYMBOL: " + stockList.ElementAt(0).Symbol;
-            Controls.Add(sd);
-
+            this.chart.MouseLeave += chart_MouseExit;
+            this.chart.MouseDown += chart_MouseDown;
+            //Add event listener to control stock value 
+            chart.GetToolTipText += getHoverLabel;
+            chart.Width = chartPanel.Width;
+            chart.Height = chartPanel.Height;
+            chartPanel.Controls.Add(chart);
+        }
+        private void chooseChartType(object sender, EventArgs e)
+        {
+            mercuryButton mb = sender as mercuryButton;
+            typeOfStock = mb.buttonType;
+            if (typeOfChart == "candlestick")
+            {
+                dayButton.Enabled = false;
+            }
+            else
+            {
+                dayButton.Enabled = true;
+            }
+            resetchartButtons();
+            resetTimeSpanButtons();
+            initilizeChart(typeOfChart, "month");
+            monthButton.BackColor = c.mercuryBlue;
+            mb.BackColor = c.mercuryBlue;
+            
+        }
+        private void chooseTimeSpan(object sender, EventArgs e)
+        {
+            mercuryButton mb = sender as mercuryButton;
+            if (typeOfStock == "candlestick")
+            {
+                dayButton.Enabled = false;
+            }
+            resetTimeSpanButtons();
+            timeSpan = mb.buttonType;
+            mb.BackColor = c.mercuryBlue;
+            
+            initilizeChart(typeOfChart, timeSpan);
+        }
+        private void resetchartButtons()
+        {
+            c.resetButton(candlestickButton);
+            c.resetButton(lineChartButton);
+            c.resetButton(barChartButton);
+        }
+        private void resetTimeSpanButtons()
+        {
+            c.resetButton(dayButton);
+            c.resetButton(weekButton);
+            c.resetButton(monthButton);
         }
         /// <summary>
         /// Sets a custom tooltip for a chart
@@ -198,6 +289,7 @@ namespace BIS_Desktop
                     for (int j = 0; j < chart.Series[0].Points.Count(); j++)
                     {
                         chart.Series["prices"].Points[j].Label = "";
+                        chart.Series["prices"].Points[j].BorderWidth = 1;
                     }
                     DataPoint dp = e.HitTestResult.Series.Points[i];
 
@@ -211,7 +303,8 @@ namespace BIS_Desktop
                     chart.Series["prices"].SmartLabelStyle.AllowOutsidePlotArea = LabelOutsidePlotAreaStyle.No;
                     chart.Series["prices"].Points[i].Label = label_;
                     chart.Series["prices"].Points[i].LabelAngle = 0;
-                    chart.Series["prices"].Points[i].LabelForeColor = Color.White;
+                    chart.Series["prices"].Points[i].LabelForeColor = c.highlightWhite;
+                    chart.Series["prices"].Points[i].BorderWidth = 2;
                     
                     chart.Series["prices"].Points[i].LabelBackColor = System.Drawing.ColorTranslator.FromHtml(chart.Series["prices"].Points[i]["PriceDownColor"]);
                     chart.Series["prices"].Points[i].LabelBorderColor = chart.Series["prices"].Points[i].LabelBackColor;
@@ -227,6 +320,7 @@ namespace BIS_Desktop
             for (int i = 0; i < chart_.Series[0].Points.Count(); i++)
             {
                 chart.Series["prices"].Points[i].Label = "";
+                chart.Series["prices"].Points[i].BorderWidth = 1;
                 currentPointHover = -1;
             }
         }
@@ -238,11 +332,12 @@ namespace BIS_Desktop
                 for (int i = 0; i < chart_.Series[0].Points.Count(); i++)
                 {
                     chart.Series["prices"].Points[i].Label = "";
+                    chart.Series["prices"].Points[i].BorderWidth = 1;
                     currentPointHover = -1;
                 }
             }
         }
-        public void initilizeCandeleStick(List<double[]> list)
+        public void initilizeCandleStick(List<double[]> list)
         {
             series = new Series("prices");
             
@@ -447,12 +542,16 @@ namespace BIS_Desktop
             this.Width = W;
             this.Height = H;
 
-            chart.Width = W;
-            chart.Height = H / 3;
+            chartPanel.Width = W;
+            chartPanel.Height = H / 3;
+            chart.Width = chartPanel.Width;
+            chart.Height = chartPanel.Height;
+            chartTypePanel.Width = W;
+            timeSpanPanel.Width = W;
 
-            buttonPanel.Width = W - 200;
-            buttonPanel.Height = 30;
-            buttonPanel.Location = new Point((W - buttonPanel.Width) / 2);
+            chartTypePanel.Width = W - 200;
+            chartTypePanel.Height = 30;
+            chartTypePanel.Location = new Point((W - chartTypePanel.Width) / 2);
             
         }
         
