@@ -27,6 +27,7 @@ namespace BIS_Desktop
         private RadioButton rbMonth, rbWeek, rbDay;
         private Panel chartTypePanel;
         private Panel timeSpanPanel;
+        private Panel newsPanel; // a panel holding the news list class StockNews
         private List<Stock> stockList, stockSpan;
         private String typeOfChart = "candlestick";
         private String symbol;
@@ -146,6 +147,10 @@ namespace BIS_Desktop
              * 
              */
 
+            newsPanel = new StockNews(symbol, m);
+            newsPanel.BackColor = Color.Pink; 
+            this.Controls.Add(newsPanel);
+ 
 
 
         }
@@ -552,7 +557,13 @@ namespace BIS_Desktop
             chartTypePanel.Width = W - 200;
             chartTypePanel.Height = 30;
             chartTypePanel.Location = new Point((W - chartTypePanel.Width) / 2);
-            
+
+            newsPanel.Width = W;
+
+            //newsPanel.Height = H - chartPanel.Height - timeSpanPanel.Height - chartTypePanel.Height;
+
+            newsPanel.Height = 200;  // TEMPORARY 
+            newsPanel.Location = new Point((W - newsPanel.Width) / 2);             
         }
         
 

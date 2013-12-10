@@ -11,10 +11,10 @@ namespace BIS_Desktop
     public class StockNews : FlowLayoutPanel
     {
         private String Symbol;
-
+        private String Market; 
         private Controller c;
         private JsonHandler jh;
-        private MainMenu mw;
+
  
         private List<News> newsList;
 
@@ -25,10 +25,10 @@ namespace BIS_Desktop
         private Label[,] newsLabels;
         private FlowLayoutPanel[] newsPanels;
 
-        public StockNews(String s, object o)
+        public StockNews(String s, String m)
         {
 
-            //mw = o as MainWindow;
+            Market = m; 
             Symbol = s;
 
             c = new Controller();

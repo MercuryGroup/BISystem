@@ -250,7 +250,7 @@ namespace BIS_Desktop
             
             string temp = Market.ToLower();
             URL += "nyse" + "_stock?startkey=[\""+Symbol+ "\",\"" + c.getTimeStamp(pastDate) + "\"]&endkey=[\"" +Symbol + "," + c.getTimeStamp(now) + "\"]";
-                //&endkey=[\""+Symbol+"\",\""+ c.getTimeStamp(now) + "\"]";
+
             Console.WriteLine("LALALLALALA: " + URL); 
 
             try
