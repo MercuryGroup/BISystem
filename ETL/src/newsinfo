@@ -1,5 +1,0 @@
-newsrss_e:start(), 
-
-newsrss_e:getData({"yhoo,aapl,^ftse", [{childItem, item}, {filterItems, [title, link, description, pubDate]}, {dateTimeField, pubDate}]}). 
-
-När klart med inhämtning, flusha buffer newsrss_e:sendData().
