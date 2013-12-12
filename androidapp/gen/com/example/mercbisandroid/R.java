@@ -25,18 +25,50 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int action_settings=0x7f090003;
-        public static final int search=0x7f090002;
-        public static final int settings=0x7f090001;
+        public static final int DiaGroup=0x7f090003;
+        public static final int RelativeLayout1=0x7f09000d;
+        public static final int action_settings=0x7f09001c;
+        public static final int barChartMarket=0x7f090014;
+        public static final int barchart=0x7f090006;
+        public static final int button=0x7f09000e;
+        public static final int button1=0x7f09000f;
+        public static final int button2=0x7f090010;
+        public static final int candleStickMarket=0x7f090013;
+        public static final int candlestick=0x7f090007;
+        public static final int lineChartMarket=0x7f090015;
+        public static final int linechart=0x7f090005;
+        public static final int listNews=0x7f09000c;
+        public static final int marketGraphFrame=0x7f090011;
+        public static final int oneday=0x7f090019;
+        public static final int onedaystock=0x7f09000a;
+        public static final int oneweek=0x7f090018;
+        public static final int oneweekstock=0x7f09000b;
+        public static final int portfolioButton=0x7f090002;
+        public static final int radio_group_charts=0x7f090004;
+        public static final int radio_group_market=0x7f090012;
+        public static final int radio_group_time=0x7f090008;
+        public static final int radio_group_time_market=0x7f090016;
+        public static final int search=0x7f09001b;
+        public static final int settings=0x7f09001a;
+        public static final int stockInfo=0x7f090001;
         public static final int tabs=0x7f090000;
+        public static final int thirtydays=0x7f090017;
+        public static final int thirtydaysstock=0x7f090009;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int activity_search=0x7f030001;
-        public static final int fragment_market=0x7f030002;
-        public static final int fragment_portfolio=0x7f030003;
-        public static final int fragment_stocks=0x7f030004;
-        public static final int list_stocks=0x7f030005;
+        public static final int activity_stock=0x7f030002;
+        public static final int chart=0x7f030003;
+        public static final int fragment_market=0x7f030004;
+        public static final int fragment_portfolio=0x7f030005;
+        public static final int fragment_singlestock=0x7f030006;
+        public static final int fragment_stockgraph=0x7f030007;
+        public static final int fragment_stockinfo=0x7f030008;
+        public static final int fragment_stocknews=0x7f030009;
+        public static final int fragment_stocks=0x7f03000a;
+        public static final int list_portfolio=0x7f03000b;
+        public static final int list_stocks=0x7f03000c;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -45,10 +77,18 @@ public final class R {
         public static final int search=0x7f080003;
     }
     public static final class string {
+        public static final int StockGraph=0x7f060011;
+        public static final int StockInfo=0x7f060010;
+        public static final int StockNews=0x7f06000f;
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
+        public static final int bar_chart=0x7f060017;
+        public static final int candle_stick=0x7f060015;
+        public static final int line_chart=0x7f060016;
         public static final int marketTB=0x7f060004;
         public static final int markettest=0x7f060007;
+        public static final int one_day=0x7f060012;
+        public static final int one_week=0x7f060013;
         public static final int portfolioTB=0x7f060005;
         public static final int portfoliotest=0x7f060008;
         public static final int search_hint=0x7f06000d;
@@ -56,8 +96,10 @@ public final class R {
         public static final int stocksTB=0x7f060003;
         public static final int stocksTV=0x7f060002;
         public static final int stockstest=0x7f060009;
+        public static final int thirty_days=0x7f060014;
         public static final int title_activity_portfolio=0x7f06000a;
         public static final int title_activity_search=0x7f06000b;
+        public static final int title_activity_stock=0x7f06000e;
         public static final int title_activity_stocks=0x7f060006;
     }
     public static final class style {

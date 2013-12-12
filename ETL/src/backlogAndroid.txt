@@ -1,0 +1,18 @@
+2013/09/31 : Installed IDE and been reading up on JSON parsing in Android. 3h.
+2013/10/01 : Experimenting with fetching json data, 3h.
+2013/10/04 : Fetching JSON data from our database, 6h.
+2013/10/05 : Merged two android projects into one, removed some bugs. 3h  
+2013/10/06 : Smaller adjustments. 2h.
+2013/10/07 : --
+2013/10/08 : --
+----------------
+2013/10/11 : 1h Android
+2013/10/12 : 2h Android
+2013/10/13 : 2h Android and ETL Documentation.
+2013/10/14 : 0h (supervision)
+2013/10/15 : 4h ETL testing and Android.
+2013/10/18 : 7h Listview android, also some minor ETL testing.
+2013/10/19 : 4h Android, trying to get arraylist to listview, from asynctask.
+2013/10/20 : 6h Listview getting objects from database.
+2013/10/21 : 4h Merging Android.
+2013/10/22 : 4h Presentation.

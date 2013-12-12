@@ -1,3 +1,4 @@
+
 package com.example.mercbisandroid;
 
 import org.afree.chart.AFreeChart;
@@ -10,32 +11,34 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+
+/**
+ * @author
+ *		
+ */
 public class ChartView extends ImageView {
-	
     private Bitmap              bitmap;
     private RectShape           rectArea;
     private Canvas              canvas;
     private AFreeChart          chart;
 
-    public ChartView( Context context, AttributeSet attributeSet ) {
+    public ChartView( Context context, AttributeSet attributeSet ){
         super(context, attributeSet);
     }
 
-    public ChartView( Context stockGraphFragment ){
-        super(stockGraphFragment);
+    public ChartView( Context context ){
+        super(context);
         intChart();
     }
 
-	private void intChart(){
-        //Setting different width and height based on the orientation.
+    private void intChart() {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bitmap = Bitmap.createBitmap(600, 300, Bitmap.Config.ARGB_8888);
-            rectArea = new RectShape(0.0, 0.0, 600, 300);
+            bitmap = Bitmap.createBitmap(700, 500, Bitmap.Config.ARGB_8888);
+            rectArea = new RectShape(0.0, 0.0, 700, 500);
         }
-        
         else {
-            bitmap = Bitmap.createBitmap(600, 300, Bitmap.Config.ARGB_8888);
-            rectArea = new RectShape(0.0, 0.0, 600, 300);
+            bitmap = Bitmap.createBitmap(700, 500, Bitmap.Config.ARGB_8888);
+            rectArea = new RectShape(0.0, 0.0, 700, 500);
         }
     }
 
@@ -47,7 +50,7 @@ public class ChartView extends ImageView {
     }
 
     @Override
-    protected void onDraw( Canvas canvas ) {
+    protected void onDraw( Canvas canvas ){
         super.onDraw(canvas);               
     }
 }

@@ -1,6 +1,8 @@
 package com.example.mercbisandroid;
 import java.util.ArrayList;
 
+import org.json.JSONObject;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
@@ -23,8 +25,10 @@ import android.widget.SearchView;
 public class MainActivity extends FragmentActivity implements TabListener {
 	
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
-	public static String StockSymbol;
-	
+	public static String StockSymbol , StockName, StockMarket;
+	public static int stockPos;
+	public static JSONObject StockObject;
+	public static long StockTime;
 	
 	private ArrayList<String> globalArrayTest = new ArrayList<String>();
 	
@@ -138,12 +142,15 @@ public class MainActivity extends FragmentActivity implements TabListener {
 			if (arg0 == 0) {
 				fragment = new StocksFragment();
 			}
+			
 			if (arg0 == 1) {
 				fragment = new MarketFragment();
 			}
+			
 			if (arg0 == 2) {
 				fragment = new PortfolioFragment();
 			}
+			
 			return fragment;
 		}
 

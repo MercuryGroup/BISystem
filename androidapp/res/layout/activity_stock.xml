@@ -1,8 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
-    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="14" >
+
+        <TextView
+            android:id="@+id/stockInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="14"
+            />
+
+        <Button
+            android:id="@+id/portfolioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add To Portfolio" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/DiaGroup"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_weight="14.26"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radio_group_charts"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/linechart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonChart"
+            android:text="@string/line_chart" />
+
+        <RadioButton
+            android:id="@+id/barchart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonChart"
+            android:text="@string/bar_chart" />
+
+        <RadioButton
+            android:id="@+id/candlestick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonChart"
+            android:text="@string/candle_stick" />
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radio_group_time"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/thirtydaysstock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonTime"
+            android:text="@string/thirty_days" />
+
+        <RadioButton
+            android:id="@+id/onedaystock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonTime"
+            android:text="@string/one_day" />
+
+        <RadioButton
+            android:id="@+id/oneweekstock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonTime"
+            android:text="@string/one_week" />
+    </RadioGroup>
+
+    <ListView
+        android:id="@+id/listNews"
+        android:layout_width="match_parent"
+        android:layout_height="250dp" >
+    </ListView>
 
 </LinearLayout>

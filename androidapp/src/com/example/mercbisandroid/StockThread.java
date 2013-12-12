@@ -14,6 +14,10 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 
+/**
+ * @author Rickard Bremer
+ *
+ */
 
 public class StockThread extends AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> {
 
@@ -72,22 +76,18 @@ protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
                          for (int i = 0; i < jsonArray.length(); i++) {
                                 
                          JSONObject jsonObjStock = new JSONObject(new String(jsonArray.getString(i)));
-                 JSONObject JSONObjStockVal = new JSONObject(jsonObjStock.getString("value"));
-                        
-                
-                 JSONLIST.add(JSONObjStockVal);
+                         JSONObject JSONObjStockVal = new JSONObject(jsonObjStock.getString("value"));
+                         JSONLIST.add(JSONObjStockVal);
+                         
                          }
                         
                          } catch (JSONException e) {
-                         // TODO Auto-generated catch block
+                         
                          e.printStackTrace();
                         
                          }
                         
-                        // for(int i = 0; i < JSONLIST.size(); i++){
-                        //         System.out.println(JSONLIST.get(i).toString());
-                 // }
-                        
+                       
                          return JSONLIST;
                 
         
