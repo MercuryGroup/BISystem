@@ -454,7 +454,7 @@ margin-bottom: 10px;
 
 #charttype {
     margin: 0 auto;
-    width:390px;
+    width:280px;
     padding-bottom: 25px;
 }
 
@@ -556,7 +556,7 @@ td {
 
 
 .largenews {
-  min-height: 600px;
+  
   max-height: 600px;
   overflow: auto;
 }
