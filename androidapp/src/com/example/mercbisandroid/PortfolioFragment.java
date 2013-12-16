@@ -35,16 +35,13 @@ public class PortfolioFragment extends ListFragment {
 	
 	@Override
 public void onActivityCreated(Bundle savedInstanceState) {
-		// Rickard Bremer
-		//return inflater.inflate(R.layout.fragment_portfolio, container, false);
-		 setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_portfolio,values));
-        
-        
+		
+		setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_portfolio,values));
         ListView listView = getListView(); //EX:
         registerForContextMenu(listView);
         super.onActivityCreated(savedInstanceState);
         return;
- 
+	
 	}
 	
 }

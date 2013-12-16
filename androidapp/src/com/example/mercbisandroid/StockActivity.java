@@ -135,6 +135,21 @@ protected void onCreate(Bundle savedInstanceState){
 				chartView = new ChartView(this);
 				viewGroup.addView(chartView);
 		
+				try {
+					dataset = createDatasetLineChart();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));		
+				
+				
 		final ListView listview = (ListView) findViewById(R.id.listNews);
 		final ArrayList<String> list = new ArrayList<String>();
 	    
