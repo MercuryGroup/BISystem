@@ -42,6 +42,7 @@ import android.widget.TextView;
  * @author Rickard Bremer
  *
  */
+
 public class StockActivity extends Activity {
 	
 	
@@ -114,7 +115,7 @@ protected void onCreate(Bundle savedInstanceState){
 		
 				TextView stockInfo =(TextView)findViewById(R.id.stockInfo); 
 				try {
-					stockInfo.setText(MainActivity.StockObject.getString("name"));
+					stockInfo.setText("   Name  : " + MainActivity.StockObject.getString("name") + "     Value : " + MainActivity.StockObject.getString("latest")+ "€" + "   Change :" + MainActivity.StockObject.getString("percent"));
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -156,6 +157,7 @@ protected void onCreate(Bundle savedInstanceState){
 		for (int i = 0; i < title.length; ++i) {
 	      list.add(title[i]);
 	    }
+		
 	    final StableArrayAdapter adapter = new StableArrayAdapter(this, android.R.layout.simple_list_item_1, list);
 	    listview.setAdapter(adapter);
 
@@ -315,7 +317,7 @@ protected void onCreate(Bundle savedInstanceState){
 
 	    public StableArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
 	      super(context, textViewResourceId, objects);
-	      for (int i = 0; i < objects.size(); ++i) {
+	      for (int i = 0; i < objects.size(); ++i){
 	        mIdMap.put(objects.get(i), i);
 	      }
 	    }
@@ -336,12 +338,18 @@ protected void onCreate(Bundle savedInstanceState){
 	
  private  CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+		String date = null; 
+		java.sql.Timestamp timestamp = null;
   
 		for(int i = 0; i < this.stockArray.get().size(); i++){                    
                     JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
                     String latest = JOBJ.getString("latest");
-                    String updated = JOBJ.getString("updated");          
-                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
+                    
+                    timestamp = new java.sql.Timestamp(Long.parseLong(JOBJ.getString("updated")));
+                    date = simpleDateFormat.format(timestamp);          
+                    dataset.addValue(Float.parseFloat(latest), "Value", date);               
         }
         
         return dataset;
@@ -350,13 +358,21 @@ protected void onCreate(Bundle savedInstanceState){
 	
 	private  CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+		String date = null; 
+		java.sql.Timestamp timestamp1 = null;
+		
 		for(int i = 0; i < this.stockArray.get().size(); i++){                    
                     JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
                     String latest = JOBJ.getString("change");
-                    String updated = JOBJ.getString("updated");          
-                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
-        }
+                    
+                    timestamp1 = new java.sql.Timestamp(Long.parseLong(JOBJ.getString("updated")));
+                    date = simpleDateFormat.format(timestamp1);     
+                    dataset.addValue(Float.parseFloat(latest), "Value", date);               
+                    
+                    
+		}
         
         return dataset;
 
