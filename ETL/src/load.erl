@@ -152,11 +152,11 @@ loop() ->
         receive
 
                 {stock , List} ->
-                        spawn(?MODULE, sendData, [stock, List]),
+                        sendData(stock, List),
                         loop();
                 
                 {market , List} ->
-                        spawn(?MODULE, sendData, [market, List]),
+                        sendData(market, List),
                         loop();
                 
                 {news, List} ->
