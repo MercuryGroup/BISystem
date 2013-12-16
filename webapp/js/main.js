@@ -263,51 +263,7 @@ function makecells(cdata) {
 	return cell;
 }
 
-//Gets news item for the selected stock
-function getNewsItems(mode) {
 
-
-	var today = Date.now().valueOf();
-	var timeframe = Date.now().add(-24).hours();
-	var timeframe = timeframe.valueOf();
-	// var symbol = getSymbol();
-	var nitem = 0;
-	var tableRef = document.getElementById('newstable');
-	while ( tableRef.rows.length > 0 )
-	{
-		tableRef.deleteRow(0);
-	}
-		if(mode === 'biglist') {
-		maxitems = 100;
-		document.getElementById('newsdisplay').style.height = '600px';
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
-	} else {
-		maxitems = 10;
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]');
-	}
-	console.log(getURL());
-	$.getJSON(getURL(), function(url_data) {
-		// $.getJSON('tempj/abxnews.txt', function(url_data) {
-		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22', function(url_data) {
-			$.each(url_data, function (i,element) {
-				if ($.isArray(element) === true) {
-					sortNewsArrayByTime(element);
-					element.reverse();
-					setNewsArray(element);
-					$.each(getNewsArray(), function (i,value) {
-						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
-							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
-							nitem++;
-						}
-						if (nitem < maxitems && mode != 'biglist') {
-							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
-							nitem++;
-						}
-					});
-				}
-			});
-		});
-}
 
 
 //This method gets the selected history for a specific stock
@@ -428,6 +384,52 @@ function dateConvert(timeString) {
 	return date;
 }
 
+//Gets news item for the selected stock
+function getNewsItems(mode) {
+
+
+	var today = Date.now().valueOf();
+	var timeframe = Date.now().add(-24).hours();
+	var timeframe = timeframe.valueOf();
+	// var symbol = getSymbol();
+	var nitem = 0;
+	var tableRef = document.getElementById('newstable');
+	while ( tableRef.rows.length > 0 )
+	{
+		tableRef.deleteRow(0);
+	}
+		if(mode === 'biglist') {
+		maxitems = 100;
+		document.getElementById('newsdisplay').style.height = '600px';
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+	} else {
+		maxitems = 10;
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]');
+	}
+	console.log(getURL());
+	$.getJSON(getURL(), function(url_data) {
+		// $.getJSON('tempj/abxnews.txt', function(url_data) {
+		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22', function(url_data) {
+			$.each(url_data, function (i,element) {
+				if ($.isArray(element) === true) {
+					sortNewsArrayByTime(element);
+					element.reverse();
+					setNewsArray(element);
+					$.each(getNewsArray(), function (i,value) {
+						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
+							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
+							nitem++;
+						}
+						if (nitem < maxitems && mode != 'biglist') {
+							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
+							nitem++;
+						}
+					});
+				}
+			});
+		});
+}
+
 //Adds a header and date to the news table
 function addNewsListItem(newsitem) {
 	var date2 = new Date(parseInt(newsitem.date));
@@ -525,12 +527,16 @@ function hide(item) {
 	} else if (item === 'news') {
 		nlist.className = 'visuallyhidden';
 		nitem.className = 'visible';
+		var newslink = document.getElementById('newslink');
+ 		newslink.href = getNewsItem().link;
 		var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
 		var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
+		var newsdisplay = document.getElementById('newslink').in;
 	} else if (item === 'newsitem') {
 		nitem.className = 'visuallyhidden';
 		nlist.className = 'visible';
-		} else if (item === 'exceptnews') {
+	} else if (item === 'exceptnews') {
+		slist.className = 'visuallyhidden';
 		nitem.className = 'visuallyhidden';
 		nlist.className = 'visible';
 		// nlist.className = 'largenews';
@@ -540,7 +546,8 @@ function hide(item) {
 	} else if (item === 'stock') {
 		chart.className = 'visuallyhidden';
 		slist.className = 'visible';
-				nlist.className = 'visuallyhidden';
+		nlist.className = 'visuallyhidden';
+		nitem.className = 'visuallyhidden';
 	}
 }
 
