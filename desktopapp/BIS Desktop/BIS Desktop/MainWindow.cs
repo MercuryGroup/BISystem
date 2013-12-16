@@ -19,17 +19,15 @@ namespace BIS_Desktop
          * TODO:
          * [X] Add label "beneath" move window
          * [X] Reset market buttons
-         * [ ] Info display
-         * [ ] Market info display
+         * [X] Info display
+         * [X] Market info display
          * [ ] Portfolio
          */
 
         private Point startPoint = new Point(0, 0);
         //Booleans that checks clicks
-        private Boolean marketClicked,
-            stocksClicked, newsClicked,
-            portfolioClicked, maximized,
-            dragging, searchFieldHasText;
+        public Boolean  maximized;
+        private Boolean dragging, searchFieldHasText;
         private int marketPanelHeight;
         private String currentMarket, currentResultType;
         private Controller c;
@@ -48,10 +46,6 @@ namespace BIS_Desktop
             c = new Controller(); 
             //Initialize all boolean values
             dragging = false;
-            marketClicked = false;
-            stocksClicked = false;
-            newsClicked = false;
-            portfolioClicked = false;
             maximized = false;
             searchFieldHasText = false;
             //Initialize market panel height
@@ -72,10 +66,10 @@ namespace BIS_Desktop
             //currentMarket = "lse";
             
             //Set custom color for controls
-            leftPanel.BackColor = c.loading;
-            rightPanel.BackColor = c.loading;
-            leftParentPanel.BackColor = c.loading;
-            mainContentPanel.BackColor = c.loading;
+            leftPanel.BackColor = Color.Gray;
+            rightPanel.BackColor = Color.Gray;
+            leftParentPanel.BackColor = Color.Gray;
+            mainContentPanel.BackColor = Color.Gray;
             menu.BackColor = c.mercuryBeige;
             searchField.BackColor = c.mercuryGrey;
             dragPanel.BackColor = c.highlightWhite;
@@ -151,7 +145,7 @@ namespace BIS_Desktop
         {
             Button button_ = sender as Button;
             resetMarketButtons();
-            //button_.BackColor = mercuryBlue;
+            button_.BackColor = c.mercuryBlue;
             //button_.ForeColor = Color.White;
             currentMarket = market_;
             loadResult(leftPanelResults, currentResultType, currentMarket, currentMarket, this);
@@ -171,6 +165,10 @@ namespace BIS_Desktop
             //Set current panel to loading (if the panel isn't already loading content)
             if (!panel.getLoading())
             {
+                if (currentResultType == "marketinfo")
+                {
+                    refreshContentPanels();
+                }
                 //Clear current panel
                 panel.Controls.Clear();
                 //Create loading panel
@@ -196,7 +194,7 @@ namespace BIS_Desktop
                 //Add loading text to label
                 loadingLabel.Text = "Loading...";
                 //Set backcolor of loading label
-                loadingPanel.BackColor = c.loading;
+                loadingPanel.BackColor = Color.LightGray;
                 //Set text aligntment of text inside label
                 loadingLabel.TextAlign = ContentAlignment.TopCenter;
                 //Add label to loading panel
@@ -208,10 +206,8 @@ namespace BIS_Desktop
                 panel.setLoading(true);
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
-                
                 th.fetchResult(panel, resultType, resultSource, Market, mainWindow);
-                
-                
+                refreshContentPanels();
             }
             
             
@@ -264,7 +260,7 @@ namespace BIS_Desktop
                 th = new ThreadHandler();
 
                 th.fetchNewsResult(panel, resultType, mainWindow, n);
-
+                
 
             }
 
@@ -277,10 +273,6 @@ namespace BIS_Desktop
         private void resetMenuButtons()
         {
             //Set boolean values to false
-            marketClicked = false;
-            stocksClicked = false;
-            newsClicked = false;
-            portfolioClicked = false;
             //Change color of buttons back to gray
             marketButton.BackColor = c.mercuryGrey;
             newsButton.BackColor = c.mercuryGrey;
@@ -471,14 +463,25 @@ namespace BIS_Desktop
              * settings and a panel for content).
              * The height is always stretched.
              */
-            leftParentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 5;
-            //Set width of right panel.
-            rightPanel.Width = ((mainContentPanel.Width - menu.Width) / 2) - 10;
+            
+            if (currentResultType == "marketinfo")
+            {
+                leftParentPanel.Width = mainContentPanel.Width - menu.Width;
+                rightPanel.Width = 0;
+                rightPanelResults.updateSize();
+            }
+            else
+            {
+                leftParentPanel.Width = ((mainContentPanel.Width - menu.Width) / 2)+1;
+                //Set width of right panel.
+                rightPanel.Width = ((mainContentPanel.Width - menu.Width) / 2);
+                rightPanelResults.updateSize();
+            }
             //Set height of right panel.
             leftPanel.Height = mainContentPanel.Height - marketPanel.Height;
             //Set height and width of right and left content.
             leftPanelResults.updateSize();
-            rightPanelResults.updateSize();
+            
         }
         private void disableMarketButtons()
         {

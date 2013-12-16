@@ -235,7 +235,6 @@ namespace BIS_Desktop
             {
                 newList.AddRange(newsQuickSort(g, type_, descending));
             }
-            Console.WriteLine("LALALAL: " + newList.Count); 
             return newList;
         }
 
@@ -540,7 +539,6 @@ namespace BIS_Desktop
                 BackColor = System.Drawing.ColorTranslator.FromHtml("#354A69");
                 //Set button to clicked
                 clicked = true;
-                Console.WriteLine("My name is mercury button, i am clicked!");
             }
         }
         

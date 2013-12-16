@@ -126,7 +126,7 @@ namespace BIS_Desktop
         {
             
             panelHeight = H;
-            panelWidth = W;
+            panelWidth = W-10;
 
             this.Width = panelWidth;
             this.Height = panelHeight;
