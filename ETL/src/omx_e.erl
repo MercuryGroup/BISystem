@@ -146,7 +146,7 @@ getMarketData() ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 %%End of tuples list, add an extra tuple containing market name.
-parseMarketData(_, []) -> [{market, "OMX"}];
+parseMarketData(_, []) -> [{updated, ?TIMESTAMP}, {market, "OMX"}];
 parseMarketData([Value|Csv], [{percent}|Rest]) ->
 	[{percent, Value}|parseMarketData(Csv, Rest)];
 %%Iterate through the list and extract convert the CSV file into a list.
