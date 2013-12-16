@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 
 public class MainActivity extends FragmentActivity implements TabListener {
@@ -335,7 +336,10 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 				MarketArray = new MarketThread().execute();
 				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
     			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
-				
+    			JSONObject MarketObj = new JSONObject(MarketArray.get().get(0).toString());
+   			 TextView t = new TextView(this); 
+   			 t=(TextView)findViewById(R.id.textView1); 
+   			 t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
 				break;
 	    }   
 	}
@@ -351,7 +355,12 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 				MarketArray = new MarketThread().execute();
 				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
     			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
-	        break;
+    			JSONObject MarketObj = new JSONObject(MarketArray.get().get(0).toString());
+    			 TextView t = new TextView(this); 
+    			 t=(TextView)findViewById(R.id.textView1); 
+    			 t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
+    			
+    			 break;
 	    }   
 	}
 
@@ -365,7 +374,11 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 				MarketArray = new MarketThread().execute();
 				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
     			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
-	        break;
+    			JSONObject MarketObj = new JSONObject(MarketArray.get().get(0).toString());
+   			 TextView t = new TextView(this); 
+   			 t=(TextView)findViewById(R.id.textView1); 
+   			 t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
+    			break;
 	    }   
 	}
 

@@ -81,12 +81,17 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
 
  static CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		String date = null; 
+		java.sql.Timestamp timestamp = null;
+		
+		
 		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){                    
                     JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                     String latest = JOBJ.getString("change");
-                    String updated = JOBJ.getString("updated");          
-                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
+                    timestamp = new java.sql.Timestamp(Long.parseLong(JOBJ.getString("updated")));
+            	    date = simpleDateFormat.format(timestamp);          
+                    dataset.addValue(Float.parseFloat(latest), "Value", date);               
         }
         
         return dataset;
@@ -95,12 +100,17 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
     
     static CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-  
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		String date = null; 
+		java.sql.Timestamp timestamp = null;
+		
+		
 		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){                    
                     JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                     String latest = JOBJ.getString("latest");
-                    String updated = JOBJ.getString("updated");          
-                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
+                    timestamp = new java.sql.Timestamp(Long.parseLong(JOBJ.getString("updated")));
+            	    date = simpleDateFormat.format(timestamp);         
+                    dataset.addValue(Float.parseFloat(latest), "Value", date);               
         }
         
         return dataset;

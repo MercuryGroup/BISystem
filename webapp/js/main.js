@@ -75,12 +75,12 @@ function modeSelector(mode) {
 	} else if (mode === 'list' && getTopic() === 'stocks') {
 		loadSingleStockList();
 	} else if (mode === 'list' && getTopic() === 'market') {
-			var cn = document.getElementById('companyname').innerHTML=getMarket();
-			setChartType("line");
-			hide('list');
+		var cn = document.getElementById('companyname').innerHTML=getMarket();
+		setChartType("line");
+		hide('list');
 		firstDataFill = true;
 		setSymbol('NYSE');
-				setStockMode('market');
+		setStockMode('market');
 		gethistory('today');
 		getNewsItems('biglist');
 	} else if (mode === 'list' && getTopic() === 'news') {
@@ -248,7 +248,7 @@ function addElement(Symbol,Name,Change,Value,Market) {
 		setStockMode('stock');
 		gethistory('today');
 		var cn = document.getElementById('companyname').innerHTML=Name;
-		getNewsItems();
+		getNewsItems('null');
 		portfolioController();
 		fillInDataTable();
 		paintlinechart();
@@ -295,37 +295,37 @@ function gethistory(timeframe) {
 		// '/couchdb/mercury/_design/bi/_view/'
 		setURL(
 			 '/couchdb/mercury/_design/bi/_view/'
-			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
-			+getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
+			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 +getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
 	} else if (getStockMode() === 'market') {
 					// '/couchdb/mercury/_design/bi/_view/
-		setURL(
+					setURL(
 			 '/couchdb/mercury/_design/bi/_view/'
-			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
-			+getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
-	}
+			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 +getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+				}
 
-	var tableRef = document.getElementById('resultList');
-	var date1 = null;
-	var date2 = null;
-	dailyValues = [];
-	datelist = [];
-	openVallist = [];
-	latestlist = [];
-	changelist = [];
-	percentlist = [];
-	dayLow = [];
-	dayHigh = [];
-	var Dat;
-	var OVal;
-	var Chan;
-	var Lat;
-	var nextDay = new Boolean();
-	var firstDay = new Boolean();
-	var i = 0;
-	diadata = [];
-	console.log("History url "+getURL());
-	$.getJSON(getURL(), function(url_data) {
+				var tableRef = document.getElementById('resultList');
+				var date1 = null;
+				var date2 = null;
+				dailyValues = [];
+				datelist = [];
+				openVallist = [];
+				latestlist = [];
+				changelist = [];
+				percentlist = [];
+				dayLow = [];
+				dayHigh = [];
+				var Dat;
+				var OVal;
+				var Chan;
+				var Lat;
+				var nextDay = new Boolean();
+				var firstDay = new Boolean();
+				var i = 0;
+				diadata = [];
+				console.log("History url "+getURL());
+				$.getJSON(getURL(), function(url_data) {
 			// $.getJSON('tempj/ABXday', function(url_data) {
 				$.each(url_data, function (i,element) {
 					if ($.isArray(element) === true) {
@@ -400,7 +400,7 @@ function getNewsItems(mode) {
 
 
 	var today = Date.now().valueOf();
-	var timeframe = Date.now().add(-24).hours();
+	var timeframe = Date.now().add(-48).hours();
 	var timeframe = timeframe.valueOf();
 	// var symbol = getSymbol();
 	var nitem = 0;
@@ -409,24 +409,24 @@ function getNewsItems(mode) {
 	{
 		tableRef.deleteRow(0);
 	}
-		if(mode === 'biglist') {
+	if(mode === 'biglist') {
 		maxitems = 100;
 		document.getElementById('newsdisplay').style.height = '600px';
 				// '/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
-		setURL(
+				setURL(
 			'/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
 			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'
 			+timeframe+'%22&endkey=%22'+today+'%22');
-	} else {
-		maxitems = 10;
+			} else {
+				maxitems = 10;
 					// '/couchdb/mercury/_design/bi/_view/news?key=[%22'+
-		setURL(
-			 '/couchdb/mercury/_design/bi/_view/news?key=[%22'
+					setURL(
+						'/couchdb/mercury/_design/bi/_view/news?key=[%22'
 			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
 			+getSymbol()+'%22,%22'+getMarket()+'%22]');
-	}
-	console.log(getURL());
-	$.getJSON(getURL(), function(url_data) {
+				}
+				console.log(getURL());
+				$.getJSON(getURL(), function(url_data) {
 		// $.getJSON('tempj/abxnews.txt', function(url_data) {
 		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22', function(url_data) {
 			$.each(url_data, function (i,element) {
@@ -435,9 +435,13 @@ function getNewsItems(mode) {
 					element.reverse();
 					setNewsArray(element);
 					$.each(getNewsArray(), function (i,value) {
+						console.log(mode==='biglist');
+						console.log(nitem < maxitems);
+						console.log(value.value.market === getMarket());
 						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
 							nitem++;
+							console.log('getting biglist item');
 						}
 						if (nitem < maxitems && mode != 'biglist') {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
@@ -447,7 +451,7 @@ function getNewsItems(mode) {
 				}
 			});
 		});
-}
+			}
 
 //Adds a header and date to the news table
 function addNewsListItem(newsitem) {
@@ -547,7 +551,7 @@ function hide(item) {
 		nlist.className = 'visuallyhidden';
 		nitem.className = 'visible';
 		var newslink = document.getElementById('newslink');
- 		newslink.href = getNewsItem().link;
+		newslink.href = getNewsItem().link;
 		var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
 		var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
 	} else if (item === 'newsitem') {

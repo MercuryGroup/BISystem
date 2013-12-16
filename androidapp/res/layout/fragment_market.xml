@@ -37,7 +37,7 @@
     <LinearLayout
         android:id="@+id/marketGraph"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="400dp"
         android:orientation="vertical" >
     </LinearLayout>
     
@@ -114,15 +114,15 @@
                 android:layout_height="wrap_content"
                 android:onClick="onRadioButtonTime"
                 android:text="@string/one_day" />
-
         </RadioGroup>
 
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/listMarketNews"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>
