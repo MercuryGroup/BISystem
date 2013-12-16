@@ -1,19 +1,17 @@
 package com.example.mercbisandroid;
 
-import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.Inflater;
 
-import org.afree.chart.ChartFactory;
-import org.afree.chart.plot.PlotOrientation;
 import org.afree.data.category.CategoryDataset;
 import org.afree.data.category.DefaultCategoryDataset;
 import org.afree.data.xy.DefaultHighLowDataset;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+//import android.app.Fragment;
 import android.net.ParseException;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,17 +19,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.view.View.OnClickListener;
-
-//import android.view.LayoutInflater;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.
  * 
  */
+
 
 public class MarketFragment extends Fragment {
 	
@@ -43,40 +37,35 @@ public class MarketFragment extends Fragment {
 	LinearLayout linearLayout;
 	
 	
-	public MarketFragment() {
+public MarketFragment() {
 		// Required empty public constructor
 	}
+
 	
 public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);     
-        
-        
-      
-
+        super.onCreate(savedInstanceState);
 }
 
 
 @Override
 public void onActivityCreated(Bundle savedInstanceState) {
 
-	//	stockArray = new DetailedStockThread().execute();	
-		
-		
-			
+	
 		
 			
 	super.onActivityCreated(savedInstanceState);
 	return;
 		
-		       
-		
 	}
+
+
   
 @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
 		View view = inflater.inflate(R.layout.fragment_market, container, false);
 		
+
     	viewGroup = (ViewGroup) view.findViewById(R.id.marketGraph); 
     	
     	chartView = new ChartView(getActivity());
@@ -85,7 +74,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
     	
     	viewGroup.addView(chartView);
     	
-return view;
+    	return view;
     	
 }
      

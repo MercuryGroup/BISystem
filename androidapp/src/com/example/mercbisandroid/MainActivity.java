@@ -1,7 +1,6 @@
 package com.example.mercbisandroid;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.Inflater;
 
 import org.afree.chart.ChartFactory;
 import org.afree.chart.plot.PlotOrientation;
@@ -26,11 +25,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SearchView;
-//import com.example.mercbisandroid.*;
+
 
 public class MainActivity extends FragmentActivity implements TabListener {
 	
@@ -276,7 +273,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));	
         		
         		}
-        		
+        		 
         		
         		if(chart.equals("barchart")){
         			

@@ -5,17 +5,17 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:gravity="center" >
 
         <Button
+            
             android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-             android:onClick="onClick1"
+            android:onClick="onClick1"
             android:text="LSE" />
 
         <Button
@@ -29,7 +29,7 @@
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-             android:onClick="onClick2"
+            android:onClick="onClick2"
             android:text="OMX" />
 
     </LinearLayout>
@@ -44,14 +44,31 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="vertical" >
 
         <RadioGroup
+            android:checkedButton="@+id/lineChartMarket"
             android:id="@+id/radio_group_market"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="horizontal" >
 
+             <RadioButton
+                android:id="@+id/lineChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/line_chart" />
+          
+            <RadioButton
+                android:id="@+id/barChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/bar_chart" />
+            
             <RadioButton
                 android:id="@+id/candleStickMarket"
                 android:layout_width="wrap_content"
@@ -59,20 +76,7 @@
                 android:onClick="onRadioButtonChart"
                 android:text="@string/candle_stick" />
 
-            <RadioButton
-                android:id="@+id/barChartMarket"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onRadioButtonChart"
-                android:text="@string/bar_chart" />
-
-            <RadioButton
-                android:id="@+id/lineChartMarket"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onRadioButtonChart"
-                android:text="@string/line_chart" />
-
+            
         </RadioGroup>
 
     </LinearLayout>
@@ -83,9 +87,11 @@
         android:orientation="vertical" >
 
         <RadioGroup
+            android:checkedButton="@+id/thirtydays"
             android:id="@+id/radio_group_time_market"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="horizontal" >
 
             <RadioButton
@@ -112,5 +118,11 @@
         </RadioGroup>
 
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/listMarketNews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>
