@@ -23,6 +23,7 @@ import android.widget.ListView;
 
 public class StocksFragment extends ListFragment implements OnItemClickListener{
         // Rickard Bremer
+	
         JSONObject JOBJ = new JSONObject();
         String[] STOCKNAME, STOCKSYMBOL, STOCKMARKET;
         
@@ -52,7 +53,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
          try {
                  for (int i = 0; i < MainActivity.stockArray.get().size(); i++){
                   String JsonLine = MainActivity.stockArray.get().get(i).toString();
-                         ;
+                         
                                 try {
                                         
                                         JOBJ = new JSONObject(JsonLine);
@@ -77,7 +78,7 @@ public void onActivityCreated(Bundle savedInstanceState) {
                 
                         setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKNAME));
                 
-                        
+                
                  ListView listView = getListView(); //EX:
                  listView.setTextFilterEnabled(true);
                 

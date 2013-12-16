@@ -26,19 +26,19 @@ public final class R {
     }
     public static final class id {
         public static final int DiaGroup=0x7f090003;
-        public static final int RelativeLayout1=0x7f09000d;
+        public static final int LinearLayout1=0x7f09000d;
         public static final int action_settings=0x7f09001c;
         public static final int barChartMarket=0x7f090014;
         public static final int barchart=0x7f090006;
-        public static final int button=0x7f09000e;
-        public static final int button1=0x7f09000f;
+        public static final int button=0x7f09000f;
+        public static final int button1=0x7f09000e;
         public static final int button2=0x7f090010;
         public static final int candleStickMarket=0x7f090013;
         public static final int candlestick=0x7f090007;
         public static final int lineChartMarket=0x7f090015;
         public static final int linechart=0x7f090005;
         public static final int listNews=0x7f09000c;
-        public static final int marketGraphFrame=0x7f090011;
+        public static final int marketGraph=0x7f090011;
         public static final int oneday=0x7f090019;
         public static final int onedaystock=0x7f09000a;
         public static final int oneweek=0x7f090018;

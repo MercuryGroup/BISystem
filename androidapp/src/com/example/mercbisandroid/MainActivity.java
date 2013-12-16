@@ -19,6 +19,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.view.View;
+import android.widget.RadioButton;
 import android.widget.SearchView;
 //import com.example.mercbisandroid.*;
 
@@ -179,5 +181,48 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	        System.exit(0);
     	    }
     	}
+	
+	public void onRadioButtonChart(View view) {
+	    // Is the button now checked?
+	    boolean checked = ((RadioButton) view).isChecked();
+	    
+	    // Check which radio button was clicked
+	    switch(view.getId()) {
+	        case R.id.barChartMarket:
+	            if (checked)
+	                System.out.println("Hi");
+	            break;
+	        case R.id.candleStickMarket:
+	            if (checked)
+	            	System.out.println("Hi");
+	            break;
+	            
+	        case R.id.lineChartMarket:
+	            if (checked)
+	            	System.out.println("Hi");
+	            break;
+	    }
+	}
+	public void onRadioButtonTime(View view) {
+	    // Is the button now checked?
+	    boolean checked = ((RadioButton) view).isChecked();
+	    
+	    // Check which radio button was clicked
+	    switch(view.getId()) {
+	        case R.id.oneday:
+	            if (checked)
+	                System.out.println("Hi");
+	            break;
+	        case R.id.oneweek:
+	            if (checked)
+	            	System.out.println("Hi");
+	            break;
+	            
+	        case R.id.thirtydays:
+	            if (checked)
+	            	System.out.println("Hi");
+	            break;
+	    }
+	}
 
 }

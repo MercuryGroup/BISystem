@@ -59,7 +59,8 @@ public class StockActivity extends Activity {
     
     AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
 
-	protected void onCreate(Bundle savedInstanceState){
+
+protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_stock);
@@ -122,7 +123,7 @@ public class StockActivity extends Activity {
 				viewGroup = (ViewGroup) findViewById(R.id.DiaGroup);
 				
 				try {
-					dataset = createDataset();
+					dataset = createDatasetLineChart();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				} catch (InterruptedException e) {
@@ -177,7 +178,7 @@ public class StockActivity extends Activity {
 	            		
 	            		if(chart.equals("linechart")){
 	    	    			
-	            			dataset = createDataset();
+	            			dataset = createDatasetLineChart();
 	    	    			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
 	            		
 	            		}
@@ -185,7 +186,7 @@ public class StockActivity extends Activity {
 	            		
 	            		if(chart.equals("barchart")){
 	            			
-	            			dataset = createDataset();
+	            			dataset = createDatasetBarChart();
 	            			chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));    
 	            		
 	            		}
@@ -209,12 +210,12 @@ public class StockActivity extends Activity {
 	     				
 	     		
 	            	 	if(chart.equals("linechart")){
-	            	 		dataset = createDataset();
+	            	 		dataset = createDatasetLineChart();
 	            	 		chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
 	            	 	}
 	            	 	
 	            	 	if(chart.equals("barchart")){
-	            	 		dataset = createDataset();
+	            	 		dataset = createDatasetBarChart();
 	 	    				chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));    
 	            	 	}
 	            	 	
@@ -238,12 +239,12 @@ public class StockActivity extends Activity {
 	            	this.stockArray = new DetailedStockThread().execute();
 	            		
 	            		if(chart.equals("linechart")){
-	            			dataset = createDataset();
+	            			dataset = createDatasetLineChart();
 	            			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
 	            		}
 	            		
 	            		if(chart.equals("barchart")){
-	            			dataset = createDataset();
+	            			dataset = createDatasetBarChart();
 	            			chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));    
 	            		}
 	            		
@@ -276,7 +277,7 @@ public class StockActivity extends Activity {
 	        case R.id.linechart:
 	        	
 	            if (checked){
-	            	dataset = createDataset();
+	            	dataset = createDatasetLineChart();
 	    			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
 	            	chart = "linechart";
 	            }
@@ -285,7 +286,7 @@ public class StockActivity extends Activity {
 	        case R.id.barchart:
 	        	
 	            if (checked){
-	            	dataset = createDataset();
+	            	dataset = createDatasetBarChart();
 	            	chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));       
 	            	chart = "barchart";
 	            }
@@ -318,22 +319,33 @@ public class StockActivity extends Activity {
 	  }
 	
 	
-	private  CategoryDataset createDataset() throws JSONException, InterruptedException, ExecutionException {
+ private  CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
   
-		for(int i = 0; i < this.stockArray.get().size(); i++){
-                    
+		for(int i = 0; i < this.stockArray.get().size(); i++){                    
                     JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
                     String latest = JOBJ.getString("latest");
                     String updated = JOBJ.getString("updated");          
-                    dataset.addValue(Float.parseFloat(latest), "Value", updated);
-                   
+                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
         }
         
         return dataset;
 
     }
 	
+	private  CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+		for(int i = 0; i < this.stockArray.get().size(); i++){                    
+                    JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
+                    String latest = JOBJ.getString("change");
+                    String updated = JOBJ.getString("updated");          
+                    dataset.addValue(Float.parseFloat(latest), "Value", updated);               
+        }
+        
+        return dataset;
+
+    }
 
 private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException {
 			
@@ -475,7 +487,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			
 		
 			//
-			// Move arraylists to Double[]
+			// Move arraylists to Double[] 
 			
 			double[] highd = new double[high.size()];
 			double[] lowd = new double[low.size()];

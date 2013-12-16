@@ -12,6 +12,7 @@ import android.support.v4.app.ListFragment;
  */
 public class PortfolioFragment extends ListFragment {
 	
+	// Rickard Bremer
 	String[] values = new String[] { "Mercury 0","Mercury 1",
 	        "Mercury 2", "Mercury 3", "Mercury 4", "Mercury 5", "Mercury 6",
 	        "Mercury 7", "Mercury 8", "Mercury 9", "Mercury 10", "Mercury 11", "Mercury 12",
@@ -34,7 +35,7 @@ public class PortfolioFragment extends ListFragment {
 	
 	@Override
 public void onActivityCreated(Bundle savedInstanceState) {
-		
+		// Rickard Bremer
 		//return inflater.inflate(R.layout.fragment_portfolio, container, false);
 		 setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_portfolio,values));
         

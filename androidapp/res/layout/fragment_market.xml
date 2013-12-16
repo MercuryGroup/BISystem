@@ -1,99 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
+    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LSE" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NYSE" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OMX" />
+
+    </LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/marketGraph"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:orientation="vertical" >
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/button1"
-        android:text="NYSE" />
+        android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radio_group_market"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/candleStickMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/candle_stick" />
+
+            <RadioButton
+                android:id="@+id/barChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/bar_chart" />
+
+            <RadioButton
+                android:id="@+id/lineChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/line_chart" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:text="LSE" />
+        android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/button1"
-        android:text="OMX" />
-
-    <FrameLayout
-        android:id="@+id/marketGraphFrame"
-        android:layout_width="wrap_content"
-        android:layout_height="600dp"
-        android:layout_below="@+id/button1"> 
-    </FrameLayout>
-
-    <RadioGroup
-        android:id="@+id/radio_group_market"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/marketGraphFrame"
-        android:orientation="horizontal" >
-
-        <RadioButton
-            android:id="@+id/candleStickMarket"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radio_group_time_market"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:onClick="onRadioButtonChart"
-            android:text="@string/candle_stick" />
+            android:orientation="horizontal" >
 
-        <RadioButton
-            android:id="@+id/barChartMarket"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onRadioButtonChart"
-            android:text="@string/bar_chart" />
+            <RadioButton
+                android:id="@+id/thirtydays"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/thirty_days" />
 
-        <RadioButton
-            android:id="@+id/lineChartMarket"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onRadioButtonChart"
-            android:text="@string/line_chart" />
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/oneweek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/one_week" />
 
-    <RadioGroup
-        android:id="@+id/radio_group_time_market"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/radio_group_market"
-        android:orientation="horizontal" >
+            <RadioButton
+                android:id="@+id/oneday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/one_day" />
 
-        <RadioButton
-            android:id="@+id/thirtydays"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onRadioButtonTime"
-            android:text="@string/thirty_days" />
+        </RadioGroup>
 
-        <RadioButton
-            android:id="@+id/oneweek"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onRadioButtonTime"
-            android:text="@string/one_week" />
+    </LinearLayout>
 
-        <RadioButton
-            android:id="@+id/oneday"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onRadioButtonTime"
-            android:text="@string/one_day" />
-    </RadioGroup>
-
-</RelativeLayout>
+</LinearLayout>
