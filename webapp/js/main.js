@@ -145,10 +145,9 @@ function search() {
 	$.each(getStockData(), function (i,value) {
 		if (value.value.symbol.toLowerCase().indexOf(searchterm) != -1 || value.value.name.toLowerCase().indexOf(searchterm) != -1) {
 			console.log("Found Match");
-			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest,value.value.market);    
 		}
 	});
-
 }    
 
 //Builds a portfolio with only saved stocks
@@ -167,7 +166,7 @@ function portfoliobuilder() {
 
 	$.each(getStockData(), function (i,value) {
 		if (localStorage[value.value.symbol] !== undefined) {
-			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest,value.value.market);    
 		}
 	});
 }      
@@ -227,19 +226,21 @@ function addElementsForPage(pcount) {
 	$.each(getStockData(), function (i,value) {
 		if (getFirstLetter() === value.value.symbol.substr(0,1) && count < startvalue+20 && count >= startvalue) {
 			count++;
-			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest); 
+			console.log(value);
+			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest,value.value.market); 
 		} else if(getFirstLetter() === value.value.symbol.substr(0,1)) {count++;}
 	});
 }
 
 //Adds a clickable row for each stock
-function addElement(Symbol,Name,Change,Value) {
+function addElement(Symbol,Name,Change,Value,Market) {
 	var cdata = [Symbol,Name,Change,Value];
 	var ni = document.getElementsByTagName('tbody').item(0);
 	var newrow = document.createElement('tr');
 	newrow.className='clickableRow';
 	newrow.onclick = function() {
 		setSymbol(Symbol);
+		setMarket(Market);
 		hide('stocklist');
 		setChartType("line");
 		firstDataFill = true;
@@ -289,9 +290,9 @@ function gethistory(timeframe,mode) {
 		console.log(timeframe);
 	}
 	if (mode === 'stock') {
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
+		setURL('/couchdb/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
 	} else {
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+		setURL('/couchdb/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
 	}
 
 	var tableRef = document.getElementById('resultList');
@@ -402,10 +403,10 @@ function getNewsItems(mode) {
 		if(mode === 'biglist') {
 		maxitems = 100;
 		document.getElementById('newsdisplay').style.height = '600px';
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+		setURL('/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
 	} else {
 		maxitems = 10;
-		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]');
+		setURL('/couchdb/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]');
 	}
 	console.log(getURL());
 	$.getJSON(getURL(), function(url_data) {
