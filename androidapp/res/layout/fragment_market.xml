@@ -1,14 +1,116 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MarketFragment" >
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
-    <!-- TODO: Update blank fragment layout -->
+    
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/markettest" />
+        android:layout_height="wrap_content" >
 
-</FrameLayout>
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:onClick="onClick1"
+            android:text="LSE" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:onClick="onClick"
+            android:text="NYSE" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:onClick="onClick2"
+            android:text="OMX" />
+
+    </LinearLayout>
+	
+    <LinearLayout
+        android:id="@+id/marketGraph"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:orientation="vertical" >
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RadioGroup
+            android:id="@+id/radio_group_market"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/candleStickMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/candle_stick" />
+
+            <RadioButton
+                android:id="@+id/barChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/bar_chart" />
+
+            <RadioButton
+                android:id="@+id/lineChartMarket"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonChart"
+                android:text="@string/line_chart" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RadioGroup
+            android:id="@+id/radio_group_time_market"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/thirtydays"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/thirty_days" />
+
+            <RadioButton
+                android:id="@+id/oneweek"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/one_week" />
+
+            <RadioButton
+                android:id="@+id/oneday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonTime"
+                android:text="@string/one_day" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+</LinearLayout>

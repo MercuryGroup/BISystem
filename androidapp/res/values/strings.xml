@@ -19,5 +19,13 @@
 	<string name="StockNews">This is the StockNews fragment</string>
 	<string name="StockInfo">This is the StockInfo Fragment</string>
 	<string name="StockGraph">This is the StockGraph</string>
+	
+	<string name="one_day">1 day</string>
+    <string name="one_week">1 week</string>
+    <string name="thirty_days">30 Days</string>
+    
+    <string name="candle_stick">Candlestick</string>
+    <string name="line_chart">Linechart</string>
+    <string name="bar_chart">Barchart</string>
 
 </resources>

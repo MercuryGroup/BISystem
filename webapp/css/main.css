@@ -144,6 +144,7 @@ box-shadow:         0px 0px 16px rgba(50, 50, 50, 0.45);
     min-height: 600px; 
     height: auto;
     min-width:auto;
+    margin: 0 auto;
   }
 
 
@@ -227,12 +228,7 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
 
     border-radius: 2px;  
     transition: all 0.2s ease-out; 
-    /*color:#FBF2E3;
-    /*height: 30px;*/
     padding: 3px 1.0em;
-
-    /*background: #2A2C2B;*/
-    /*background:  #374140;*/
     background:  rgba(55,65,64,1.0);
     display: inline-flex;
     min-width:auto;
@@ -248,13 +244,18 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
       min-height: 500px;
   }
 
+  #naviInfo {
+     text-align: center;
+     font-size: 20px;
+  }
+
   #resultList {
   overflow: auto;
   text-align: center;
   max-height: 600px;
   overflow: auto;
   width: 700px;
-
+margin: 0 auto;
   text-align: left;
 
 }
@@ -278,29 +279,40 @@ box-shadow:         0px 0px 6px rgba(50, 50, 50, 0.45);
     border-color: rgba(55,65,64,0.7);
     min-width:auto;
     min-height:auto;
-
+    background:  rgba(185, 185, 186, 0.1);
+    
+ border-bottom: 1px solid #F6F6F8;
   }
 
-  #currentdata tr td {
- background: #D9CB9E;
+/*  #currentdata tr td {
+ background: rgba(217,203,158,0.3);
  border-width: 0px;
 
-border: 1px solid black;
+border: 1px  rgba(55,65,64,0.5);
 width: 600px;
-}
+}*/
 
-#currentdata tr:hover {
-background:  rgba(55,65,64,0.8);
+/*#currentdata tr:hover {*/
+ /*background: rgba(217,203,158,0.3);*/
+/*border: 1px;*/
+/*}*/
+
+/*#currentdata th:hover {
+ background: rgba(217,203,158,0.3);
 border: 1px;
 }
-
+*/
 
  nav ul li:focus{
         background:  rgba(55,65,64,0.5);
  }
- nav ul li:hover, tr:hover{
+ nav ul li:hover{
    background:  rgba(55,65,64,0.5); //Colorgray
  }
+ tr:hover {
+  background: rgba(55,65,64,0.3); //Colorgray
+ }
+
  nav ul li:active{
    background: rgba(220,53,34,0.7); //Colorred 
  }
@@ -308,53 +320,80 @@ border: 1px;
    background: #A8ADBF; 
  }
 
- nav ul li a,tr {
+ nav ul li a {
 
   text-decoration:none;
   color:#F6F6F6;
 
 }
 
+
+
 #canvas {
   max-height: 278px;
-  height: 500px;
-  width: 700px;
+  height: 550px;
+  width: 800px;
 }
 
 #companyname {
+  text-align:center;
 font-weight:normal;
-  float: left;
+margin-top: 5px;
+  /*float: left;*/
+}
+#backbutton {
+  width:auto;
+   height: 30px;
+  /*float:left;*/
+    margin-top: 0px;
+    padding-left: 0px;
+
+}
+#backbutton:hover,#save:hover {
+    color: rgba(220,53,34,0.7);
+    -webkit-transform: scale(1.0);
+
 }
 
+.center {
+  padding-top: 20px;
+  margin:0 auto;
+  text-align: center;
+}
 
-#save:focus {
+/*#save:focus {
   color:#F6F6F6;
-}
-#save:hover {
+}*/
+/*#save:hover {
  background: rgba(217,203,158,0.7);
+}*/
+ 
+#spacer {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 0px;
+    /*float: left;*/
+   height: 20px;
+   width: 2px;
+}
+
+#spacer2 {
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 0px;
+    /*float: left;*/
+   height: 1px;
+   width: 342px;
 }
 
 #save {
-    float: right;
-  border-radius: 194px;
-    padding: 10px 15px;
-    /*background:rgba(217,203,158,1); //Colorbeige*/
-    background: rgba(55,65,64,0.6);
-    color: #FFF;
-    margin-top: 20px;
-    border: 0px;
-    height: 40px;
-    width: 40px;
-    /*text-align: center;*/
-    font-size: 40px;
-    line-height: 40px;
-
-    /*margin-top: 105px;*/
-    transition: opacity 0.5s linear;
+  margin-top: 0px;
+    height: 30px;
+    width: auto;
 }
 
 #info {
-  width: 700px;
+  width: 800px;
   min-height: 600px;
   height: auto;
   margin: 0 auto;
@@ -365,18 +404,58 @@ font-weight:normal;
 
 }
 
-#listdisp {
-
-}
 
 #statView {
-  margin: 0 auto;
-  width: 700px;
+ 
+  width: 800px;
+   margin: 0 auto;
 }
-#radiobuttons {
+#chartbuttons {
     margin: 0 auto;
-    width:350px;
+    width:440px;
 
+
+}
+#chartbuttons div * {
+    background: #F6F6F6;
+  background-color:transparent;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+  border-radius:4px;
+  -webkit-border-radius:4px;
+
+  text-indent:0;
+  border:1px solid  rgba(185, 185, 186, 0.1);;
+  display:inline-block;
+  color:#777777;
+  text-decoration:none;
+  text-align:center;
+  text-shadow:1px 1px 0px #ffffff;
+margin-bottom: 10px;
+
+    border-radius: 2px;  
+    transition: all 0.2s ease-out; 
+    padding: 3px 1.0em;
+    background:  rgba(55,65,64,0.1);
+    display: inline-flex;
+    min-width:auto;
+    min-height:auto;
+       background:  rgba(185, 185, 186, 0.2);
+}
+
+#chartbuttons div *:hover {
+  background:  rgba(185, 185, 186, 0.4);
+  }
+
+#range {
+    margin: 0 auto;
+    width:250px;
+}
+
+#charttype {
+    margin: 0 auto;
+    width:390px;
+    padding-bottom: 25px;
 }
 
 #pagenavigator {
@@ -391,16 +470,7 @@ font-weight:normal;
     margin: 0 auto;
 }
 
-#backbutton {
-  width: 45px;
-  float:left;
 
-}
-#backbutton:hover {
-    color: rgba(220,53,34,0.7);
-    -webkit-transform: scale(1.0);
-
-}
 
 button {
 -webkit-transition: all 100ms ease;
@@ -435,24 +505,61 @@ td {
   padding-left:  5px;
 }
 #datapresentation {
+
   margin-top: 170px;
   padding-top: 60px;
+  width: 700px;
+    margin: 0 auto;
 }
+#dailystats {
+  margin: 0 auto;
+  min-width: 700px
+}
+
+#dailystats tr{
+  text-align:center;
+   background:  #F6F6F8;
+}
+/*#dailystats tr td {
+   background:  rgba(217,203,158,0.1);
+}*/
+
 #radiobuttons {
   padding-top: 35px;
 }
 
-/*    #secondlist tbody {
-      height: 10px;
-      max-height: 40px;
-      overflow:auto;
-    }
-    */
+
 #newstable {
+
     margin: 0 auto;
-  min-width: 600px;
+  min-width: 700px;
+
 }
 
+#newstable tr td {
+   background: #F6F6F8;
+   border-bottom: 1px solid rgba(55,65,64,0.1);
+}
+
+#newstable tr td:hover,#newstable tr:hover {
+   background:  rgba(217,203,158,0.1);
+}
+
+#stocknews {
+    max-height: 350px;
+      overflow:auto;
+}
+
+#newsheadline {
+  margin-top: 5px;
+}
+
+
+.largenews {
+  min-height: 600px;
+  max-height: 600px;
+  overflow: auto;
+}
 /* ==========================================================================
    Helper classes
    ========================================================================== */
@@ -484,12 +591,12 @@ td {
 /*
  * Hide from both screenreaders and browsers: h5bp.com/u
  */
-
  .visible {
   visibility: visible;
   opacity: 1;
   transition: opacity 0.5s linear;
 }
+
 .hidden {
   visibility: hidden;
   opacity: 0;
@@ -658,3 +765,9 @@ td {
       page-break-after: avoid;
     }
   }
+
+
+
+
+
+
