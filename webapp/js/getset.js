@@ -35,22 +35,7 @@ function setChangeList(datalist) {
 function getChangeList() {
 	return chali;
 }
-function setTopic(topic) {
-	Topic = topic;
-	console.log(Topic);
-}
 
-
-function setMarket(topic) {
-	Market = topic;
-}
-function setSymbol(symbol) {
-	Symbol = symbol;
-}
-
-function getSymbol() {
-	return Symbol;
-}
 
 
 function getMarket() {
@@ -93,4 +78,58 @@ function setNewsArray(narray) {
 
 function getNewsArray() {
 	return newsarray;
+}
+
+
+
+//new since 15/12
+function setURL(url) {
+	this.url = url;
+}
+
+function getURL() {
+	return url;
+}
+
+function setDiadata(diad) {
+	this.diad = diad;
+}
+function getDiadata() {
+	return diad;
+}
+function setListdata(listdata) {
+	this.listdata = listdata;
+}
+function getListdata() {
+	return listdata;
+}
+function setNewsItem(nitem) {
+	this.nitem = nitem;
+}
+function getNewsItem() {
+	return nitem;
+}
+function setTopic(topic) {
+
+this.topic = topic;
+	console.log(topic);
+}
+function getTopic() {
+	return topic;
+	console.log("topic is " +topic);
+}
+
+function setMarket(market) {
+	this.market = market;
+	console.log("market is " +market);
+}
+function getMarket() {
+	return market;
+}
+function setSymbol(symbol) {
+	this.symbol = symbol;
+}
+
+function getSymbol() {
+	return symbol;
 }

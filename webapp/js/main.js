@@ -18,11 +18,86 @@ var opts = {
 };
 
 
+function mainNavigator() {
+	if(getTopic() === 'market') {
+		hide('stocklist');
+		loadJSONList('list');
+	} else if (getTopic() ==='stocks') {
+		hide('stock');
+		loadJSONList('list');
+		console.log('showing stock list');
+	} else if (getTopic() === 'news') {
+		hide('exceptnews');
+		getNewsItems('biglist');
+
+	} else if (getTopic() === 'portfolio') {
+		hide('stock');
+		loadJSONList('portfolio');
+	}
+	spinner.stop();
+}
 
 
-function jsonparser() {
+
+//Loads the JSON object from the middle layer
+function loadJSONList(mode) {
 	var target = document.getElementById('myDiv');
-	var spinner = new Spinner(opts).spin(target);
+
+	spinner = new Spinner(opts).spin(target);
+
+	// $.ajaxSetup( { "async": false } );
+// $('#myDiv').after(new Spinner(opts).spin().el);
+try {getStockData();
+
+	modeSelector(mode);
+}
+catch (e) {
+	$.getJSON(
+		'tempj/nyse'
+
+		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
+		, function(url_data) {
+			$.each(url_data, function (i,element) {
+				if ($.isArray(element) === true) {
+					sortArrayBySymbol(element);
+					setStockData(element);
+					modeSelector(mode);
+				} 
+			});
+		});
+}
+}
+
+//Navigates to the correct mode 
+function modeSelector(mode) {
+	if (mode === 'search') {
+		search();
+	} else if (mode === 'list' && getTopic() === 'stocks') {
+		loadSingleStockList();
+	} else if (mode === 'list' && getTopic() === 'market') {
+			var cn = document.getElementById('companyname').innerHTML=getMarket();
+			setChartType("line");
+			hide('list');
+		firstDataFill = true;
+		setSymbol('NYSE');
+		gethistory('today','market');
+	} else if (mode === 'list' && getTopic() === 'news') {
+
+	} else if (mode === 'portfolio') {
+		portfoliobuilder();
+	}
+	spinner.stop();
+}
+
+
+//Loads all the overview market data
+
+//Loads all stocks for the selected market
+function loadSingleStockList() {
+	try {getStockData()}
+	catch (e) {
+		loadJSONList();
+	}
 	var tableRef = document.getElementById('resultList');
 	var otherLetter = null;
 	while ( tableRef.rows.length > 0 )
@@ -32,94 +107,71 @@ function jsonparser() {
 	var target = document.getElementById("letternavigator");
 	document.getElementById("letternavigator").innerHTML = "";
 	var firstInList = null;
-	$.getJSON('tempj/nyse'
-		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
-		, function(url_data) {
-			$.each(url_data, function (i,element) {
-				if ($.isArray(element) === true) {
-					setStockData(element);
-					sortArrayBySymbol(element);
-					$.each(element, function (i,value) {
-						setFirstLetter(value.value.symbol.substr(0,1));
-						if(firstInList === null)  {
-							firstInList = getFirstLetter();
-						}
-						if (getFirstLetter() !== otherLetter) {
-							otherLetter = getFirstLetter();
-							addSearchLetters(getFirstLetter());
-						} else {
 
-						// otherLetter
-					}
-					
-				});
-				}
-			});
-			addPageNumbers(firstInList);
-			spinner.stop();
-		});
-	
+	$.each(getStockData(), function (i,value) {
+		setFirstLetter(value.value.symbol.substr(0,1));
+		if(firstInList === null)  {
+			firstInList = getFirstLetter();
+		}
+		if (getFirstLetter() !== otherLetter) {
+			otherLetter = getFirstLetter();
+			addSearchLetters(getFirstLetter());
+		} 	
+	});
+	addPageNumbers(firstInList);
 }      
 
-
+//Searches through the array of stocks when the user uses the search function
 function search() {
+	var target = document.getElementById("letternavigator").innerHTML = '';
+	var target = document.getElementById("pagenavigator").innerHTML = '';
+	try {getStockData()}
+	catch (e) {
+		loadJSONList();
+	}
 	var target = document.getElementById('myDiv');
-	var spinner = new Spinner(opts).spin(target);
+	// var spinner = new Spinner(opts).spin(target);
 	var tableRef = document.getElementById('resultList');
 	var searchterm = document.getElementById("sok").value.toLowerCase();
-	showlist();
-	spinner.spin();
+	hide('stock');
+	// spinner.spin();
 	while ( tableRef.rows.length > 0 )
 	{
 		tableRef.deleteRow(0);
 	}
 	console.log("Searching for "+searchterm);
-	$.getJSON(
-		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22',
-		'tempj/nyse',
-		 function(url_data) {
-		$.each(url_data, function (i,element) {
-			if ($.isArray(element) === true) {
-				sortArrayBySymbol(element);
-				$.each(element, function (i,value) {
-					if (value.value.symbol.toLowerCase().indexOf(searchterm) != -1 || value.value.name.toLowerCase().indexOf(searchterm) != -1) {
-						console.log("Found Match");
-						addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
-					} else {
-				// console.log("No Match "+ value.value.symbol);
-			}
-		});
-			}
-		});
 
-		spinner.stop();
+	$.each(getStockData(), function (i,value) {
+		if (value.value.symbol.toLowerCase().indexOf(searchterm) != -1 || value.value.name.toLowerCase().indexOf(searchterm) != -1) {
+			console.log("Found Match");
+			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+		}
 	});
+
 }    
 
-
+//Builds a portfolio with only saved stocks
 function portfoliobuilder() {
+	var target = document.getElementById("letternavigator").innerHTML = '';
+	var target = document.getElementById("pagenavigator").innerHTML = '';
 	var tableRef = document.getElementById('resultList');
 	while ( tableRef.rows.length > 0 )
 	{
 		tableRef.deleteRow(0);
 	}
+	try {getStockData()}
+	catch (e) {
+		loadJSONList();
+	}
 
-	$.getJSON('tempj/nyse'
-		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
-		, function(url_data) {
-			$.each(url_data, function (i,element) {
-				if ($.isArray(element) === true) {
-					sortArrayBySymbol(element);
-					$.each(element, function (i,value) {
-						if (isStockSaved(value.value.symbol) === true) {
-							addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
-						}
-					});
-				}
-			});
-		});
+	$.each(getStockData(), function (i,value) {
+		if (localStorage[value.value.symbol] !== undefined) {
+			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest);    
+		}
+	});
 }      
 
+//Adds alphabet letters to the letter navigator
 function addSearchLetters(letter) {
 
 	var target = document.getElementById("letternavigator");
@@ -130,8 +182,8 @@ function addSearchLetters(letter) {
 	target.appendChild(button);
 }
 
+//Adds the appropriate number of pages to the page number navigator
 function addPageNumbers(letter) {
-
 	var target = document.getElementById("pagenavigator");
 	document.getElementById("pagenavigator").innerHTML = "";
 	var count = 0;
@@ -148,18 +200,19 @@ function addPageNumbers(letter) {
 			target.appendChild(button);
 			pcount++;
 			count++;
-				// addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest); 
-			} else if (letter === value.value.symbol.substr(0,1) && count === 20) {
-				count = 0;
+		} else if (letter === value.value.symbol.substr(0,1) && count === 20) {
+			count = 0;
 
-			} else if (letter === value.value.symbol.substr(0,1)) {
-				count++;
-			}
+		} else if (letter === value.value.symbol.substr(0,1)) {
+			count++;
+		}
 
-		});
+	});
 	addElementsForPage(1);
 
 }
+
+//Adds table row elements for the selected page number
 function addElementsForPage(pcount) {
 	var tableRef = document.getElementById('resultList');
 	var otherLetter = null;
@@ -167,7 +220,6 @@ function addElementsForPage(pcount) {
 	{
 		tableRef.deleteRow(0);
 	}
-
 	var count = 0;
 	var elementrange = pcount * 20;
 	var startvalue = elementrange - 20;
@@ -179,63 +231,110 @@ function addElementsForPage(pcount) {
 	});
 }
 
+//Adds a clickable row for each stock
+function addElement(Symbol,Name,Change,Value) {
+	var cdata = [Symbol,Name,Change,Value];
+	var ni = document.getElementsByTagName('tbody').item(0);
+	var newrow = document.createElement('tr');
+	newrow.className='clickableRow';
+	newrow.onclick = function() {
+		setSymbol(Symbol);
+		hide('stocklist');
+		setChartType("line");
+		firstDataFill = true;
+		gethistory('today');
+		var cn = document.getElementById('companyname').innerHTML=Name;
+		getNewsItems();
+		portfolioController();
+		fillInDataTable();
+		paintlinechart();
+	}
+	for (var i = 0; i<cdata.length;i++) {
+		newrow.appendChild(makecells(cdata[i]));
+	}
+	ni.appendChild(newrow);
+}
 
-function getNewsItems() {
-			var today = Date.now().valueOf();
-		var timeframe = Date.now().add(-24).hours();
-		var timeframe = timeframe.valueOf();
-	var symbol = getSymbol();
+//Cell creator for tables
+function makecells(cdata) {
+	cell = document.createElement("td");
+	textnode = document.createTextNode(cdata);
+	cell.appendChild(textnode);
+	return cell;
+}
+
+//Gets news item for the selected stock
+function getNewsItems(mode) {
+
+
+	var today = Date.now().valueOf();
+	var timeframe = Date.now().add(-24).hours();
+	var timeframe = timeframe.valueOf();
+	// var symbol = getSymbol();
 	var nitem = 0;
 	var tableRef = document.getElementById('newstable');
 	while ( tableRef.rows.length > 0 )
 	{
 		tableRef.deleteRow(0);
 	}
-console.log('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
-	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+symbol+'%22,%22NYSE%22]', function(url_data) {
+		if(mode === 'biglist') {
+		maxitems = 100;
+		document.getElementById('newsdisplay').style.height = '600px';
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+	} else {
+		maxitems = 10;
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]');
+	}
+	console.log(getURL());
+	$.getJSON(getURL(), function(url_data) {
 		// $.getJSON('tempj/abxnews.txt', function(url_data) {
 		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22', function(url_data) {
-		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'+getSymbol()+'%22,%22'+getMarket()+'%22]', function(url_data) {
 			$.each(url_data, function (i,element) {
 				if ($.isArray(element) === true) {
 					sortNewsArrayByTime(element);
 					element.reverse();
 					setNewsArray(element);
 					$.each(getNewsArray(), function (i,value) {
-						// if(value.value.symbol === symbol) {
-						if (nitem < 10) {
-					addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
-					nitem++;
-				// }
-				}
-					// p = {title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubdate};
-				});
+						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
+							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
+							nitem++;
+						}
+						if (nitem < maxitems && mode != 'biglist') {
+							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
+							nitem++;
+						}
+					});
 				}
 			});
 		});
-	}
+}
 
-	function getstockhistory(symbol,timeframe,name) {
 
-		duration = timeframe;
-		today = Date.now().valueOf();
+//This method gets the selected history for a specific stock
+function gethistory(timeframe,mode) {
+	duration = timeframe;
+	today = Date.now().valueOf();
+	if (timeframe === "week") {
+		timeframe = Date.today().add(-7).days();
+		timeframe = timeframe.valueOf();
 
-		if (timeframe === "week") {
-			timeframe = Date.today().add(-7).days();
-			timeframe = timeframe.valueOf();
-	
 		console.log(timeframe);
 	}
 	if (timeframe === "month") {
-		timeframe = Date.today().add(-30).days();
+		timeframe = Date.today().add(-31).days();
 		timeframe = timeframe.valueOf();
-		
+
 		console.log(timeframe);
 	} if (timeframe === "today") {
 		timeframe = Date.today();
 		timeframe = timeframe.valueOf();
 
 		console.log(timeframe);
+	}
+	if (mode === 'stock') {
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
+	} else {
+		setURL('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'+getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
 	}
 
 	var tableRef = document.getElementById('resultList');
@@ -254,97 +353,66 @@ console.log('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?s
 	var Chan;
 	var Lat;
 	var nextDay = new Boolean();
+	var firstDay = new Boolean();
+	var i = 0;
 	diadata = [];
-	console.log('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]');
-	$.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22'+symbol+'%22,%22'+timeframe+'%22]&endkey=[%22'+symbol+'%22,%22'+today+'%22]', function(url_data) {
+	console.log("History url "+getURL());
+	$.getJSON(getURL(), function(url_data) {
 		// $.getJSON('http://mercury.dyndns.org:8080/JAXRS-BISystem/api/stocks/'+timeframe+'/'+symbol, function(url_data) {
 			// $.getJSON('tempj/ABXday', function(url_data) {
-
-			
 				$.each(url_data, function (i,element) {
-			if ($.isArray(element) === true) {
-
-				sortArrayByTime(element);
-					element.reverse();
-				console.log("Getting stockdata for" +timeframe);
-				setStockData(element);
-				console.log("Duration is " +duration);
-					$.each(element, function (i,value) {
-						dayLow = [];
-						dayHigh = [];
-
-						console.log("value is " +value.value.updated);
-						if (duration === "today") {
-							console.log("Getting data for day");
-
-							var date = new Date(parseInt(value.value.updated));
-							date2=date.toString("HH:mm");
-
-							openVallist.push(value.value.openVal);
-
-							datelist.push(date2); 
-							latestlist.push(value.value.latest);
-
-							OVal = parseFloat(value.value.openVal);
-							Dat =date2; 
-							Chan = parseFloat(value.value.change);
-							Lat = parseFloat(value.value.latest);
-							Vol = value.value.volume;
-							Perc = value.value.percent;
-							Dhi = null;
-							Dlow = null;
-
-							diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl: Chan,vol: Vol,percent: Perc});
-						// changelist.push(parseFloat(value.value.change));
-					} 
-					if (duration === "month" || duration === "week") {
-						date2 = dateConvert(value.value.updated);
-						if (date1 === null) {
-
-
-						}
-						if (date1 === date2) {
-							dailyValues.push(parseFloat(value.value.latest));
-							nextDay = true;
-						} else {
-							if (nextDay === true) {
-								dailyValues.sort();
-
-								Dlow = dailyValues[0];
-								Dhi = dailyValues.pop();
-								dailyValues = [];
-								nextDay = false;
-								diadata.push({date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl:Chan});
-
+					if ($.isArray(element) === true) {
+						sortArrayByTime(element);
+						element.reverse();
+						$.each(element, function (i,value) {
+							dayLow = [];
+							dayHigh = [];
+							if (duration === "today") {
+								console.log("Getting data for day");
+								var date = new Date(parseInt(value.value.updated));
+								date2=date.toString("HH:mm");
+								Dhi = null;
+								Dlow = null;
+								diadata.push({date: date2,c: parseFloat(value.value.latest),o: parseFloat(value.value.openVal),h: Dhi,l:Dlow,cl: parseFloat(value.value.change),vol: value.value.volume,percent: value.value.percent});
+							} 
+							if (duration === "month" || duration === "week") {
+								date2 = dateConvert(value.value.updated);
+								if (date1 === date2) {
+									dailyValues.push(parseFloat(value.value.latest));
+									nextDay = true;
+								} else {
+									if (nextDay === true) {
+										dailyValues.sort();
+										Dlow = dailyValues[0];
+										Dhi = dailyValues.pop();
+										dailyValues = [];
+										nextDay = false;
+										diadata[i-1] = {date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl:Chan};
+										firstDay = false;
+									}
+									date1 = date2;		
+									OVal = parseFloat(value.value.openVal);
+									Dat =date2; 
+									Chan = parseFloat(value.value.change);
+									Lat = parseFloat(value.value.latest);
+									dailyValues.push(parseFloat(value.value.openVal));
+									dailyValues.push(parseFloat(value.value.latest));
+									dailyValues.sort();
+									Dlow = dailyValues[0];
+									Dhi = dailyValues[dailyValues.length-1];
+									if (firstDay === true) {
+										diadata[i]={date: Dat,c: Lat,o: OVal,h: Dhi,l:Dlow,cl:Chan};
+										i++;
+									}
+									firstDay = true;
+								}
 							}
-
-							date1 = date2;		
-							OVal = parseFloat(value.value.openVal);
-							Dat =date2; 
-							Chan = parseFloat(value.value.change);
-							Lat = parseFloat(value.value.latest);
-							dailyValues.push(parseFloat(value.value.openVal));
-							dailyValues.push(parseFloat(value.value.latest));
-
-
-
-						}
-
-					}
-
-
-				});
+						});
 }
 });
-
-diadata.reverse();
-setOpenVallist(openVallist.reverse());
-setDateList(datelist.reverse());
-setLatestList(latestlist.reverse());
-setChangeList(changelist.reverse());
+setDiadata(diadata.reverse());
 chartPaintSelector();
 if (firstDataFill === true) {
-			setName(name);
 	fillInDataTable();
 	firstDataFill = false;
 }
@@ -353,76 +421,47 @@ if (firstDataFill === true) {
 }    
 
 
-
+//Converts miliseconds to a date
 function dateConvert(timeString) {
 	var date = new Date(parseInt(timeString));
 	date=date.toString("MMM dd");
 	return date;
 }
 
-
+//Adds a header and date to the news table
 function addNewsListItem(newsitem) {
 	var date2 = new Date(parseInt(newsitem.date));
 	date2 = date2.toString("MMM dd HH:mm");
-	var theitem = newsitem;
+	var cdata = [newsitem.title,date2];
 	var newstable = document.getElementById('newstable');
-	var newdiv = document.createElement('tr');
-	newdiv.className='clickableRow';
-	newdiv.onclick = function() {
-		hideNewsList(theitem); };
-		cell = document.createElement("td");
-		cellTime = document.createElement("td");
-		textnode = document.createTextNode(newsitem.title);
-		textnodeTime = document.createTextNode(date2);
-		cell.appendChild(textnode);
-		cellTime.appendChild(textnodeTime);
-		newdiv.appendChild(cell);
-		newdiv.appendChild(cellTime);
-		newstable.appendChild(newdiv);
-
+	var newrow = document.createElement('tr');
+	newrow.className='clickableRow';
+	newrow.onclick = function() {
+		setNewsItem(newsitem);
+		hide('news');
+	};
+	for (var i = 0; i<cdata.length;i++) {
+		newrow.appendChild(makecells(cdata[i]));
 	}
-
-	function addElement(Symbol,Name,Change,Value) {
-		var ni = document.getElementsByTagName('tbody').item(0);
-		var numi = document.getElementById('theValue');
-		var num = (document.getElementById('theValue').value -1)+ 2;
-		numi.value = num;
-		var newdiv = document.createElement('tr');
-		newdiv.className='clickableRow';
-		newdiv.setAttribute('onClick', 'hidelist("'+Symbol+'","today","'+Name+'");');
-	// newdiv.addEventListener('click', hidelist(Symbol));
-	cell = document.createElement("td");
-	cellName = document.createElement("td");
-	cellChange = document.createElement("td");
-	cellValue = document.createElement("td");
-	textnode = document.createTextNode(Symbol);
-	textName = document.createTextNode(Name);
-	textChange = document.createTextNode(Change);
-	textValue = document.createTextNode(Value);
-	cell.appendChild(textnode);
-	cellName.appendChild(textName);
-	cellChange.appendChild(textChange);
-	cellValue.appendChild(textValue);
-	newdiv.appendChild(cell);
-	newdiv.appendChild(cellName);
-	newdiv.appendChild(cellChange);
-	newdiv.appendChild(cellValue);
-	ni.appendChild(newdiv);
+	newstable.appendChild(newrow);
 }
 
-
+//Fills the table that displays todays data
 function fillInDataTable() {
-	portfolioController();
-$(document).ready(function() {
-   $("#dailystats").find("tr:gt(0)").remove();
-});
-	
+
+	$(document).ready(function() {
+		$("#dailystats").find("tr:gt(0)").remove();
+	});
+
 	var ni = document.getElementById('dailystats');
-	// numi.value = num;
-	var newdiv = document.createElement('tr');
-	// newdiv.className='clickableRow';
-	// console.log("Filling datable with " +diadata[diadata.length-1].cl);
+	var newrow = document.createElement('tr');
 	try  {
+		var cdata =[getSymbol(),
+		diadata[diadata.length-1].c,
+		diadata[diadata.length-1].cl,
+		diadata[diadata.length-1].percent,
+		diadata[diadata.length-1].o,
+		diadata[diadata.length-1].vol];
 		var Change = diadata[diadata.length-1].cl;
 		var Value = diadata[diadata.length-1].c;
 		var Percent = diadata[diadata.length-1].percent;
@@ -431,97 +470,116 @@ $(document).ready(function() {
 
 	} catch (te) {
 
+		var cdata = [getSymbol(),"Market closed","Market closed","Market closed","Market closed","Market closed"];
 		Change = "Market closed";
 		Value = "Market closed";
 		Percent ="Market closed";
-Open = "Market closed";
-Volume ="Market closed";
+		Open = "Market closed";
+		Volume ="Market closed";
 	}
+
+	for (var i = 0; i<cdata.length;i++) {
+		newrow.appendChild(makecells(cdata[i]));
+	}
+
 	console.log(document.getElementById('latest'));
-	// document.getElementById('symbol').innerHTML=getSymbol();
-	// document.getElementById('latest').innerHTML=Value;
-	// document.getElementById('percent').innerHTML=Percent;
-	// document.getElementById('open').innerHTML=Open;
-	// document.getElementById('volume').innerHTML=Volume;
-	// document.getElementById('change').innerHTML=Change;
-
-
-	// Cells for stock info
-	cellSymbol = document.createElement("td");
-	cellChange = document.createElement("td");
-	cellValue = document.createElement("td");
-	cellVolume = document.createElement("td");
-	cellPercent = document.createElement("td");
-	cellOpen = document.createElement("td");
-	//Text nodes for stock info
-	textSymbol = document.createTextNode(getSymbol());
-	textChange = document.createTextNode(Change);
-	textValue = document.createTextNode(Value);
-	textVolume = document.createTextNode(Volume);
-	textPercent = document.createTextNode(Percent);
-	textOpen = document.createTextNode(Open);
-	//Append cell children for stock info
-	cellSymbol.appendChild(textSymbol);
-	cellChange.appendChild(textChange);
-	cellValue.appendChild(textValue);
-	cellVolume.appendChild(textVolume);
-	cellPercent.appendChild(textPercent);
-	cellOpen.appendChild(textOpen);
-	//Append cells to table
-	newdiv.appendChild(cellSymbol);
-	newdiv.appendChild(cellValue);
-	newdiv.appendChild(cellChange);
-	newdiv.appendChild(cellPercent);
-	newdiv.appendChild(cellOpen);
-	newdiv.appendChild(cellVolume);
-	ni.appendChild(newdiv);
+	ni.appendChild(newrow);
 }
 
 
 
+//Checks wether the stock is already saved or not upon loading a stock,
+//also deletes and saves stocks upon pressing the save button.
 function portfolioController() {
 	var sb = document.getElementById('save');
-	if (isStockSaved(Symbol) === true) {
-		console.log("Already in portfolio");
-		sb.onclick = function() { deleteStock(Symbol);
-			document.getElementById('save').innerHTML = "Add to portfolio";
-		}
+	if (localStorage[getSymbol()] !== undefined) {
 		document.getElementById('save').innerHTML = "Remove from portfolio";
-	} else {
-		console.log("Not saved");
-		sb.onclick = function() { saveStock(Symbol);
-			document.getElementById('save').innerHTML = "Remove from portfolio";
-
-		}
+	} else  {
 		document.getElementById('save').innerHTML = "Add to portfolio";
 	}
-}
-
-
-function isStockSaved(symbol) {
-	if (localStorage[symbol] === undefined) {
-
-		return false;
-	}
-	else {
-
-		return true;
+	sb.onclick = function() {
+		if (localStorage[getSymbol()] !== undefined) {
+			localStorage.removeItem(getSymbol());
+			document.getElementById('save').innerHTML = "Add to portfolio";
+		} else {
+			localStorage[getSymbol()] = getSymbol();
+			document.getElementById('save').innerHTML = "Remove from portfolio";
+		}
 	}
 }
 
-function saveStock(symbol) {
-	localStorage[symbol] = symbol;
-	console.log("saved");
-	portfolioController();
+
+
+//Hides irrelevant items,menus,etc
+function hide(item) {
+	var nitem = document.querySelector("#newsdisplay");
+	var slist = document.querySelector("#listdisp");
+	var chart = document.querySelector("#statView");
+	var nlist = document.querySelector("#stocknews");
+	var nitem = document.querySelector("#newsdisplay");
+	if (item === 'stocklist') {
+
+		slist.className = 'visuallyhidden';
+		chart.className = 'visible';
+		nlist.className = 'visible';
+	} else if (item === 'news') {
+		nlist.className = 'visuallyhidden';
+		nitem.className = 'visible';
+		var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
+		var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
+	} else if (item === 'newsitem') {
+		nitem.className = 'visuallyhidden';
+		nlist.className = 'visible';
+		} else if (item === 'exceptnews') {
+		nitem.className = 'visuallyhidden';
+		nlist.className = 'visible';
+		// nlist.className = 'largenews';
+		chart.className = 'visuallyhidden';
+		// var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
+		// var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
+	} else if (item === 'stock') {
+		chart.className = 'visuallyhidden';
+		slist.className = 'visible';
+				nlist.className = 'visuallyhidden';
+	}
 }
 
-function deleteStock(symbol) {
-	localStorage.removeItem(symbol);
-	console.log("deleted "+isStockSaved(Symbol));
-	portfolioController();
+
+//Sorting functions for the JSON object
+function sortArrayBy(data) {
+	data.sort(function (a, b) {
+		a = a.value.updated;
+		b = b.value.updated;
+		return a.localeCompare(b);
+	});
+}
+
+function sortArrayByTime(data) {
+	data.sort(function (a, b) {
+		a = a.value.updated;
+		b = b.value.updated;
+		return a.localeCompare(b);
+	});
+}
+
+function sortArrayBySymbol(data) {
+	data.sort(function (a, b) {
+		a = a.value.symbol;
+		b = b.value.symbol;
+		return a.localeCompare(b);
+	});
 }
 
 
+function sortNewsArrayByTime(data) {
+	data.sort(function (a, b) {
+		a = a.value.pubDate;
+		b = b.value.pubDate;
+		return a.localeCompare(b);
+	});
+}
+
+//Paints a line chart showing closing values
 function paintlinechart() {
 	{
 		$("#canvas").dxChart({
@@ -533,7 +591,7 @@ function paintlinechart() {
 				verticalAlignment: "bottom",
 				visible:false,
 			},
-			dataSource: diadata,
+			dataSource: getDiadata(),
 
 			valueAxis: {
 				title: { 
@@ -559,18 +617,15 @@ function paintlinechart() {
 	}
 }
 
+//Paints a candlestick diagram
 function paintCandlestick() {
-	diagramdata = [];
-	dayHigh.reverse();
-	dayLow.reverse();
-	console.log("painting candlestick");
-	for (var i = 0;i <= getDateList().length;i++) {
-		diagramdata.push({date: getDateList()[i],c: getLatestList()[i],o: openVallist[i],h: dayHigh[i],l:dayLow[i]});
+	console.log("diadata length "+diadata.length);
+	for(var i = 0;i<diadata.length;i++) {
+		console.log(getDiadata()[i]);
 	}
-
 	$("#canvas").dxChart({
 		title: "Value",
-		dataSource: diadata,
+		dataSource: getDiadata(),
 		commonSeriesSettings: {
 			argumentField: "date",
 			type: "candlestick"
@@ -604,20 +659,14 @@ function paintCandlestick() {
 	});
 }
 
-
+//Paints a bar chart showing the change over the selected time.
 function paintbarchart() {
-	var cl = getChangeList();
-	diagramdata = [];
-	for (var i = 0;i <= cl.length;i++) {
-		diagramdata.push({day: getDateList()[i],value: getChangeList()[i]});
-	}
-	
 	{
 		$("#canvas").dxChart({
 			title: {
 				text: 'Change'
 			},
-			dataSource: diadata,
+			dataSource: getDiadata(),
 
 			valueAxis: {
 				title: { 
@@ -650,91 +699,3 @@ function chartPaintSelector() {
 		paintCandlestick();
 	}
 }
-function hideLine() {
-	paintbarchart();
-
-}
-
-
-
-function hidelist(Symbol,timeframe,name) {
-	setSymbol(Symbol);
-	var cn = document.getElementById('companyname').innerHTML=name;
-	con = document.querySelector("#listdisp");
-	chart = document.querySelector("#statView");
-	con.className = 'visuallyhidden';
-	chart.className = 'visible';
-		var nlist = document.querySelector("#stocknews");
-	var nitem = document.querySelector("#newsdisplay");
-	nlist.className = 'visible';
-	nitem.className = 'visuallyhidden';
-	radiobtn = document.getElementById("day");
-	radiobtn.checked = true;
-	setChartType("line");
-	firstDataFill = true;
-	getstockhistory(Symbol,timeframe,name);
-	getNewsItems();
-}
-
-function showNewsList() {
-	var nlist = document.querySelector("#stocknews");
-	var nitem = document.querySelector("#newsdisplay");
-	nlist.className = 'visible';
-	nitem.className = 'visuallyhidden';
-}
-
-function hideNewsList(newsitem) {
-	var nlist = document.querySelector("#stocknews");
-	var nitem = document.querySelector("#newsdisplay");
-	nlist.className = 'visuallyhidden';
-	nitem.className = 'visible';
-
-	var newslink = document.getElementById('newslink');
-	newslink.href = newsitem.link;
-	// var newsdisplay = document.getElementById('newsdisplay');
-	var nheadline = document.getElementById('newsheadline').innerHTML = newsitem.title;
-	var newsdisplay = document.getElementById('newstext').innerHTML = newsitem.description;
-
-	// newdiv.className='clickableRow';
-	// newdiv.setAttribute('onClick', 'hideNewsList("'+newsitem+'");');
-		// cell = document.createElement("td");
-		// textnode = document.createTextNode(newsitem.title);
-		// cell.appendChild(textnode);
-		// newdiv.appendChild(cell);
-		// newstable.appendChild(newdiv);
-
-	}
-
-
-	function showlist() {
-		con = document.querySelector("#listdisp");
-		chart = document.querySelector("#statView");
-		chart.className = 'visuallyhidden';
-		con.className = 'visible';
-
-	}
-
-	function sortArrayByTime(data) {
-		data.sort(function (a, b) {
-			a = a.value.updated;
-			b = b.value.updated;
-			return a.localeCompare(b);
-		});
-	}
-
-	function sortArrayBySymbol(data) {
-		data.sort(function (a, b) {
-			a = a.value.symbol;
-			b = b.value.symbol;
-			return a.localeCompare(b);
-		});
-	}
-
-
-	function sortNewsArrayByTime(data) {
-		data.sort(function (a, b) {
-			a = a.value.pubDate;
-			b = b.value.pubDate;
-			return a.localeCompare(b);
-		});
-	}
