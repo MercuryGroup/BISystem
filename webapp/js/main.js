@@ -81,6 +81,7 @@ function modeSelector(mode) {
 		firstDataFill = true;
 		setSymbol('NYSE');
 		gethistory('today','market');
+		getNewsItems('biglist');
 	} else if (mode === 'list' && getTopic() === 'news') {
 
 	} else if (mode === 'portfolio') {
@@ -531,7 +532,6 @@ function hide(item) {
  		newslink.href = getNewsItem().link;
 		var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
 		var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
-		var newsdisplay = document.getElementById('newslink').in;
 	} else if (item === 'newsitem') {
 		nitem.className = 'visuallyhidden';
 		nlist.className = 'visible';
