@@ -35,9 +35,32 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+        
+         <activity
+            android:name="com.example.mercbisandroid.StockActivity"
+            android:label="@string/title_activity_stock" >
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+           <!--  <meta-data 
+                android:name="android.app.default_searchable"
+                android:value="com.example.mercbisandroid.SearchActivity" /> -->
+        </activity>
+        
+      <!--   <activity
+            android:name="com.example.mercbisandroid.StockActivity"
+            android:label="@string/title_activity_stock" >
+            <intent-filter>
+                <action android:name="android.intent.action.STOCK"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data 
+                android:name="android.app.stockactivity"/>
+        </activity> -->
+         
     </application>
-
-        <uses-permission android:name="android.permission.INTERNET" />
+         <uses-permission android:name="android.permission.INTERNET" />
         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 </manifest>
 

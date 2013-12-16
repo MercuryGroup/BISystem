@@ -20,23 +20,28 @@ import android.widget.ListView;
 * A simple {@link android.support.v4.app.Fragment} subclass.
 *
 */
+
 public class StocksFragment extends ListFragment implements OnItemClickListener{
-        
+        // Rickard Bremer
+	
         JSONObject JOBJ = new JSONObject();
-        String[] STOCKS;
-public        ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
+        String[] STOCKNAME, STOCKSYMBOL, STOCKMARKET;
+        
+        
+public  ArrayList<JSONObject> STOCKLIST = new ArrayList<JSONObject>();
         
         public StocksFragment() {
                 // Required empty public constructor
         }
         
 public void onActivityCreated(Bundle savedInstanceState) {
-                
-        //        AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> execute = new StockThread().execute();
-                
-                
+              // Rickard Bremer
+               
                 try {
-                        STOCKS = new String[MainActivity.stockArray.get().size()];
+                        STOCKNAME = new String[MainActivity.stockArray.get().size()];
+                        STOCKSYMBOL = new String[MainActivity.stockArray.get().size()];
+                        STOCKMARKET = new String[MainActivity.stockArray.get().size()];
+
                 } catch (InterruptedException e1) {
                         e1.printStackTrace();
                 } catch (ExecutionException e1) {
@@ -48,12 +53,15 @@ public void onActivityCreated(Bundle savedInstanceState) {
          try {
                  for (int i = 0; i < MainActivity.stockArray.get().size(); i++){
                   String JsonLine = MainActivity.stockArray.get().get(i).toString();
-                         ;
+                         
                                 try {
                                         
                                         JOBJ = new JSONObject(JsonLine);
                                         STOCKLIST.add(JOBJ);
-                                        STOCKS[i] = STOCKLIST.get(i).getString("symbol");
+                                        
+                                        STOCKNAME[i] = STOCKLIST.get(i).getString("name");
+                                        STOCKSYMBOL[i] = STOCKLIST.get(i).getString("symbol");
+                                        STOCKMARKET[i] = STOCKLIST.get(i).getString("market");
                                         
                                 } catch (JSONException e) {
                                 
@@ -68,29 +76,26 @@ public void onActivityCreated(Bundle savedInstanceState) {
                         e.printStackTrace();
                 }
                 
-                        setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKS));
+                        setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_stocks,STOCKNAME));
                 
-                        
+                
                  ListView listView = getListView(); //EX:
                  listView.setTextFilterEnabled(true);
                 
                  listView.setOnItemClickListener(new OnItemClickListener() {
-                 public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-                 // When clicked, show a toast with the TextView text
-                 try {
-					
-                	System.out.println(MainActivity.stockArray.get().get(position));
-					Intent StockActivity = new Intent(getActivity(),  StockActivity.class);
-					MainActivity.StockSymbol = STOCKS[position];
-					startActivity(StockActivity);
-					
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                 
+ public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+               // Rickard Bremer
+        	    MainActivity.stockPos = position;
+        	  	//System.out.println(STOCKLIST.get(position));
+        	  	MainActivity.StockObject = STOCKLIST.get(position); 
+				
+        	  	Intent StockActivity = new Intent(getActivity(),  StockActivity.class);
+				MainActivity.StockSymbol = STOCKSYMBOL[position];
+				MainActivity.StockName = STOCKNAME[position];
+				MainActivity.StockMarket = STOCKMARKET[position];
+				
+				startActivity(StockActivity);
             }
                  });
                 
@@ -112,14 +117,6 @@ public void onActivityCreated(Bundle savedInstanceState) {
                 System.out.println("Hello World");
                 
         }
- 
-        
+       
 }
-
-
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                        Bundle savedInstanceState) {
-                // Inflate the layout for this fragment
-//                return inflater.inflate(R.layout.fragment_stocks, container, false);
-//        }
 

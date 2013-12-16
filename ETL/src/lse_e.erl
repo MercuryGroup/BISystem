@@ -13,7 +13,7 @@
 
 -define(STOCK, stock).
 -define(MARKET, market).
--define(MARKETURL, "http://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices.html?index=ASX").
+-define(MARKETURL, "2").
 -define(STOCKURL, "http://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices-constituents.html?index=ASX&page=").
 -define(USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0").
 
@@ -136,7 +136,9 @@ getData(stock, [Head|Tail]) ->
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(sendData(atom(), list())-> any()).
-sendData(Tag, List)-> ?LOAD ! {Tag, List}.
+sendData(Tag, List)-> 
+%io:format("~p~n", [List]).
+?LOAD ! {Tag, List}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
