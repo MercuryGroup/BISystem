@@ -66,6 +66,24 @@ namespace BIS_Desktop
 
             }
 
+            else if (resultType == "search")
+            {
+                // try
+                //{
+                ResultList list = new ResultList(resultType, source, mainWindow);
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
+                panel.Controls.Clear();
+                panel.setContent(list);
+                panel.updateSize();
+                panel.Invoke((MethodInvoker)(() => panel.Controls.Add(list)));
+                //}
+                //catch(Exception e)
+                // {
+                //    Console.WriteLine("Exception in ThreadHandler: " + e.Data);
+                //}
+
+            }
+
             else if (resultType == "stockinfo")
             {
               //  try
@@ -122,27 +140,7 @@ namespace BIS_Desktop
             }
 
 
-            else if (resultType == "newsReader")
-            {
-                //  try
-                // {
-
-                    NewsPanel newsPanel = new NewsPanel(n);
-                    panel.Invoke((MethodInvoker)(() => panel.Controls.Clear()));
-                    panel.Controls.Clear();
-                    panel.setContent(newsPanel);
-                    panel.updateSize();
-                    panel.Invoke((MethodInvoker)(() => panel.Controls.Add(newsPanel)));
-
-                
-                //}
-                //catch (Exception e)
-                //{
-                //   Console.WriteLine("Exception in ThreadHandler: " + e.Data);
-                //}
-
-            }
-
+            
             panel.setLoading(false);
         }
     }

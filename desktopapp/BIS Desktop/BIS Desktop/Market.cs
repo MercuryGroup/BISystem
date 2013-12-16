@@ -9,9 +9,9 @@ namespace BIS_Desktop
     class Market
     {
 
-        public String Latest{ get; set; }
+        public String Latest { get; set; } // String for holding the latest value of the market
 
-        public String Change{ get; set; }
+        public String Change { get; set; } // String for holding the latest change value of the market
 
         public String Percent{ get; set; }
 

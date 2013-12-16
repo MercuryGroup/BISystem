@@ -10,7 +10,6 @@ namespace BIS_Desktop
 {
     class NewsPanel :  Panel
     {
-       // public RichTextBox richTextBox; // rich text box for diplaying all the text
 
         private News n; // The current news instance displayed
         private Controller c; 
@@ -22,14 +21,15 @@ namespace BIS_Desktop
         private RichTextBox descritionRichTextBox;
         private Label linkLabel;
         private Label line;
-        private Label filler; 
-
+        private Label filler;
+        private Boolean fromNewsList; 
         private FlowLayoutPanel panel; 
 
-        public NewsPanel(News news)
+        public NewsPanel(News news, Boolean b)
         {
             n = news;
             c = new Controller();
+            fromNewsList = b; 
 
             this.BackColor = Color.White; 
             // initialize components
@@ -40,42 +40,15 @@ namespace BIS_Desktop
         private void InitializeComponents()
         {
 
-            titleRichTextBox = new RichTextBox(); 
-            titleRichTextBox.Text = n.title; 
+            titleRichTextBox = createTextBox(n.title);
             titleRichTextBox.SelectAll();
-            titleRichTextBox.SelectionFont = new Font("Segoe UI", 16, FontStyle.Regular); 
-            titleRichTextBox.SelectionAlignment = HorizontalAlignment.Center;
-            titleRichTextBox.BackColor = Color.White;
+            titleRichTextBox.SelectionFont = new Font("Segoe UI", 16, FontStyle.Regular);
             titleRichTextBox.Height = 35; 
-            titleRichTextBox.Width = panelWidth;
-            titleRichTextBox.Top = 0;
-            titleRichTextBox.BorderStyle = BorderStyle.None;
-            titleRichTextBox.ReadOnly = true;
-            titleRichTextBox.WordWrap = true;
-            titleRichTextBox.ScrollBars = RichTextBoxScrollBars.None; 
 
-
-            descritionRichTextBox = new RichTextBox();
-            descritionRichTextBox.Text = "\n" + n.description;
+            descritionRichTextBox = createTextBox("\n" + n.description);
             descritionRichTextBox.SelectAll();
-            descritionRichTextBox.SelectionAlignment = HorizontalAlignment.Center;
             descritionRichTextBox.SelectionFont = c.mercuryFont; 
-            descritionRichTextBox.BackColor = Color.White;
-            
-            using (Graphics g = CreateGraphics())
-            {
-                
-                descritionRichTextBox.Height = (int)g.MeasureString(descritionRichTextBox.Text,
-                    descritionRichTextBox.Font, descritionRichTextBox.Width).Height - 50;
-            
-            }
-
-            descritionRichTextBox.Width = panelWidth - 10;
-            descritionRichTextBox.Top = 0;
-            descritionRichTextBox.BorderStyle = BorderStyle.None;
-            descritionRichTextBox.ReadOnly = true;
-            descritionRichTextBox.WordWrap = true;
-            descritionRichTextBox.ScrollBars = RichTextBoxScrollBars.None;
+            descritionRichTextBox.Height = 225;
 
             linkLabel = new Label();
             linkLabel.Text = "Read the whole article here";
@@ -104,15 +77,38 @@ namespace BIS_Desktop
             panel.Anchor = AnchorStyles.None;
             panel.BorderStyle = System.Windows.Forms.BorderStyle.None;
             panel.AutoScroll = false;
-            panel.Top = 40; // panelHeight - (panelHeight + 200);
-            panel.Left = (panelWidth - panelWidth) / 2; 
-
+            if (fromNewsList)
+            {
+                panel.Top = 60;
+                panel.Left = (panelWidth - panelWidth) / 2; 
+            }
+           
             panel.Controls.Add(titleRichTextBox);
-            panel.Controls.Add(descritionRichTextBox);
+            if (n.description != "")
+            {
+                panel.Controls.Add(descritionRichTextBox);
+            }
             panel.Controls.Add(linkLabel);
             panel.Controls.Add(filler); 
             panel.Controls.Add(line); 
         
+        }
+        private RichTextBox createTextBox(String text)
+        {
+            RichTextBox rtb = new RichTextBox();
+            rtb.Text = text; 
+            rtb.SelectAll();
+            rtb.SelectionAlignment = HorizontalAlignment.Center;
+            rtb.BackColor = Color.White;
+            rtb.Width = panelWidth - 10;
+            rtb.Top = 0;
+            rtb.BorderStyle = BorderStyle.None;
+            rtb.ReadOnly = true;
+            rtb.WordWrap = true;
+            rtb.ScrollBars = RichTextBoxScrollBars.None;
+
+            return rtb; 
+
         }
 
         private void linkLabel_clicked(object sender, EventArgs e)
@@ -142,6 +138,5 @@ namespace BIS_Desktop
             this.Controls.Add(panel);             
 
         }
-
     }
 }

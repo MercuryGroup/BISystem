@@ -29,6 +29,7 @@ namespace BIS_Desktop
         private String typeOfStock;
         private Panel chartPanel;
         private Controller c;
+        private StockNews news; 
         private int buttonWidth, buttonHeight;
         private List<DateTime> dates;
         private int currentPointHover = -1;
@@ -131,11 +132,12 @@ namespace BIS_Desktop
             initilizeChart(typeOfChart, timeSpan);
             lineChartButton.BackColor = c.mercuryBlue;
             monthButton.BackColor = c.mercuryBlue;
-            
 
 
-            newsPanel = new StockNews(symbol, m);
-            newsPanel.BackColor = Color.Pink; 
+
+            news = new StockNews(symbol, m);
+            news.BackColor = c.highlightWhite;
+            newsPanel = news;
             this.Controls.Add(newsPanel);
  
 
@@ -641,6 +643,14 @@ namespace BIS_Desktop
             newsPanel.Height = 200;  // TEMPORARY 
             newsPanel.Location = new Point((W - newsPanel.Width) / 2);
             //Console.WriteLine("WIDTH: " + chartPanel.Width + "  " + chart.Width + " "  + chartPanel.Margin.Left + " " + this.Width);
+
+            newsPanel.Width = W;
+
+            //newsPanel.Height = H - chartPanel.Height - timeSpanPanel.Height - chartTypePanel.Height;
+
+            newsPanel.Height = 200;  // TEMPORARY 
+            newsPanel.Location = new Point((W - newsPanel.Width) / 2);
+            news.setSize(W, 200);
         }
 
         private List<DateTime> getAllDateTime(List<Stock> stockList_)

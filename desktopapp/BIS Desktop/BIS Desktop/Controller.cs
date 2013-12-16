@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace BIS_Desktop
 {
@@ -30,7 +30,7 @@ namespace BIS_Desktop
             mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
             mercuryRed = System.Drawing.ColorTranslator.FromHtml("#DC3522");
-            highlightWhite = System.Drawing.ColorTranslator.FromHtml("#FAFAF6");
+            highlightWhite = System.Drawing.ColorTranslator.FromHtml("#F6F6F8");
             mercuryBeige = System.Drawing.ColorTranslator.FromHtml("#D9CB9E");
             loading = System.Drawing.ColorTranslator.FromHtml("#F2F2F2");
             //Set font
@@ -90,7 +90,7 @@ namespace BIS_Desktop
             //Create list for each side of pivot
             List<Stock> l = new List<Stock>();
             List<Stock> g = new List<Stock>();
-            
+          
             
             try
             {
@@ -147,6 +147,98 @@ namespace BIS_Desktop
             
             return newList;
         }
+        public List<News> sortNewsList(List<News> list_, String type_, Boolean descending_)
+        {
+
+            Console.WriteLine("Size of list entered: " + list_.Count);
+            Object sTemp = list_[0];
+            if (sTemp.GetType().GetProperty(type_) != null)
+            {
+                List<News> newList_ = newsQuickSort(list_, type_, descending_);
+                return newList_;
+            }
+            return null;
+        }
+
+        private List<News> newsQuickSort(List<News> list, String type_, Boolean descending)
+        {
+            Console.Write("");
+            //Return list if size is 1 or less
+            if (list.Count() == 1)
+            {
+                return list;
+            }
+            //Create new list
+            List<News> newList = new List<News>();
+            //Create pivot Object
+            News pivot = list[0];
+            //Remove pivot Object from list
+            list.RemoveAt(0);
+            //Get value of pivot Object
+            String tempPivotVal_ = pivot.GetType().GetProperty(type_).GetValue(pivot, null).ToString();
+            //Create list for each side of pivot
+            List<News> l = new List<News>();
+            List<News> g = new List<News>();
+
+
+            try
+            {
+                //Get value of Object (in double)
+                Double PivotVal_ = double.Parse(tempPivotVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+                foreach (News n in list)
+                {
+                    String tempVal_ = n.GetType().GetProperty(type_).GetValue(n, null).ToString();
+                    Double ObjectVal_ = double.Parse(tempVal_, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+                    //Compare value with pivot value
+                    if (ObjectVal_ >= PivotVal_)
+                    {
+                        if (!descending)
+                        {
+                            g.Add(n);
+                        }
+                        else
+                        {
+                            l.Add(n);
+                        }
+                    }
+                    else
+                    {
+                        if (!descending)
+                        {
+                            l.Add(n);
+                        }
+                        else
+                        {
+                            g.Add(n);
+                        }
+                    }
+
+                }
+            }
+            catch (FormatException e)
+            {
+                if (!descending)
+                {
+                    newList = list.OrderBy(n => n.GetType().GetProperty(type_).GetValue(n, null)).ToList();
+                }
+                else
+                {
+                    newList = list.OrderByDescending(n => n.GetType().GetProperty(type_).GetValue(n, null)).ToList();
+                }
+            }
+            if (l.Count() > 0)
+            {
+                newList.AddRange(newsQuickSort(l, type_, descending));
+            }
+            newList.Add(pivot);
+            if (g.Count() > 0)
+            {
+                newList.AddRange(newsQuickSort(g, type_, descending));
+            }
+            Console.WriteLine("LALALAL: " + newList.Count); 
+            return newList;
+        }
+
         public List<Stock> getFilteredList2(List<Stock> list, DateTime date, int days)
         {
             try
@@ -217,126 +309,145 @@ namespace BIS_Desktop
             DateTime date = startTime.Add(time);
             return date;
         }
-
+        /// <summary>
+        /// Method for getting the timestamp from a date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns>long time stamp</returns>
         public long getTimeStamp(DateTime date)
         {
+            // calculate as date
             DateTime startTime = new DateTime(1970, 1, 1);
             TimeSpan time = date - startTime;
-
+            // convert to milliseconds
             long timeStamp = (long)time.TotalMilliseconds; 
             return timeStamp; 
         }
-
-        public void addToPortfolio(Stock s)
-        {  
-
-            if (File.Exists(filePath))
+        /// <summary>
+        /// Method for searching the list for a search input
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public List<Stock> search(List<Stock> list, String target)
+        {
+            List<Stock> matchList = new List<Stock>(); 
+            foreach (Stock s in list)
             {
-                
-                Boolean isDuplicate = false;
-                List<Stock> temp = readFromPortfolio(); // temp list for checking for duplicates in portfolio.txt
-            
-         
-                foreach (Stock stockInPortfolio in temp)
+                if (s.Name.ToLower().Contains(target.ToLower()) || s.Symbol.ToLower().Contains(target.ToLower()))
                 {
-                    if (s.Symbol == stockInPortfolio.Symbol)
-                    {
-                        isDuplicate = true;
-                    }
-                }
-
-                if (!isDuplicate)
-                {
-                    try
-                    {
-                        using (TextWriter writer = new StreamWriter(filePath, true))
-                        {
-                            writer.WriteLine(s.Id + "\\#" + s.Symbol + "\\#" + s.Name + "\\#" + s.Latest + "\\#" + s.Change + "\\#" + s.Percent + "\\#" + s.Volume + s.OpenVal + "\\#" + s.Updated + "\\#" + s.Market + "\\#" + s.Type);
-                            writer.Close();
-                        }
-                    }
-                    catch(IOException e)
-                    {
-                        Console.WriteLine("Error while writing to portfolio: " + e.Data);
-                    }
-                   
+                    matchList.Add(s);
                 }
             }
+            return matchList; 
+        }
+        /// <summary>
+        /// Method for adding stock symbols to the portfolio
+        /// </summary>
+        /// <param name="symbol"></param>
+        public void addToPortfolio(String symbol)
+        {
+            // check if the file allready exists
+            if (File.Exists(filePath))
+            {
+                Boolean isDuplicate = false;
+                // check the portfolio for duplicates
+                List<String> temp = readFromPortfolio(); 
+                foreach (String stockInPortfolio in temp)
+                {
+                    if(symbol == stockInPortfolio){ isDuplicate = true; }
+                }
+                // if there´s no duplicates
+                if (!isDuplicate)
+                    {
+                        try
+                        {
+                            // add the symbol to the portfolio
+                            using (TextWriter writer = new StreamWriter(filePath, true))
+                            {
+                                writer.WriteLine(symbol);
+                                writer.Close();
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            Console.WriteLine("Error while writing to portfolio: " + e.Data);
+                        }
+                    }
+            }
+            // if the file doesn´t exists
             else
             {
-                try 
+                try
                 {
+                    // just create and write
                     using (TextWriter writer = new StreamWriter(filePath, true))
                     {
-                        writer.WriteLine(s.Id + "\\#" + s.Symbol + "\\#" + s.Name + "\\#" + s.Latest + "\\#" + s.Change + "\\#" + s.Percent + "\\#" + s.Volume  + s.OpenVal + "\\#" + s.Updated + "\\#" + s.Market + "\\#" + s.Type);
+                        writer.WriteLine(symbol);
                         writer.Close();
                     }
                 }
-                catch(IOException e)
+                catch (IOException e)
                 {
                     Console.WriteLine("Error while writing to portfolio: " + e.Data);
                 }
-                
-
-            }
-            
-
+            }        
         }
-
-      
-      
-        public List<Stock> readFromPortfolio()
+        /// <summary>
+        /// Method for reading the portfolio, NOTE DO NOT USE TO LOAD ResultList, 
+        /// this method is only used for checking for duplicates in the addToPortfolio method. 
+        /// </summary>
+        /// <returns>String list of symbols</returns>
+        public List<String> readFromPortfolio()
         {
-            List<Stock> stocks = new List<Stock>();;
-
+            List<String> symbols = new List<String>();
             try
             {
-
-                if (File.Exists(filePath))
+                // try reading the lines
+                using (TextReader reader = new StreamReader(filePath))
                 {
-                   
-                    using (TextReader reader = new StreamReader(filePath))
+                    string line;
+                    // while the lines are not empty add them
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        string line;
-
-                        while ((line = reader.ReadLine()) != null)
-                        {
-
-                            string[] splitArray = line.Split(new[] { "\\#" }, StringSplitOptions.None);
-
-                            Stock s = new Stock();
-
-                            s.Id = splitArray[0];
-                            s.Symbol = splitArray[1];
-                            s.Name = splitArray[2];
-                            s.Latest = splitArray[3];
-                            s.Change = splitArray[4];
-                            s.Percent = splitArray[5];
-                            s.OpenVal = splitArray[6];
-                            s.Updated = splitArray[7];
-                            s.Market = splitArray[8];
-                            s.Type = splitArray[9];
-
-                            stocks.Add(s);
-
-                        }
-
-                        reader.Close();
-
+                        symbols.Add(line);
                     }
-                }
-                else
-                {
-                    stocks = null;
+                    reader.Close();
                 }
             }
             catch (IOException e)
             {
-                Console.WriteLine("Error while adding to portfolio: " + e.Data);
-            }
-           
-            return stocks; 
-        }
+                Console.WriteLine("error while reading for portfolio: " + e.Data); 
+            }    
+            return symbols;
+        }     
+        /// <summary>
+        /// Method used for loading the stocks from the portfolio, reads the symbols and get the stock object from these
+        /// </summary>
+        /// <returns>List of stocks</returns>
+        public List<Stock> loadFromPortfolio()
+        {
+            List<Stock> stocks = new List<Stock>();         
+            // get the symbols from the portfolio
+            List<string> symbols = readFromPortfolio();
+            // get all the stocks
+            JsonHandler jh = new JsonHandler();
+            List<Stock> allStocks = jh.getAllStocks();
+            // sort the stock list
+            List<Stock> sortedAllStocks = quickSort(allStocks, "Symbol", false);
+            // foreach symbol 
+            foreach (string s in symbols)
+            {
+                // search the stock list for the symbol
+                int searchResult = SearchAlgorithm.binarySearch(s, sortedAllStocks);
+                if (searchResult != -1)
+                {
+                    // if a match is found add it to the list
+                    stocks.Add(sortedAllStocks[searchResult]); 
+                }
+            }                                                                                         
+            return stocks;          
+        }   
         /// <summary>
         /// Reset button
         /// </summary>
@@ -356,7 +467,43 @@ namespace BIS_Desktop
             }
             
         }
-        
+        /// <summary>
+        /// filterStocks, returns a filtered list of Stock, which market matches the functions argument Market
+        /// </summary>
+        /// <param name="allStocks"></param>
+        /// <param name="Market"></param>
+        /// <returns>list of stocks</returns>
+        public List<Stock> filterStocks(List<Stock> allStocks, String Market)
+        {
+            List<Stock> stocks = new List<Stock>();
+            foreach (Stock s in allStocks)
+            {
+                if (s.Market == "NYSE") // nyse couse we get it from db, later change to Market
+                {
+                    stocks.Add(s);
+                }
+            }
+            return stocks;
+        }
+
+        /// <summary>
+        /// filterNews, returns a filtered list of News, which market matches the functions argument Market
+        /// </summary>
+        /// <param name="allStocks"></param>
+        /// <param name="Market"></param>
+        /// <returns></returns>
+        public List<News> filterNews(List<News> allStocks, String Market)
+        {
+            List<News> news = new List<News>();
+            foreach (News temp in allStocks)
+            {
+                if (temp.market.ToLower() == Market)
+                {
+                    news.Add(temp);
+                }
+            }
+            return news;
+        }        
     }
     public class mercuryButton : Button
     {
@@ -398,5 +545,59 @@ namespace BIS_Desktop
         }
         
     }
-    
+
+    public static class SearchAlgorithm
+    {
+        /// <summary>
+        /// Binary search method, searches a sorted list for a target symbol
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="collection"></param>
+        /// <returns>a int (-1) if no match was found else if a match was found it returns a int coresponding to the index of the match</returns>
+        public static int binarySearch(String target, List<Stock> collection)
+        { 
+            int low = 0, high = collection.Count - 1;
+            // check so that the target is not empty string
+            if (target == "") { return -1; }
+            // else if the 0th element of the list match return 0
+            else if (collection[0].Symbol == target) { return 0; }
+            // else if the max of the list match return max
+            else if (collection[high].Symbol == target) { return collection.Count; }
+
+            else
+            {
+                // while there is a list left to search
+                while (low <= high)
+                {              
+                    int midPoint = (high + low) / 2;
+                    int compSym = compare(collection[midPoint].Symbol, target);
+                    
+                    if (compSym == 0)
+                    {
+                        // we´ve found a match
+                        return midPoint;
+                    }
+                    else if (compSym > 0)
+                    {
+                        // target is greater than the collection[midPoint]
+                        high = midPoint - 1;
+                    }
+                    else
+                    {
+                        // target is less than the collection[midPoint]
+                        low = midPoint + 1;
+                    }
+                }
+                return -1;
+
+            }
+        }
+        /// <summary>
+        /// Method for comparing two objects 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns>return a integer, 0 if match else positive integer corresponding to the difference of the objects</returns>
+        public static int compare(this object a, object b) { return Comparer.DefaultInvariant.Compare(a, b); }
+    }
 }
