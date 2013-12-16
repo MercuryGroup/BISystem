@@ -1,23 +1,30 @@
 package com.example.mercbisandroid;
 
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.zip.Inflater;
 
 import org.afree.chart.ChartFactory;
 import org.afree.chart.plot.PlotOrientation;
 import org.afree.data.category.CategoryDataset;
 import org.afree.data.category.DefaultCategoryDataset;
+import org.afree.data.xy.DefaultHighLowDataset;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.ParseException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.view.View.OnClickListener;
 
 //import android.view.LayoutInflater;
 
@@ -29,17 +36,23 @@ import android.widget.RadioButton;
 public class MarketFragment extends Fragment {
 	
 	AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
-	CategoryDataset dataset = createDataset();
+	static CategoryDataset dataset;
+	static DefaultHighLowDataset datacandle; 
 	ViewGroup viewGroup = null;
-	ChartView chartView;
+	static ChartView chartView;
 	LinearLayout linearLayout;
+	
 	
 	public MarketFragment() {
 		// Required empty public constructor
 	}
 	
 public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);                
+        super.onCreate(savedInstanceState);     
+        
+        
+      
+
 }
 
 
@@ -62,67 +75,26 @@ public void onActivityCreated(Bundle savedInstanceState) {
 @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
+		View view = inflater.inflate(R.layout.fragment_market, container, false);
 		
-    	View view = inflater.inflate(R.layout.fragment_market, container, false);
-    	
     	viewGroup = (ViewGroup) view.findViewById(R.id.marketGraph); 
     	
     	chartView = new ChartView(getActivity());
     	
-    	chartView.drawChart(ChartFactory.createBarChart("Hej","Time", "Value", createDataset(), PlotOrientation.VERTICAL, true, true, false));
+    //	chartView.drawChart(ChartFactory.createBarChart("Hej","Time", "Value", createDataset(), PlotOrientation.VERTICAL, true, true, false));
     	
     	viewGroup.addView(chartView);
     	
 return view;
     	
 }
+     
 
-    
- 
-    private static CategoryDataset createDataset() {
-
-        // row keys...
-        String series1 = "First";
-        String series2 = "Second";
-        String series3 = "Third";
-
-        // column keys...
-        String category1 = "Category 1";
-        String category2 = "Category 2";
-        String category3 = "Category 3";
-        String category4 = "Category 4";
-        String category5 = "Category 5";
-
-        // create the dataset...
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        dataset.addValue(1.0, series1, category1);
-        dataset.addValue(4.0, series1, category2);
-        dataset.addValue(3.0, series1, category3);
-        dataset.addValue(5.0, series1, category4);
-        dataset.addValue(5.0, series1, category5);
-
-        dataset.addValue(5.0, series2, category1);
-        dataset.addValue(7.0, series2, category2);
-        dataset.addValue(6.0, series2, category3);
-        dataset.addValue(8.0, series2, category4);
-        dataset.addValue(4.0, series2, category5);
-
-        dataset.addValue(4.0, series3, category1);
-        dataset.addValue(3.0, series3, category2);
-        dataset.addValue(2.0, series3, category3);
-        dataset.addValue(3.0, series3, category4);
-        dataset.addValue(6.0, series3, category5);
-
-        return dataset;
-
-    }   
-
- private  CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
+ static CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
   
-		for(int i = 0; i < this.stockArray.get().size(); i++){                    
-                    JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
+		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){                    
+                    JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                     String latest = JOBJ.getString("change");
                     String updated = JOBJ.getString("updated");          
                     dataset.addValue(Float.parseFloat(latest), "Value", updated);               
@@ -132,11 +104,11 @@ return view;
 
     }
     
-    private  CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
+    static CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
   
-		for(int i = 0; i < this.stockArray.get().size(); i++){                    
-                    JSONObject JOBJ = new JSONObject(this.stockArray.get().get(i).toString());
+		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){                    
+                    JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                     String latest = JOBJ.getString("latest");
                     String updated = JOBJ.getString("updated");          
                     dataset.addValue(Float.parseFloat(latest), "Value", updated);               
@@ -146,7 +118,7 @@ return view;
 
     }
    
-   /* private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException {
+static DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 		
 		ArrayList<JSONObject> jobjList = new ArrayList<JSONObject>();
 		
@@ -165,11 +137,11 @@ return view;
 		java.sql.Timestamp timestamp1 = null;
 		java.sql.Timestamp timestamp2 = null;
 					
-		System.out.println("stockArray : " + stockArray.get().size());
+	//	System.out.println("stockArray : " + stockArray.get().size());
 		
-		for(int i = 0; i < stockArray.get().size(); i++){
+		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){
 				
-				JSONObject JOBJ = new JSONObject(stockArray.get().get(i).toString());
+				JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                 jobjList.add(JOBJ);
                 System.out.println(jobjList.get(i));
 			
@@ -310,7 +282,7 @@ return view;
 		
 		DefaultHighLowDataset dataset = new DefaultHighLowDataset("Series 1 ", dated, highd, lowd, opend, closed, volumed);
 		return dataset;
-}*/
+}
 }
 
     

@@ -1,6 +1,11 @@
 package com.example.mercbisandroid;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.zip.Inflater;
 
+import org.afree.chart.ChartFactory;
+import org.afree.chart.plot.PlotOrientation;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ActionBar;
@@ -11,6 +16,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.ParseException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,17 +26,26 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SearchView;
 //import com.example.mercbisandroid.*;
 
 public class MainActivity extends FragmentActivity implements TabListener {
 	
+	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> MarketArray;
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
-	public static String StockSymbol , StockName, StockMarket;
+	String MarketTitle;
+	String chart;
+	
+	long thirtyDays;
+	
+	public static String StockSymbol , StockName, StockMarket, Market;
 	public static int stockPos;
 	public static JSONObject StockObject;
 	public static long StockTime;
+	public static long MarketTime;
 	
 	private ArrayList<String> globalArrayTest = new ArrayList<String>();
 	
@@ -40,9 +55,11 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
+		
 		setContentView(R.layout.activity_main);
 
 		//Rickard Bremer
+		
 		checkInternetConnection();	
 		
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
@@ -182,7 +199,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	    }
     	}
 	
-	public void onRadioButtonChart(View view) {
+	public void onRadioButtonChart(View view) throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
 	    
@@ -190,20 +207,27 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	    switch(view.getId()) {
 	        case R.id.barChartMarket:
 	            if (checked)
+	            	chart = "barchart";
 	                System.out.println("Hi");
+	            	MarketFragment.chartView.drawChart(ChartFactory.createBarChart(MarketTitle,"Time", "Value", MarketFragment.createDatasetBarChart(), PlotOrientation.VERTICAL, true, true, false));
 	            break;
 	        case R.id.candleStickMarket:
 	            if (checked)
+	            	chart = "candlestick";
+		            MarketFragment.chartView.drawChart(ChartFactory.createCandlestickChart(MarketTitle,"Time", "Value", MarketFragment.createCandleStickDataset(), false));
+
 	            	System.out.println("Hi");
 	            break;
 	            
 	        case R.id.lineChartMarket:
 	            if (checked)
+	            	chart = "linechart";
+	            	MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.createDatasetLineChart(), PlotOrientation.VERTICAL, true, true, false));	            	
 	            	System.out.println("Hi");
 	            break;
 	    }
 	}
-	public void onRadioButtonTime(View view) {
+	public void onRadioButtonTime(View view) throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
 	    
@@ -211,18 +235,141 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	    switch(view.getId()) {
 	        case R.id.oneday:
 	            if (checked)
-	                System.out.println("Hi");
+	            	
+	            	MarketTime = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000;
+            		MarketArray = new MarketThread().execute();
+      
+            		
+            		if(chart.equals("linechart")){
+    	    			
+            			MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+    	    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));	
+            		
+            		}
+            		
+            		
+            		if(chart.equals("barchart")){
+            			
+            			MarketFragment.dataset = MarketFragment.createDatasetBarChart();
+            			MarketFragment.chartView.drawChart(ChartFactory.createBarChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));    
+            		
+            		}
+            		
+            		if(chart.equals("candlestick")){
+            			
+            			MarketFragment.datacandle = MarketFragment.createCandleStickDataset();
+            			MarketFragment.chartView.drawChart(ChartFactory.createCandlestickChart(MarketTitle, "Time", "Value", MarketFragment.datacandle, false));
+            		
+            		}
+	               
 	            break;
 	        case R.id.oneweek:
 	            if (checked)
-	            	System.out.println("Hi");
+	            
+	            	MarketTime = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000;
+        		    MarketArray = new MarketThread().execute();
+  
+        		
+        		if(chart.equals("linechart")){
+	    			
+        			MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+	    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));	
+        		
+        		}
+        		
+        		
+        		if(chart.equals("barchart")){
+        			
+        			MarketFragment.dataset = MarketFragment.createDatasetBarChart();
+        			MarketFragment.chartView.drawChart(ChartFactory.createBarChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));    
+        		
+        		}
+        		
+        		if(chart.equals("candlestick")){
+        			
+        			MarketFragment.datacandle = MarketFragment.createCandleStickDataset();
+        			MarketFragment.chartView.drawChart(ChartFactory.createCandlestickChart(MarketTitle, "Time", "Value", MarketFragment.datacandle, false));
+        		
+        		}
+	            	
 	            break;
 	            
 	        case R.id.thirtydays:
 	            if (checked)
-	            	System.out.println("Hi");
+	            	thirtyDays = System.currentTimeMillis()/10;
+					MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
+        		
+	            	MarketArray = new MarketThread().execute();
+  
+        		
+        		if(chart.equals("linechart")){
+	    			
+        			MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+	    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));	
+        		
+        		}
+        		
+        		
+        		if(chart.equals("barchart")){
+        			
+        			MarketFragment.dataset = MarketFragment.createDatasetBarChart();
+        			MarketFragment.chartView.drawChart(ChartFactory.createBarChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));    
+        		
+        		}
+        		
+        		if(chart.equals("candlestick")){
+        			
+        			MarketFragment.datacandle = MarketFragment.createCandleStickDataset();
+        			MarketFragment.chartView.drawChart(ChartFactory.createCandlestickChart(MarketTitle, "Time", "Value", MarketFragment.datacandle, false));
+        		
+        		}
+        		
 	            break;
 	    }
+	}
+public void onClick(View view) throws JSONException, InterruptedException, ExecutionException {
+	    switch(view.getId()){
+	        case R.id.button:
+	        	
+	        	Market = "nyse_market";
+	        	MarketTitle = "NYSE";
+	        	thirtyDays = System.currentTimeMillis()/10;
+				MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
+				MarketArray = new MarketThread().execute();
+				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
+				
+				break;
+	    }   
+	}
+
+
+	public void onClick1(View view) throws JSONException, InterruptedException, ExecutionException {
+	    switch(view.getId()){
+	        case R.id.button1:
+	        	Market = "lse_market";
+	        	MarketTitle = "LSE";
+	        	thirtyDays = System.currentTimeMillis()/10;
+				MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
+				MarketArray = new MarketThread().execute();
+				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
+	        break;
+	    }   
+	}
+
+	public void onClick2(View view) throws JSONException, InterruptedException, ExecutionException {
+	    switch(view.getId()){
+	        case R.id.button2:
+	        	Market = "omx_market";
+	        	MarketTitle = "OMX";
+	        	thirtyDays = System.currentTimeMillis()/10;
+				MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
+				MarketArray = new MarketThread().execute();
+				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
+    			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
+	        break;
+	    }   
 	}
 
 }

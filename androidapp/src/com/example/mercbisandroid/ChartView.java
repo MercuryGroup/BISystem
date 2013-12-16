@@ -13,9 +13,10 @@ import android.widget.ImageView;
 
 
 /**
- * @author
- *		
+ * @author 
+ *
  */
+
 public class ChartView extends ImageView {
     private Bitmap              bitmap;
     private RectShape           rectArea;
