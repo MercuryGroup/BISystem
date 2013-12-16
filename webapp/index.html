@@ -91,7 +91,9 @@
 
           </div>
           <div id="info">
+
             <div id="listdisp" >
+
               <div id="myDiv">
 
                 <input type="hidden" value="0" id="theValue" />
@@ -120,9 +122,19 @@
                            </div>
             </div>
             <div id="statView" class="hidden">
-            <button id="backbutton" onclick=showlist()>Back</button>
+
+
+                          <!-- <br> -->
+                                        <div class="center">
+                          <button id="backbutton" onclick=showlist()>Back</button>
+                          <IMG id="spacer" SRC="img/grayspacer.gif">
+                          <button id="save"></button><br>
+                          <IMG id="spacer2" SRC="img/grayspacer.gif">
+</div>
+
+
               <h1 id="companyname"></h1>
-              <button id="save"></button>
+
               <div id="canvas"></div>
               <!-- <canvas id="canvas" onclick=showlist() width="600" height="278" ></canvas> -->
               <br>
@@ -141,43 +153,59 @@
 
             
              <div id="dataPresentation">
-              <table>
+              <table id="dailystats">
                 <caption></caption>
-                <thead>
+                <thead id='currentdata'>
                   <tr>
                     <th>
                       Symbol
                     </th>
                     <th>
-                     Change
-                   </th>
-                   <th>
                      Latest
                    </th>
+                   <th>
+                     Change
+                   </th>
+                     <th>
+                     %
+                   </th>
+                     <th>
+                     Open
+                   </th>
+                     <th>
+                     Volume
+                   </th>
+
                  </tr>
                </thead>
-               <tbody id='currentdata'>
+               <tbody id='databody'>
                 <tr>
-
                 </tr>
               </tbody>
             </table>
           </div>
+                    <br>
+          <br>
+          <HR>    
            <div id="stocknews"><table id="newstable">
-            <caption>News in the latest 24 hr period</caption>
+            <caption>Latest news items</caption>
             <thead>
               <tr>
-                <th>header</th>
+                <th>Title</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>data</td>
+                <td>data</td>
               </tr>
             </tbody>
           </table>
 
-          </div>          <div id="newsdisplay" class="hidden">            <button id="backbutton" onclick=showNewsList()>Back</button><h2 id='newsheadline'></h2><p id='newstext'></p><a id="newslink">Read more</a>
+          </div>
+
+                 <div id="newsdisplay" class="hidden">            <button id="backbutton" onclick=showNewsList()>Back to news list</button><br><br><h2 id='newsheadline'></h2><p id='newstext'></p><a id="newslink">Read more</a>
         </div>
 
          </div>
