@@ -133,3 +133,11 @@ function setSymbol(symbol) {
 function getSymbol() {
 	return symbol;
 }
+
+function setStockMode(mode) {
+this.mode = mode;
+}
+
+function getStockMode() {
+return mode;
+}
