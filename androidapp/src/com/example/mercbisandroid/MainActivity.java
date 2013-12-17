@@ -55,9 +55,14 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		super.onCreate(arg0);
 		
 		setContentView(R.layout.activity_main);
+		
 
 		//Rickard Bremer
-		
+		MarketTitle = "LSE";
+		Market = "lse_market";
+		chart = "linechart";
+		thirtyDays = System.currentTimeMillis()/10;
+		MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
 		checkInternetConnection();	
 		
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
@@ -206,22 +211,18 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	        case R.id.barChartMarket:
 	            if (checked)
 	            	chart = "barchart";
-	                System.out.println("Hi");
 	            	MarketFragment.chartView.drawChart(ChartFactory.createBarChart(MarketTitle,"Time", "Value", MarketFragment.createDatasetBarChart(), PlotOrientation.VERTICAL, true, true, false));
 	            break;
 	        case R.id.candleStickMarket:
 	            if (checked)
 	            	chart = "candlestick";
 		            MarketFragment.chartView.drawChart(ChartFactory.createCandlestickChart(MarketTitle,"Time", "Value", MarketFragment.createCandleStickDataset(), false));
-
-	            	System.out.println("Hi");
 	            break;
 	            
 	        case R.id.lineChartMarket:
 	            if (checked)
 	            	chart = "linechart";
 	            	MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.createDatasetLineChart(), PlotOrientation.VERTICAL, true, true, false));	            	
-	            	System.out.println("Hi");
 	            break;
 	    }
 	}
@@ -337,10 +338,11 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
     			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
     			JSONObject MarketObj = new JSONObject(MarketArray.get().get(0).toString());
-   			 TextView t = new TextView(this); 
-   			 t=(TextView)findViewById(R.id.textView1); 
-   			 t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
-				break;
+   			    TextView t = new TextView(this); 
+   			    t=(TextView)findViewById(R.id.textView1); 
+   			    t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
+				
+   			    break;
 	    }   
 	}
 
@@ -375,10 +377,11 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 				MarketFragment.dataset = MarketFragment.createDatasetLineChart();
     			MarketFragment.chartView.drawChart(ChartFactory.createLineChart(MarketTitle,"Time", "Value", MarketFragment.dataset, PlotOrientation.VERTICAL, true, true, false));
     			JSONObject MarketObj = new JSONObject(MarketArray.get().get(0).toString());
-   			 TextView t = new TextView(this); 
-   			 t=(TextView)findViewById(R.id.textView1); 
-   			 t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
-    			break;
+   			    TextView t = new TextView(this); 
+   			    t=(TextView)findViewById(R.id.textView1); 
+   			    t.setText(" Market : " + MarketObj.getString("market") + " Percent : " + MarketObj.getString("percent") + " OpenVal : " + MarketObj.getString("openVal"));
+    			
+   			    break;
 	    }   
 	}
 
