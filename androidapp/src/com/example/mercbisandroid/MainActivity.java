@@ -51,7 +51,9 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	ViewPager viewPager;
 
 	@Override
+	
 	protected void onCreate(Bundle arg0) {
+		
 		super.onCreate(arg0);
 		
 		setContentView(R.layout.activity_main);
@@ -205,6 +207,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	public void onRadioButtonChart(View view) throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
+	    MarketArray = new MarketThread().execute();
 	    
 	    // Check which radio button was clicked
 	    switch(view.getId()) {
