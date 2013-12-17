@@ -21,6 +21,7 @@
 -define(CURRENCY, currency).							% Name of the Currency Converter
 -define(NEWS, newsrss_e).								% Name of the News extractor
 -define(STARTER, startup).								% Name of the Starter
+-define(LOAD_LATEST, load_latest).						% Name of the load that handles the 'latest'-database
 
 -define(TO_CURRENCY, "eur").							% Currency we want to use as standard.
 -define(TIMESTAMP, integer_to_list(milliseconds())).	% Milliseconds since the epoch (1970-01-01 00:00:00)
@@ -36,14 +37,17 @@
 	starter,
 	currency,
 	scheduler,
-	newsrss_e
+	newsrss_e,
+	load_latest
 	]).
+
+-define(DATABASE_HOSTNAME, "localhost").				%The database hostname
+-define(DATABASE_PORT, 5984).							%The port to the database
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% RECORDS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--record(moduleinfo, {module, pid}).						% Used by the etl to keep track of modules and their pids 
-
+-record(moduleinfo, {module, pid}).						% Used by the etl to keep track of modules and their pids
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% FUNCTIONS
