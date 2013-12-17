@@ -760,7 +760,7 @@ namespace BIS_Desktop
                        NameInfoClicked = true;
                    }
                    break;
-               case "Latest":
+               case "Latest €":
                    if (LatestInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
@@ -772,7 +772,7 @@ namespace BIS_Desktop
                        LatestInfoClicked = true;
                    }
                    break;
-               case "Change":
+               case "Change €":
                    if (ChangeInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
@@ -796,7 +796,7 @@ namespace BIS_Desktop
                        PercentInfoClicked = true;
                    }
                    break;
-               case "Opening":
+               case "Opening €":
                    if (OpenValInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
