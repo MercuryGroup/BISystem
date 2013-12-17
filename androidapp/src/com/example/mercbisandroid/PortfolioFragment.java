@@ -1,9 +1,13 @@
 package com.example.mercbisandroid;
 
+import java.util.List;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.support.v4.app.ListFragment;
 
 
 /**
@@ -12,12 +16,10 @@ import android.support.v4.app.ListFragment;
  */
 public class PortfolioFragment extends ListFragment {
 	
-	// Rickard Bremer
-	String[] values = new String[] { "Mercury 0","Mercury 1",
-	        "Mercury 2", "Mercury 3", "Mercury 4", "Mercury 5", "Mercury 6",
-	        "Mercury 7", "Mercury 8", "Mercury 9", "Mercury 10", "Mercury 11", "Mercury 12",
-	        "Mercury 13", "Mercury 14", "Mercury 15", "Mercury 16", "Mercury 17", "Mercury 18",
-	        "Mercury 19", "Mercury 20"};
+	ListView l;
+	ArrayAdapter<String> adapter;
+	List<String> list;
+	
 
 	public PortfolioFragment() {
 		// Required empty public constructor
@@ -26,22 +28,32 @@ public class PortfolioFragment extends ListFragment {
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);                
-
+        
 }
 	
 
-
-
-	
 	@Override
-public void onActivityCreated(Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		// Inflate the layout for this fragment
+		list = MainActivity.globalArrayTest;
 		
-		setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.list_portfolio,values));
-        ListView listView = getListView(); //EX:
-        registerForContextMenu(listView);
-        super.onActivityCreated(savedInstanceState);
-        return;
+		adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, list);
+		View v = inflater.inflate(R.layout.fragment_portfolio, container, false);
+		l = (ListView) v.findViewById(android.R.id.list);
+		l.setAdapter(adapter);
 	
+		return v;
+
 	}
 	
+	
+	public void onActivityCreated(Bundle savedInstanceState) {
+		
+		 super.onActivityCreated(savedInstanceState);
+		 list = MainActivity.globalArrayTest;
+		 l = getListView();
+		 
+		
+	}
 }
