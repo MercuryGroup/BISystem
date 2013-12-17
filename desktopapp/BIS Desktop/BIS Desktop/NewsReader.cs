@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
-    class NewsPanel :  Panel
+    class NewsReader :  Panel
     {
 
         private News n; // The current news instance displayed
@@ -25,7 +25,7 @@ namespace BIS_Desktop
         private Boolean fromNewsList; 
         private FlowLayoutPanel panel; 
 
-        public NewsPanel(News news, Boolean b)
+        public NewsReader(News news, Boolean b)
         {
             n = news;
             c = new Controller();

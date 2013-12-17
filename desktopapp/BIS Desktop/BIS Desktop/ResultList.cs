@@ -32,8 +32,8 @@ namespace BIS_Desktop
         private Boolean OpenValInfoClicked = false;
         private Boolean labelClicked = false; // boolean for controling the colors of the infoLabels when clicked
         private Boolean listsEmpty = false;  // boolean for checking if the lists are empty
-        private mercuryButton[] stockInfoButtons; // array of stock info buttons
-        private mercuryButton[] newsInfoButtons; // array of news info buttons
+        private MercuryButton[] stockInfoButtons; // array of stock info buttons
+        private MercuryButton[] newsInfoButtons; // array of news info buttons
         private Label[,] listLabels; // 2d Array of stockLabels
         private FlowLayoutPanel[] listPanels; // array for stockPanels with labels
         private FlowLayoutPanel nextPreviousPanel; // panel for holding the the list traverser 
@@ -851,7 +851,7 @@ namespace BIS_Desktop
             listItemClicked = num;
             // load rightPanelResul as resultPanel
             ResultPanel temp = mw.rightPanelResults as ResultPanel;
-            NewsPanel newsPanel = new NewsPanel(n, true);
+            NewsReader newsPanel = new NewsReader(n, true);
             temp.Controls.Clear();
             temp.setContent(newsPanel);
             temp.updateSize();
@@ -877,7 +877,7 @@ namespace BIS_Desktop
            {
                // the width of stock labels equals W / 6 since we have 6 labels
                stockLabelWidth = W / 6;
-               foreach (mercuryButton btn in stockInfoButtons)
+               foreach (MercuryButton btn in stockInfoButtons)
                {
                    // set their size -6 to fit the padding
                    btn.Width = stockLabelWidth - 6;            
@@ -896,7 +896,7 @@ namespace BIS_Desktop
            {
                // the width of news labels equals W / 3 since we have 3 labels
                newsLabelWidth = W / 3;
-               foreach (mercuryButton btn in newsInfoButtons)
+               foreach (MercuryButton btn in newsInfoButtons)
                {
                    // set their size -6 to fit the padding
                     btn.Width = newsLabelWidth - 6;
@@ -926,44 +926,44 @@ namespace BIS_Desktop
        {          
            newsInfoPanel = new TableLayoutPanel();
            // create new mercuryButtons for the sorting the list of stocks
-           mercuryButton NewsNameButton = new mercuryButton("Symbol", "");
+           MercuryButton NewsNameButton = new MercuryButton("Symbol", "");
            NewsNameButton.Height = 35;
            NewsNameButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "symbol"); };
-           mercuryButton NewsTitleButton = new mercuryButton("Title", "");
+           MercuryButton NewsTitleButton = new MercuryButton("Title", "");
            NewsTitleButton.Height = 35;
            NewsTitleButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "title"); };
-           mercuryButton NewsUpdatedButton = new mercuryButton("Published", "");
+           MercuryButton NewsUpdatedButton = new MercuryButton("Published", "");
            NewsUpdatedButton.Height = 35;
            NewsUpdatedButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "pubDate"); };
            // add them to panel
            newsInfoPanel.Controls.Add(NewsNameButton, 1, 1);
            newsInfoPanel.Controls.Add(NewsTitleButton, 2, 1);
            newsInfoPanel.Controls.Add(NewsUpdatedButton, 3, 1);
-           newsInfoButtons = new mercuryButton[3];   
+           newsInfoButtons = new MercuryButton[3];   
            // add the labels to the array
            newsInfoButtons[0] = NewsUpdatedButton;
            newsInfoButtons[1] = NewsTitleButton;
            newsInfoButtons[2] = NewsNameButton;
            // create the infoLabel for stocks list
            stockInfoPanel = new TableLayoutPanel();
-           stockInfoButtons = new mercuryButton[6];
+           stockInfoButtons = new MercuryButton[6];
            // create new mercuryButtons for the sorting the list of stocks
-           mercuryButton SymbolButton = new mercuryButton("Symbol", "");
+           MercuryButton SymbolButton = new MercuryButton("Symbol", "");
            SymbolButton.Height = 35;
            SymbolButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Symbol"); };
-           mercuryButton NameButton = new mercuryButton("Company", "");  
+           MercuryButton NameButton = new MercuryButton("Company", "");  
            NameButton.Height = 35;
            NameButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Name"); };
-           mercuryButton LatestButton = new mercuryButton("Latest €", "");
+           MercuryButton LatestButton = new MercuryButton("Latest €", "");
            LatestButton.Height = 35;
            LatestButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Latest"); };
-           mercuryButton ChangeButton = new mercuryButton("Change €", "");
+           MercuryButton ChangeButton = new MercuryButton("Change €", "");
            ChangeButton.Height = 35;
            ChangeButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Change"); };
-           mercuryButton PercentButton = new mercuryButton("Percent", "");
+           MercuryButton PercentButton = new MercuryButton("Percent", "");
            PercentButton.Height = 35;
            PercentButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Percent"); };
-           mercuryButton OpenValueButton = new mercuryButton("Opening €", "");
+           MercuryButton OpenValueButton = new MercuryButton("Opening €", "");
            OpenValueButton.Height = 35;
            OpenValueButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "OpenVal"); };
            // add the labels to the panel

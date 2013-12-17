@@ -68,7 +68,7 @@
     </Compile>
     <Compile Include="Market.cs" />
     <Compile Include="News.cs" />
-    <Compile Include="NewsPanel.cs">
+    <Compile Include="NewsReader.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ResultPanel.cs">
@@ -87,7 +87,7 @@
     <Compile Include="ResultList.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="StockNews.cs">
+    <Compile Include="IntegratedNewsList.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ThreadHandler.cs" />

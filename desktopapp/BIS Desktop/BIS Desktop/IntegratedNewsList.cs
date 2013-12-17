@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace BIS_Desktop
 {
-    public class StockNews : FlowLayoutPanel
+    public class IntegratedNewsList : FlowLayoutPanel
     {
         private String Symbol;
         private String Market;
@@ -33,7 +33,7 @@ namespace BIS_Desktop
 
         private FlowLayoutPanel mainPanel;
 
-        public StockNews(String s, String m)
+        public IntegratedNewsList(String s, String m)
         {
 
             Market = m;
@@ -69,7 +69,7 @@ namespace BIS_Desktop
 
             if (displayNews != null)
             {
-                NewsPanel np = new NewsPanel(displayNews, false);
+                NewsReader np = new NewsReader(displayNews, false);
                 np.setSize(panelWidth - 20, 300);
                 mainPanel.Controls.Add(np);
             }

@@ -22,8 +22,8 @@ namespace BIS_Desktop
         private Panel timeSpanFiller;
         private Panel chartTypeFiller;
         private Panel centerTimeSpan, centerChartType;
-        private Panel stockInfo;
         private Panel newsPanel; // a panel holding the news list class StockNews
+        private Panel stockInfoPanel;
         private List<Stock> stockList, stockSpan;
         private String typeOfChart = "line";
         private String symbol;
@@ -32,17 +32,19 @@ namespace BIS_Desktop
         private String typeOfStock;
         private Panel chartPanel;
         private Controller c;
-        private StockNews news; 
+        private IntegratedNewsList news; 
         private int buttonWidth, buttonHeight;
         private List<DateTime> dates;
         private int currentPointHover = -1;
-        private Boolean addToPortfolio = true;
+        private Boolean portfolioCompatible = true;
         private Button candlestickButton;
         private Button lineChartButton;
         private Button barChartButton;
         private Button dayButton;
         private Button weekButton;
         private Button monthButton;
+        private Label stockInfoLabel;
+        private Label stockNameLabel;
         List<double[]> chartValues;
         JsonHandler js;
         /*
@@ -69,15 +71,17 @@ namespace BIS_Desktop
             }
             else if (typeOfStock == "market")
             {
-                addToPortfolio = false;
+                portfolioCompatible = false;
                 stockList = new List<Stock>();
                 List<Market> marketList = js.getSingleMarket(market, "month");
                 foreach (Market temp in marketList)
                 {
                     Stock tempStock = new Stock();
+                    tempStock.Symbol = temp.MarketName;
                     tempStock.Latest = temp.Latest;
                     tempStock.OpenVal = temp.OpenVal;
                     tempStock.Updated = temp.Updated;
+                    tempStock.Volume = "-";
                     stockList.Add(tempStock);
                 }
             }
@@ -85,60 +89,116 @@ namespace BIS_Desktop
             Padding = new Padding(5, 3, 5, 3);
             this.BackColor = c.highlightWhite;
 
-            
+            //Get latest stock info
+            Stock info = stockList.ElementAt(stockList.Count-1);
 
-            // TEMPORARY
-            RichTextBox sd = new RichTextBox();
-            sd.Text = "SYMBOL: " + stockList.ElementAt(0).Symbol;
-            //Controls.Add(sd);
-
-
-            //Set layout of button panels
+            //Initialize panels
             chartTypePanel = new FlowLayoutPanel();
             timeSpanPanel = new FlowLayoutPanel();
             centerChartType = new FlowLayoutPanel();
             centerTimeSpan = new FlowLayoutPanel();
             timeSpanFiller = new Panel();
             chartTypeFiller = new Panel();
-            stockInfo = new Panel();
-            stockInfo.Height = 70;
-            stockInfo.Margin = new Padding(0, 3, 0, 3);
-            stockInfo.BackColor = Color.Green;
-            //Create and add buttons to chart panel
-            candlestickButton = new mercuryButton("Candlestick", "candlestick");
+            stockInfoPanel = new FlowLayoutPanel();
+            //Create and add chart type buttons and listeners for charts
+            //Candlestick
+            candlestickButton = new MercuryButton("Candlestick", "candlestick");
             candlestickButton.Click += new EventHandler(chooseChartType);
             candlestickButton.Width = buttonWidth;
             candlestickButton.Height = buttonHeight;
-            lineChartButton = new mercuryButton("Latest", "line");
+            //Line chart (Latest)
+            lineChartButton = new MercuryButton("Latest", "line");
             lineChartButton.Click += new EventHandler(chooseChartType);
             lineChartButton.Width = buttonWidth;
             lineChartButton.Height = buttonHeight;
-            barChartButton = new mercuryButton("Change", "bar");
+            //Bar chart (Change)
+            barChartButton = new MercuryButton("Change", "bar");
             barChartButton.Click += new EventHandler(chooseChartType);
             barChartButton.Width = buttonWidth;
             barChartButton.Height = buttonHeight;
+            //Add chart type buttons to panel
             chartTypePanel.Controls.Add(lineChartButton);
             chartTypePanel.Controls.Add(candlestickButton);
             chartTypePanel.Controls.Add(barChartButton);
-            
-            //Add event listener to control timespan value 
-            dayButton = new mercuryButton("Day", "day");
+            //Add button and event listener to control timespan value 
+            dayButton = new MercuryButton("Day", "day");
             dayButton.Click += new EventHandler(chooseTimeSpan);
             dayButton.Width = buttonWidth;
             dayButton.Height = buttonHeight;
-            weekButton = new mercuryButton("Week", "week");
+            weekButton = new MercuryButton("Week", "week");
             weekButton.Click += new EventHandler(chooseTimeSpan);
             weekButton.Width = buttonWidth;
             weekButton.Height = buttonHeight;
-            monthButton = new mercuryButton("Month", "month");
+            monthButton = new MercuryButton("Month", "month");
             monthButton.Click += new EventHandler(chooseTimeSpan);
             monthButton.Width = buttonWidth;
             monthButton.Height = buttonHeight;
             timeSpanPanel.Controls.Add(monthButton);
             timeSpanPanel.Controls.Add(weekButton);
             timeSpanPanel.Controls.Add(dayButton);
+            //Add stock control panel to display
+            this.Controls.Add(stockInfoPanel);
+            
+            //Initialize labels containing stock info
+            stockInfoLabel = new Label();
+            stockNameLabel = new Label();
+            stockInfoLabel.Height = 30;
+            stockNameLabel.Height = 30;
+            stockInfoLabel.Margin = new Padding(0, 1, 0, 1);
+            stockNameLabel.Margin = new Padding(0, 1, 0, 1);
+            stockInfoPanel.Padding = new Padding(0, 1, 0, 1);
 
-            this.Controls.Add(stockInfo);
+            String stockName = "";
+            /*
+             * If the info panel displays market info, set the name
+             * of the market based on the symbol.
+             */
+            switch (info.Symbol)
+            {
+                case "LSE":
+                    stockName = "London Stock Exchange";
+                    break;
+                case "OMX":
+                    stockName = "Stockholm Stock Exchange";
+                    break;
+                case "NYSE":
+                    stockName = "New York Stock Exchange";
+                    break;
+                default:
+                    stockName = info.Name;
+                    break;
+            }
+            /*
+             * Set text of first label.
+             * - Symbol
+             * - Latest
+             * - Opening value
+             */
+            ToolTip tt = new ToolTip();
+            stockInfoLabel.Text = "Latest: " + info.Latest
+                + "  |  Opening: " + info.OpenVal
+                + "  |  Change: " + info.Percent
+                + "  |  Volume: " + info.Volume;
+            tt.SetToolTip(stockInfoLabel, stockInfoLabel.Text);
+            stockNameLabel.Text = stockName + "  |  " + info.Symbol;
+            //Set font of info labels
+            stockInfoLabel.Font = c.mercuryFont;
+            stockNameLabel.Font = new Font("Segoe UI", 12, FontStyle.Regular);
+            //Add labels to panel
+            stockInfoPanel.Controls.Add(stockNameLabel);
+            stockInfoPanel.Controls.Add(stockInfoLabel);
+            //Add button for adding stocks to portfolio
+            MercuryButton portfolio = new MercuryButton("Add to portfolio", info.Symbol);
+            portfolio.Width = 120;
+            portfolio.Height = 30;
+            if (!portfolioCompatible)
+            {
+                portfolio.Enabled = false;
+                portfolio.BackColor = Color.LightGray;
+            }
+            //Add listener
+            portfolio.Click += new EventHandler(addStockToPortfolio);
+            stockInfoPanel.Controls.Add(portfolio);
             this.Controls.Add(chartPanel);
             this.Controls.Add(centerChartType);
             centerChartType.Controls.Add(chartTypeFiller);
@@ -152,7 +212,7 @@ namespace BIS_Desktop
             lineChartButton.BackColor = c.mercuryBlue;
             monthButton.BackColor = c.mercuryBlue;
 
-            news = new StockNews(symbol, m);
+            news = new IntegratedNewsList(symbol, m);
             news.BackColor = c.highlightWhite;
             newsPanel = news;
             this.Controls.Add(newsPanel);
@@ -261,7 +321,7 @@ namespace BIS_Desktop
         }
         private void chooseChartType(object sender, EventArgs e)
         {
-            mercuryButton mb = sender as mercuryButton;
+            MercuryButton mb = sender as MercuryButton;
             typeOfChart = mb.buttonType;
             if (typeOfChart == "candlestick")
             {
@@ -280,7 +340,7 @@ namespace BIS_Desktop
         }
         private void chooseTimeSpan(object sender, EventArgs e)
         {
-            mercuryButton mb = sender as mercuryButton;
+            MercuryButton mb = sender as MercuryButton;
             if (typeOfStock == "candlestick")
             {
                 dayButton.Enabled = false;
@@ -649,7 +709,12 @@ namespace BIS_Desktop
             {
                 chartPanel.Height = H - H/3;
             }
-            stockInfo.Width = this.Width - (this.Margin.Left+this.Margin.Right);
+            //Set size of panel containing stock information
+            stockInfoPanel.Height = 100;
+            stockInfoPanel.Width = this.Width;
+            //Set size of stock info labels
+            stockInfoLabel.Width = stockInfoPanel.Width;
+            stockNameLabel.Width = stockInfoPanel.Width;
             chart.Width = chartPanel.Width;
             chart.Height = chartPanel.Height;
             chartTypePanel.Width = (buttonWidth + lineChartButton.Margin.Left + lineChartButton.Margin.Right) * 3 + chartTypePanel.Padding.All;
@@ -686,6 +751,12 @@ namespace BIS_Desktop
                 changes.Add(list_[count].ElementAt(1) - list_[count].ElementAt(0));
             }
             return changes;
+        }
+        private void addStockToPortfolio(object sender, EventArgs e)
+        {
+            MercuryButton button = sender as MercuryButton;
+            c.addToPortfolio(button.buttonType);
+
         }
     }
 }

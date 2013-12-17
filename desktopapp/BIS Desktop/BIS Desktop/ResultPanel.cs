@@ -45,15 +45,15 @@ namespace BIS_Desktop
                 temp.setSize(this.Width, this.Height);
             }
 
-            else if (content is NewsPanel)
+            else if (content is NewsReader)
             {
-                NewsPanel temp = content as NewsPanel;
+                NewsReader temp = content as NewsReader;
                 temp.setSize(this.Width, this.Height);
             }
 
-            else if (content is StockNews)
+            else if (content is IntegratedNewsList)
             {
-                StockNews temp = content as StockNews;
+                IntegratedNewsList temp = content as IntegratedNewsList;
                 temp.setSize(this.Width, this.Height);
             }
 
