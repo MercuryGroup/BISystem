@@ -110,7 +110,7 @@ namespace BIS_Desktop
                 newsPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
                 newsPanel.Height = 40;
                 newsPanel.BackColor = c.highlightWhite;
-                newsPanel.Width = panelWidth - 9;
+                newsPanel.Width = panelWidth-25;
 
                 for (int k = 0; k < newsLabels.GetLength(1); k++)
                 {
@@ -136,7 +136,7 @@ namespace BIS_Desktop
             label.TextAlign = ContentAlignment.MiddleCenter;
             label.Font = c.mercuryFont;
             label.Height = newsLabelHeight;
-            label.Width = newsLabelWidth - 3;
+            label.Width = newsLabelWidth - 25/3;
             label.Margin = new Padding(0);
             if (j == listItemClicked)
             {
@@ -190,7 +190,7 @@ namespace BIS_Desktop
 
         public void setSize(int W, int H)
         {
-            panelWidth = W - 10;
+            panelWidth = W-10;
             panelHeigth = H;
             this.Width = panelWidth;
             this.Height = H;

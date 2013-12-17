@@ -19,7 +19,10 @@ namespace BIS_Desktop
         private Series series;
         private Panel chartTypePanel;
         private Panel timeSpanPanel;
-        private Panel fillerPanel;
+        private Panel timeSpanFiller;
+        private Panel chartTypeFiller;
+        private Panel centerTimeSpan, centerChartType;
+        private Panel stockInfo;
         private Panel newsPanel; // a panel holding the news list class StockNews
         private List<Stock> stockList, stockSpan;
         private String typeOfChart = "line";
@@ -75,7 +78,6 @@ namespace BIS_Desktop
                     tempStock.Latest = temp.Latest;
                     tempStock.OpenVal = temp.OpenVal;
                     tempStock.Updated = temp.Updated;
-                    Console.WriteLine("Latest: " + tempStock.Latest + " Open: " + tempStock.OpenVal + " updated: " + tempStock.Updated);
                     stockList.Add(tempStock);
                 }
             }
@@ -88,13 +90,20 @@ namespace BIS_Desktop
             // TEMPORARY
             RichTextBox sd = new RichTextBox();
             sd.Text = "SYMBOL: " + stockList.ElementAt(0).Symbol;
-            Controls.Add(sd);
+            //Controls.Add(sd);
 
 
             //Set layout of button panels
             chartTypePanel = new FlowLayoutPanel();
             timeSpanPanel = new FlowLayoutPanel();
-
+            centerChartType = new FlowLayoutPanel();
+            centerTimeSpan = new FlowLayoutPanel();
+            timeSpanFiller = new Panel();
+            chartTypeFiller = new Panel();
+            stockInfo = new Panel();
+            stockInfo.Height = 70;
+            stockInfo.Margin = new Padding(0, 3, 0, 3);
+            stockInfo.BackColor = Color.Green;
             //Create and add buttons to chart panel
             candlestickButton = new mercuryButton("Candlestick", "candlestick");
             candlestickButton.Click += new EventHandler(chooseChartType);
@@ -115,33 +124,38 @@ namespace BIS_Desktop
             //Add event listener to control timespan value 
             dayButton = new mercuryButton("Day", "day");
             dayButton.Click += new EventHandler(chooseTimeSpan);
+            dayButton.Width = buttonWidth;
+            dayButton.Height = buttonHeight;
             weekButton = new mercuryButton("Week", "week");
             weekButton.Click += new EventHandler(chooseTimeSpan);
+            weekButton.Width = buttonWidth;
+            weekButton.Height = buttonHeight;
             monthButton = new mercuryButton("Month", "month");
             monthButton.Click += new EventHandler(chooseTimeSpan);
-            timeSpanPanel.Controls.Add(dayButton);
-            timeSpanPanel.Controls.Add(weekButton);
+            monthButton.Width = buttonWidth;
+            monthButton.Height = buttonHeight;
             timeSpanPanel.Controls.Add(monthButton);
+            timeSpanPanel.Controls.Add(weekButton);
+            timeSpanPanel.Controls.Add(dayButton);
 
-
+            this.Controls.Add(stockInfo);
             this.Controls.Add(chartPanel);
-            this.Controls.Add(timeSpanPanel);
-            this.Controls.Add(chartTypePanel);
+            this.Controls.Add(centerChartType);
+            centerChartType.Controls.Add(chartTypeFiller);
+            centerChartType.Controls.Add(chartTypePanel);
+            this.Controls.Add(centerTimeSpan);
+            centerTimeSpan.Controls.Add(timeSpanFiller);
+            centerTimeSpan.Controls.Add(timeSpanPanel);
             resetchartButtons();
             resetTimeSpanButtons();
             initilizeChart(typeOfChart, timeSpan);
             lineChartButton.BackColor = c.mercuryBlue;
             monthButton.BackColor = c.mercuryBlue;
 
-
-
             news = new StockNews(symbol, m);
             news.BackColor = c.highlightWhite;
             newsPanel = news;
             this.Controls.Add(newsPanel);
- 
-
-
         }
         private void initilizeChart(String typeOfChart_, String timeSpan_)
         {
@@ -325,7 +339,7 @@ namespace BIS_Desktop
                     //Set content of label
                     if (typeOfChart == "candlestick")
                     {
-                        label_ = string.Format("op: €{0:F2}, cl: €{1:F2}, h: €{2:F2}, l: €{3:F2}", dp.YValues[2], dp.YValues[3], dp.YValues[0], dp.YValues[1]);
+                        label_ = string.Format("o: €{0:F2}, c: €{1:F2}, h: €{2:F2}, l: €{3:F2}", dp.YValues[2], dp.YValues[3], dp.YValues[0], dp.YValues[1]);
                         chart.Series["prices"].Points[i].LabelBackColor = System.Drawing.ColorTranslator.FromHtml(chart.Series["prices"].Points[i]["PriceDownColor"]);
                     }
                     else if (typeOfChart == "line")
@@ -626,31 +640,33 @@ namespace BIS_Desktop
             this.Height = H;
 
             chartPanel.Width = W -(Padding.Right*2+chartPanel.Margin.Right*2);
-            
-            chartPanel.Height = H / 3;
+            if (typeOfStock != "market")
+            {
+                chartPanel.Height = H / 3;
+
+            }
+            else
+            {
+                chartPanel.Height = H - H/3;
+            }
+            stockInfo.Width = this.Width - (this.Margin.Left+this.Margin.Right);
             chart.Width = chartPanel.Width;
             chart.Height = chartPanel.Height;
             chartTypePanel.Width = (buttonWidth + lineChartButton.Margin.Left + lineChartButton.Margin.Right) * 3 + chartTypePanel.Padding.All;
             timeSpanPanel.Width = (buttonWidth + lineChartButton.Margin.Left + lineChartButton.Margin.Right) * 3 + timeSpanPanel.Padding.All;
             chartTypePanel.Height = (buttonHeight + lineChartButton.Margin.Top + lineChartButton.Margin.Bottom) + timeSpanPanel.Padding.All;
-            timeSpanPanel.Height = 30;
-            //chartTypePanel.Location = new Point((W - chartTypePanel.Width) / 2);
-
+            timeSpanPanel.Height = (buttonHeight + lineChartButton.Margin.Top + lineChartButton.Margin.Bottom) + timeSpanPanel.Padding.All;
+            centerChartType.Width = W;
+            centerChartType.Height = chartTypePanel.Height;
+            centerTimeSpan.Width = W;
+            centerTimeSpan.Height = timeSpanPanel.Height;
+            timeSpanFiller.Width = (this.Width / 2) - (timeSpanPanel.Width / 2);
+            chartTypeFiller.Width = (this.Width / 2) - (chartTypePanel.Width / 2);
+            //Set news panel size
             newsPanel.Width = W;
-
-            //newsPanel.Height = H - chartPanel.Height - timeSpanPanel.Height - chartTypePanel.Height;
-
-            newsPanel.Height = 200;  // TEMPORARY 
+            newsPanel.Height = H - chartPanel.Height - timeSpanPanel.Height - chartTypePanel.Height - this.Margin.All-130;
             newsPanel.Location = new Point((W - newsPanel.Width) / 2);
-            //Console.WriteLine("WIDTH: " + chartPanel.Width + "  " + chart.Width + " "  + chartPanel.Margin.Left + " " + this.Width);
-
-            newsPanel.Width = W;
-
-            //newsPanel.Height = H - chartPanel.Height - timeSpanPanel.Height - chartTypePanel.Height;
-
-            newsPanel.Height = 200;  // TEMPORARY 
-            newsPanel.Location = new Point((W - newsPanel.Width) / 2);
-            news.setSize(W, 200);
+            news.setSize(W, newsPanel.Height);
         }
 
         private List<DateTime> getAllDateTime(List<Stock> stockList_)

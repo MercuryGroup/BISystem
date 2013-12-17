@@ -238,9 +238,9 @@
             this.windowLabel.ForeColor = System.Drawing.Color.Black;
             this.windowLabel.Location = new System.Drawing.Point(201, 4);
             this.windowLabel.Name = "windowLabel";
-            this.windowLabel.Size = new System.Drawing.Size(270, 21);
+            this.windowLabel.Size = new System.Drawing.Size(171, 21);
             this.windowLabel.TabIndex = 10;
-            this.windowLabel.Text = "Mercury Business Intelligence System";
+            this.windowLabel.Text = "Mercury Stock Analysis";
             // 
             // extraPanel
             // 
