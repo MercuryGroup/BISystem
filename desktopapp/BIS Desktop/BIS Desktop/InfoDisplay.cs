@@ -189,7 +189,7 @@ namespace BIS_Desktop
             stockInfoPanel.Controls.Add(stockInfoLabel);
             //Add button for adding stocks to portfolio
             MercuryButton portfolio = new MercuryButton("Add to portfolio", info.Symbol);
-            portfolio.Width = 120;
+            portfolio.Width = 170;
             portfolio.Height = 30;
             if (!portfolioCompatible)
             {
