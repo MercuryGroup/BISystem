@@ -1,4 +1,4 @@
-etl: ebin/currency.beam ebin/etl.beam ebin/load.beam ebin/lse_e.beam ebin/newsrss_e.beam ebin/nyse_e.beam ebin/omx_e.beam ebin/scheduler.beam ebin/starter.beam include/ETL.hrl
+etl: ebin/currency.beam ebin/etl.beam ebin/load.beam ebin/lse_e.beam ebin/newsrss_e.beam ebin/nyse_e.beam ebin/omx_e.beam ebin/scheduler.beam ebin/starter.beam ebin/load_latest.beam include/ETL.hrl
 
 
 
@@ -28,3 +28,6 @@ ebin/scheduler.beam: src/scheduler.erl include/ETL.hrl
 
 ebin/starter.beam: src/starter.erl include/ETL.hrl
 	erlc -o ebin src/starter.erl
+
+ebin/load_latest.beam: src/load_latest.erl include/ETL.hrl
+	erlc -o ebin src/load_latest.erl
