@@ -21,7 +21,7 @@ namespace BIS_Desktop
         private int numberOfButtonsPerPage = 10; // number of buttons listet per page, change depening on screen size
         private int maxNumberOfPages; // maximum number of pages 
         private int currentSide;  // the current side we are standing on, used for previuos and next labels
-        private int numberOfNumLabel;// holds the number of number labels on the page, used for calculation the with of the nextPreviousPanel
+        private int numberOfNumLabel = 10;// holds the number of number labels on the page, used for calculation the with of the nextPreviousPanel
         private int listItemClicked = -1; // number of the list buttons currently selected
         // Boolean for controlling the infoButtons sort functions, ie sort decendeing or acending
         private Boolean SymbolInfoClicked = false;
@@ -32,6 +32,7 @@ namespace BIS_Desktop
         private Boolean OpenValInfoClicked = false;
         private Boolean labelClicked = false; // boolean for controling the colors of the infoLabels when clicked
         private Boolean listsEmpty = false;  // boolean for checking if the lists are empty
+        private Boolean setBlue = true; // boolean for keeping check of if the list items are to be set blue or not 
         private MercuryButton[] stockInfoButtons; // array of stock info buttons
         private MercuryButton[] newsInfoButtons; // array of news info buttons
         private Label[,] listLabels; // 2d Array of stockLabels
@@ -305,7 +306,7 @@ namespace BIS_Desktop
                 latestLabel.Width = stockLabelWidth - 1;
                 Label changeLabel = createStockLabel(s.Change, s, j);
                 changeLabel.Width = stockLabelWidth - 1;
-                if (listItemClicked == j)
+                if (listItemClicked == j && setBlue == true)
                 {
                     changeLabel.ForeColor = Color.White;
                 }
@@ -324,7 +325,7 @@ namespace BIS_Desktop
                 Label percentLabel = createStockLabel(s.Percent, s, j);
                 percentLabel.Width = stockLabelWidth - 1;
                 // set colors on the percent label to green or red depending if the value is + or -
-                if (listItemClicked == j)
+                if (listItemClicked == j && setBlue == true)
                 {
                     percentLabel.ForeColor = Color.White;
                 }
@@ -455,7 +456,7 @@ namespace BIS_Desktop
                 numberStop = side + 10;
                 numberStart = side;
             }
-            numberOfNumLabel = numberStop; 
+ 
             // loop the number labels intervall
             for (int i = numberStart; i < numberStop; i++)
             {
@@ -533,7 +534,7 @@ namespace BIS_Desktop
         private void highlightList_MouseEnter(object sender, System.EventArgs e, int j)
         {
             // check if its not allready clicked
-            if (listItemClicked != j)
+            if (listItemClicked != j && setBlue == false)
             {
                 // loop rows
                 for (int k = 0; k < listLabels.GetLength(1); k++)
@@ -552,7 +553,7 @@ namespace BIS_Desktop
         private void highlightList_MouseLeave(object sender, System.EventArgs e, int j)
         {
             // check if its not allready clicked
-            if (listItemClicked != j)
+            if (listItemClicked != j && setBlue == false)
             {
                 // loop rows
                 for (int k = 0; k < listLabels.GetLength(1); k++)
@@ -596,6 +597,7 @@ namespace BIS_Desktop
             try
             {
                 var num = int.Parse(i);
+                setBlue = false; 
                 contentAdder(num);
             }
             catch (Exception ee) { }           
@@ -608,6 +610,7 @@ namespace BIS_Desktop
         private void last_clicked(object sender, System.EventArgs e)
         {
             // go to last side
+            setBlue = false; 
             contentAdder(maxNumberOfPages); 
         }
         /// <summary>
@@ -618,6 +621,7 @@ namespace BIS_Desktop
         private void first_clicked(object sender, System.EventArgs e)
         {
             // go to first side
+            setBlue = false; 
             contentAdder(1);
         }
         /// <summary>
@@ -628,6 +632,7 @@ namespace BIS_Desktop
         private void previous_clicked(object sender, System.EventArgs e)
         {
             // increse side by 1
+            setBlue = false; 
             contentAdder(currentSide - 1);
         }
         /// <summary>
@@ -638,6 +643,7 @@ namespace BIS_Desktop
         private void next_clicked(object sender, System.EventArgs e)
         {
             // decrese side by 1
+            setBlue = false; 
             contentAdder(currentSide + 1);
         }
         /// <summary>
@@ -828,6 +834,7 @@ namespace BIS_Desktop
                listLabels[num, k].BackColor = c.mercuryBlue;
                listLabels[num, k].ForeColor = Color.White;
            }
+           setBlue = true; 
            // load rightPanelResul as resultPanel
            listItemClicked = num;
            ResultPanel temp = mw.rightPanelResults as ResultPanel;
@@ -849,6 +856,7 @@ namespace BIS_Desktop
                 listLabels[num, k].ForeColor = Color.White;
             }
             listItemClicked = num;
+            setBlue = true; 
             // load rightPanelResul as resultPanel
             ResultPanel temp = mw.rightPanelResults as ResultPanel;
             NewsReader newsPanel = new NewsReader(n, true);
@@ -886,9 +894,9 @@ namespace BIS_Desktop
                stockInfoPanel.Width = W;
                stockInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 4  < filteredStockList.Count)
+               if ((H / buttonHeight) - 5  < filteredStockList.Count)
                {   
-                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
+                   numberOfButtonsPerPage = (H / buttonHeight) - 5;
                }            
            }
            // check DataButtonClicked
@@ -905,14 +913,14 @@ namespace BIS_Desktop
                newsInfoPanel.Width = W;
                newsInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 4 < newsList.Count)
+               if ((H / buttonHeight) - 5 < newsList.Count)
                {
-                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
+                   numberOfButtonsPerPage = (H / buttonHeight) - 5;
                }
            }
            panelWidth = W;
            nextPreviousPanel.Width = panelWidth;
-           filler.Width = (panelWidth - (106 + (numberOfNumLabel * 35))) / 2;
+           filler.Width = (panelWidth - (150 + (numberOfNumLabel * 35))) / 2;
            // if the lists aren´t empty we reload the panel
            if (!listsEmpty)
            {
@@ -1013,7 +1021,7 @@ namespace BIS_Desktop
            newsLabel.Height = buttonHeight;
            newsLabel.Width = newsLabelWidth - 2;
            newsLabel.Margin = new Padding(0);
-           if (listItemClicked == j)
+           if (listItemClicked == j && setBlue == true)
            {
                newsLabel.BackColor = c.mercuryBlue;
                newsLabel.ForeColor = Color.White;
@@ -1045,7 +1053,7 @@ namespace BIS_Desktop
            stockLabel.Height = buttonHeight;
            stockLabel.Width = stockLabelWidth;
            stockLabel.Margin = new Padding(0);
-           if (listItemClicked == j)
+           if (listItemClicked == j && setBlue == true)
            {
                stockLabel.BackColor = c.mercuryBlue;
                stockLabel.ForeColor = Color.White;
