@@ -510,6 +510,8 @@ namespace BIS_Desktop
         {
             if (e.KeyCode == Keys.Enter)
             {
+                currentResultType = "list";
+                refreshContentPanels();
                 resetMenuButtons();
                 loadResult(leftPanelResults, "search", searchField.Text,"", this);
                 disableMarketButtons();
