@@ -304,26 +304,41 @@ namespace BIS_Desktop
                 Label latestLabel = createStockLabel(s.Latest, s, j);
                 latestLabel.Width = stockLabelWidth - 1;
                 Label changeLabel = createStockLabel(s.Change, s, j);
-                changeLabel.Width = stockLabelWidth - 1; 
-                // set colors on the change label to green or red depending if the value is + or -
-                if (changeLabel.Text[0] == '-')
+                changeLabel.Width = stockLabelWidth - 1;
+                if (listItemClicked == j)
                 {
-                    changeLabel.ForeColor = Color.Red;
+                    changeLabel.ForeColor = Color.White;
                 }
-                else if (changeLabel.Text[0] == '+')
+                else
                 {
-                    changeLabel.ForeColor = Color.Green;
+                    // set colors on the change label to green or red depending if the value is + or -
+                    if (changeLabel.Text[0] == '-')
+                    {
+                        changeLabel.ForeColor = Color.Red;
+                    }
+                    else if (changeLabel.Text[0] == '+')
+                    {
+                        changeLabel.ForeColor = Color.Green;
+                    }
                 }
                 Label percentLabel = createStockLabel(s.Percent, s, j);
                 percentLabel.Width = stockLabelWidth - 1;
                 // set colors on the percent label to green or red depending if the value is + or -
-                if (percentLabel.Text[0] == '-')
+                if (listItemClicked == j)
                 {
-                    percentLabel.ForeColor = Color.Red;
+                    percentLabel.ForeColor = Color.White;
                 }
-                else if (percentLabel.Text[0] == '+')
+                else
                 {
-                    percentLabel.ForeColor = Color.Green;
+                    // set colors on the change label to green or red depending if the value is + or -
+                    if (percentLabel.Text[0] == '-')
+                    {
+                        percentLabel.ForeColor = Color.Red;
+                    }
+                    else if (percentLabel.Text[0] == '+')
+                    {
+                        percentLabel.ForeColor = Color.Green;
+                    }
                 }
                 Label openLabel = createStockLabel(s.OpenVal, s, j);
                 openLabel.Width = stockLabelWidth - 1;
@@ -856,9 +871,9 @@ namespace BIS_Desktop
            this.Height = H;
            this.Width = W;
            // reset nextPreviousPanel width
-           nextPreviousPanel.Width = this.Width;
+           nextPreviousPanel.Width = W;
            // check DataButtonClicked
-           if (this.DataButtonClicked == "stocks" || this.DataButtonClicked == "portfolio" || this.DataButtonClicked == "market" || this.DataButtonClicked == "search")
+           if (this.DataButtonClicked == "stocks" || this.DataButtonClicked == "portfolio" || this.DataButtonClicked == "search")
            {
                // the width of stock labels equals W / 6 since we have 6 labels
                stockLabelWidth = W / 6;
@@ -871,13 +886,13 @@ namespace BIS_Desktop
                stockInfoPanel.Width = W;
                stockInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 2  < filteredStockList.Count)
-                {   
-                    numberOfButtonsPerPage = (H / buttonHeight) - 4;
-                }            
+               if ((H / buttonHeight) - 4  < filteredStockList.Count)
+               {   
+                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
+               }            
            }
            // check DataButtonClicked
-           else if (this.DataButtonClicked == "news")
+           else if (this.DataButtonClicked == "news" || this.DataButtonClicked == "market")
            {
                // the width of news labels equals W / 3 since we have 3 labels
                newsLabelWidth = W / 3;
@@ -890,7 +905,7 @@ namespace BIS_Desktop
                newsInfoPanel.Width = W;
                newsInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 2 < newsList.Count)
+               if ((H / buttonHeight) - 4 < newsList.Count)
                {
                    numberOfButtonsPerPage = (H / buttonHeight) - 4;
                }
@@ -998,7 +1013,16 @@ namespace BIS_Desktop
            newsLabel.Height = buttonHeight;
            newsLabel.Width = newsLabelWidth - 2;
            newsLabel.Margin = new Padding(0);
-           newsLabel.BackColor = Color.FromArgb(70, c.mercuryGrey);
+           if (listItemClicked == j)
+           {
+               newsLabel.BackColor = c.mercuryBlue;
+               newsLabel.ForeColor = Color.White;
+           }
+           else
+           {
+               newsLabel.BackColor = Color.FromArgb(70, c.mercuryGrey);
+               newsLabel.ForeColor = Color.Black;
+           }
            newsLabel.Click += (sender, e) => { news_clicked(sender, e, n, j); };
            newsLabel.MouseEnter += (sender, e) => { highlightList_MouseEnter(sender, e, j); };
            newsLabel.MouseLeave += (sender, e) => { highlightList_MouseLeave(sender, e, j); };
@@ -1021,7 +1045,16 @@ namespace BIS_Desktop
            stockLabel.Height = buttonHeight;
            stockLabel.Width = stockLabelWidth;
            stockLabel.Margin = new Padding(0);
-           stockLabel.BackColor = Color.FromArgb(70, c.mercuryGrey);
+           if (listItemClicked == j)
+           {
+               stockLabel.BackColor = c.mercuryBlue;
+               stockLabel.ForeColor = Color.White;
+           }
+           else
+           {
+               stockLabel.BackColor = Color.FromArgb(70, c.mercuryGrey);
+               stockLabel.ForeColor = Color.Black; 
+           }
            stockLabel.Click += (sender, e) => { stock_clicked(sender, e, s, j); };
            stockLabel.MouseEnter += (sender, e) => { highlightList_MouseEnter(sender, e, j); };
            stockLabel.MouseLeave += (sender, e) => { highlightList_MouseLeave(sender, e, j); };
