@@ -153,6 +153,7 @@ loop() ->
 
                 {stock , List} ->
                         sendData(stock, List),
+                        ?LOAD_LATEST ! {stock, List},
                         loop();
                 
                 {market , List} ->
