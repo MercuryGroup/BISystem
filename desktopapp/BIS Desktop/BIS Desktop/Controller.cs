@@ -561,7 +561,7 @@ namespace BIS_Desktop
             // else if the 0th element of the list match return 0
             else if (collection[0].Symbol == target) { return 0; }
             // else if the max of the list match return max
-            else if (collection[high].Symbol == target) { return collection.Count; }
+            else if (collection[high].Symbol == target) { return high; }
 
             else
             {
