@@ -22,7 +22,7 @@ start() -> init().
 
 -spec init() -> any().
 init() ->   inets:start(), spawn(fun()-> extract() end),
-[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,128)].
+[spawn(fun() -> pageSelector(N) end) || N <- lists:seq(1,129)].
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,7 +57,7 @@ case Number=<length(StockList) of
 	true  -> ListSegment = lists:nth(Number,StockList),
 	sendData(getData(findData(ListSegment,ListSegment,1,1,[]))),
 	loop({StockList,Number+1,PageNumber});
-	_ -> case PageNumber=<128 of
+	_ -> case PageNumber=<129 of
 		% true -> pageSelector(PageNumber+1);
 		_-> io:format("finished page ~p~n",[PageNumber])
 	end
