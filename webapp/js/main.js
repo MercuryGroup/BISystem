@@ -59,8 +59,8 @@ try {getStockData();
 catch (e) {
 	$.getJSON(
 		// 'tempj/nyse'
-		// '/couchdb/mercury_latest/_design/bi/_view/stock'
-		'http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock'
+		'/couchdb/mercury_latest/_design/bi/_view/stock'
+		// 'http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock'
 		, function(url_data) {
 			$.each(url_data, function (i,element) {
 				if ($.isArray(element) === true) {
@@ -302,14 +302,14 @@ function gethistory(timeframe) {
 	if (getStockMode() === 'stock') {
 
 		setURL(
-			 // '/couchdb/mercury/_design/bi/_view/'
-			 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 '/couchdb/mercury/_design/bi/_view/'
+			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
 			 +getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
 	} else if (getStockMode() === 'market') {
 
 		setURL(
-			 // '/couchdb/mercury/_design/bi/_view/'
-			 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 '/couchdb/mercury/_design/bi/_view/'
+			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
 			 +getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
 	}
 
@@ -431,15 +431,15 @@ function getNewsItems(mode) {
 		maxitems = 100;
 		document.getElementById('newsdisplay').style.height = '600px';
 		setURL(
-			// '/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
-			'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'
+			'/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
+			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'
 			+timeframe+'%22&endkey=%22'+today+'%22');
 	} else {
 		maxitems = 10;
 					// '/couchdb/mercury/_design/bi/_view/news?key=[%22'+
 					setURL(
-						// '/couchdb/mercury/_design/bi/_view/news?key=[%22'
-						'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
+						'/couchdb/mercury/_design/bi/_view/news?key=[%22'
+						// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
 						+getSymbol()+'%22,%22'+getMarket()+'%22]');
 				}
 				console.log(getURL());
@@ -495,18 +495,13 @@ function fillInDataTable(diadata) {
 	var newrow = document.createElement('tr');
 	console.log(dateConvert(Date.today().valueOf()) +" date2" + dateConvert(diadata.date));
 	if (dateConvert(Date.today().valueOf()) === dateConvert(diadata.date)) {
-
-
-
 		var cdata =[getSymbol(),
 		diadata.c,
 		diadata.cl,
 		diadata.percent,
 		diadata.o,
 		diadata.vol];
-
 	} else {
-
 		var cdata = [getSymbol(),"Market closed","Market closed","Market closed","Market closed","Market closed"];
 	}
 
