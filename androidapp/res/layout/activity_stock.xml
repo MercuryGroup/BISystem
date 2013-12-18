@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add To Portfolio"
-            android:onClick="addToPortfolio" />
+            android:onClick="addToPortfolio"/>
     </LinearLayout>
 
     <LinearLayout
