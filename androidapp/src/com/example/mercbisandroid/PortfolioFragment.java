@@ -11,7 +11,8 @@ import android.widget.ListView;
 
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
+ * Portfolio fragment/tab class.
+ * @author Justin Inácio
  * 
  */
 public class PortfolioFragment extends ListFragment {

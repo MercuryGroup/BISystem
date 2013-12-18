@@ -23,8 +23,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/**
+ * Search activity which takes care of all the search queries. 
+ * Search results can be clicked on to show a detailed view of the stock.
+ * @author Justin Inácio
+ */
 public class SearchActivity extends ListActivity {
-
 	ListView l;
 
 	String[] Stocks;
@@ -92,14 +96,15 @@ public class SearchActivity extends ListActivity {
 		l.setAdapter(adapter);
 
 		
-		
+		/**
+		 * onclick listener which launches the detailed stock view of the clicked stock name.
+		 */
 		l.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView parent, View view, int position, long id) {
-				System.out.println(position);
-				Log.d("test", testArrayList.get(position));
+/*				System.out.println(position);
+				Log.d("test", testArrayList.get(position));*/
 				
 				MainActivity.stockPos = position;
-				// System.out.println(STOCKLIST.get(position));
 				MainActivity.StockObject = STOCKLIST.get(position);
 
 				Intent StockActivity = new Intent(SearchActivity.this, StockActivity.class);
@@ -108,24 +113,6 @@ public class SearchActivity extends ListActivity {
 				MainActivity.StockMarket = STOCKMARKET[position];
 
 				startActivity(StockActivity);
-				
-/*				if (MainActivity.globalArrayTest.contains(testArrayList.get(position))) {
-					Context context = getApplicationContext();
-					CharSequence text = "Portfolio already contains "+ testArrayList.get(position)+"!";
-					int duration = Toast.LENGTH_SHORT;
-
-					Toast toast = Toast.makeText(context, text, duration);
-					toast.show();
-				} else {
-					Context context = getApplicationContext();
-					CharSequence text = testArrayList.get(position) + " added to portfolio!";
-					int duration = Toast.LENGTH_SHORT;
-					MainActivity.globalArrayTest.add(testArrayList.get(position));
-					Toast toast = Toast.makeText(context, text, duration);
-					toast.show();
-				}*/
-				
-
 			}
 		});
 
@@ -139,12 +126,16 @@ public class SearchActivity extends ListActivity {
 	private void handleIntent(Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
-			// Log.d("Event", query);
-
 			search(query);
 		}
 	}
 
+	
+	/**
+	 * method which tells how to display the returned listview after a query.
+	 * In this case, everything which does not contain the elements of 'query', is removed.
+	 * @param query the variable which holds the user's search query.
+	 */
 	private void search(String query) {
 		Iterator<String> iter = testArrayList.iterator();
 		while (iter.hasNext()) {

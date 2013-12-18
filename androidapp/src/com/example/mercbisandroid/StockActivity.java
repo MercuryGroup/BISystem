@@ -542,11 +542,13 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			return dataset;
 	}
 
+		
+		/**
+		 * Method which is executed when the specified button is pressed. 
+		 * Used to add the stock (being shown in detailed view) to the user's portfolio.
+		 * @throws JSONException
+		 */
 	public void addToPortfolio(View view) throws JSONException{
-		
-		//MainActivity.StockObject.getString("name");
-		
-		//Log.d("pressed", MainActivity.StockObject.getString("name"));
 		if (MainActivity.globalArrayTest.contains(MainActivity.StockObject.getString("name"))) {
 			Context context = getApplicationContext();
 			CharSequence text = "Portfolio already contains "+ MainActivity.StockObject.getString("name") + "!";

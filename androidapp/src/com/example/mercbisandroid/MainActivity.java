@@ -67,6 +67,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
 		checkInternetConnection();	
 		
+		//Justin Inácio
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
 		viewPager.setAdapter(new adapter(getSupportFragmentManager()));
 		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
