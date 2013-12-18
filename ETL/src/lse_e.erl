@@ -343,7 +343,7 @@ currencyWrapper([Head|Tail], Currency) ->
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% CeckValues/2 Traverses trought the html code and looks for the opening td tag, "<td"
+%%% CeckValues/2 Traverses trought the html code and looks for the opening td tag
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -spec(checkValues(list(), list())-> list()).
