@@ -333,6 +333,7 @@ function gethistory(timeframe) {
 	var i = 0;
 	diadata = [];
 	console.log("History url "+getURL());
+	firstDay = true;
 	$.getJSON(getURL(), function(url_data) {
 			// $.getJSON('tempj/ABXday', function(url_data) {
 
@@ -436,7 +437,6 @@ function getNewsItems(mode) {
 			+timeframe+'%22&endkey=%22'+today+'%22');
 	} else {
 		maxitems = 10;
-					// '/couchdb/mercury/_design/bi/_view/news?key=[%22'+
 					setURL(
 						'/couchdb/mercury/_design/bi/_view/news?key=[%22'
 						// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
