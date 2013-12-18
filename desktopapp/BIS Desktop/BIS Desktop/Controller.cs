@@ -37,9 +37,10 @@ namespace BIS_Desktop
             mercuryFont = new Font("Segoe UI", 10, FontStyle.Regular);
 
             //string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.ToString();
-            string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            Console.WriteLine(dir); 
-            filePath = Path.Combine(dir, "\\portfolio.txt"); 
+            //string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            //Console.WriteLine(dir); 
+            filePath = dir + "\\portfolio.txt"; 
 
         }
         public double getStockMinMaxValue(List<Stock> stocks_, String minMax)
@@ -452,7 +453,7 @@ namespace BIS_Desktop
         /// </summary>
         public void resetButton(object sender)
         {
-            mercuryButton b = sender as mercuryButton;
+            MercuryButton b = sender as MercuryButton;
             //Set clicked boolean to true
             b.clicked = false;
             //Change back color 
@@ -477,7 +478,7 @@ namespace BIS_Desktop
             List<Stock> stocks = new List<Stock>();
             foreach (Stock s in allStocks)
             {
-                if (s.Market == "NYSE") // nyse couse we get it from db, later change to Market
+                if (s.Market.ToLower() == Market) // nyse couse we get it from db, later change to Market
                 {
                     stocks.Add(s);
                 }
@@ -504,13 +505,13 @@ namespace BIS_Desktop
             return news;
         }        
     }
-    public class mercuryButton : Button
+    public class MercuryButton : Button
     {
         //Boolean to check if button is clicked
         public Boolean clicked;
         public String buttonType;
         //Constructor
-        public mercuryButton(String text_, String buttonType_)
+        public MercuryButton(String text_, String buttonType_)
         {
             buttonType = buttonType_;
             Controller c = new Controller();
@@ -560,7 +561,7 @@ namespace BIS_Desktop
             // else if the 0th element of the list match return 0
             else if (collection[0].Symbol == target) { return 0; }
             // else if the max of the list match return max
-            else if (collection[high].Symbol == target) { return collection.Count; }
+            else if (collection[high].Symbol == target) { return high; }
 
             else
             {

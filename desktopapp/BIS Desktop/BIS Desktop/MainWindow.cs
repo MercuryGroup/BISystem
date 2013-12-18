@@ -23,15 +23,13 @@ namespace BIS_Desktop
          * [X] Market info display
          * [ ] Portfolio
          */
-
         private Point startPoint = new Point(0, 0);
         //Booleans that checks clicks
-        public Boolean  maximized;
+        public Boolean maximized;
         private Boolean dragging, searchFieldHasText;
-        private int marketPanelHeight;
+        private int marketPanelHeight, dragPanelHeight;
         private String currentMarket, currentResultType;
         private Controller c;
-        
         /*
          * Inner panels that will handle the parsed results 
          * for both left and right panels
@@ -42,7 +40,6 @@ namespace BIS_Desktop
         private ThreadHandler th;
         public MainWindow()
         {
-
             c = new Controller(); 
             //Initialize all boolean values
             dragging = false;
@@ -88,6 +85,8 @@ namespace BIS_Desktop
 
             
             this.SizeChanged += MainWindow_SizeChanged;
+
+            dragPanelHeight = dragPanel.Height;
         }
         //Create backdrop for window
         protected override CreateParams CreateParams
@@ -165,10 +164,7 @@ namespace BIS_Desktop
             //Set current panel to loading (if the panel isn't already loading content)
             if (!panel.getLoading())
             {
-                if (currentResultType == "marketinfo")
-                {
-                    refreshContentPanels();
-                }
+                refreshContentPanels();
                 //Clear current panel
                 panel.Controls.Clear();
                 //Create loading panel
@@ -212,7 +208,6 @@ namespace BIS_Desktop
             
             
         }
-
         public void loadNewsResult(object sender, String resultType, object mainWindow, News n)
         {
             //Instantiate current panel
@@ -258,10 +253,7 @@ namespace BIS_Desktop
                 panel.setLoading(true);
                 //Createnew instance of class for threading
                 th = new ThreadHandler();
-
                 th.fetchNewsResult(panel, resultType, mainWindow, n);
-                
-
             }
 
 
@@ -278,11 +270,6 @@ namespace BIS_Desktop
             newsButton.BackColor = c.mercuryGrey;
             stocksButton.BackColor = c.mercuryGrey;
             portfolioButton.BackColor = c.mercuryGrey;
-            //Set color for foreground
-            //marketButton.ForeColor = Color.Black;
-            //newsButton.ForeColor = Color.Black;
-            //stocksButton.ForeColor = Color.Black;
-            //portfolioButton.ForeColor = Color.Black;
         }
 
         private void resetMarketButtons()
@@ -292,10 +279,6 @@ namespace BIS_Desktop
             lseButton.BackColor = c.mercuryGrey;
             nyseButton.BackColor = c.mercuryGrey;
             omxButton.BackColor = c.mercuryGrey;
-            //Set color for foreground
-            //lseButton.ForeColor = Color.Black;
-            //nyseButton.ForeColor = Color.Black;
-            //omxButton.ForeColor = Color.Black;
         }
 
         /// <summary>
@@ -481,6 +464,7 @@ namespace BIS_Desktop
             leftPanel.Height = mainContentPanel.Height - marketPanel.Height;
             //Set height and width of right and left content.
             leftPanelResults.updateSize();
+            Console.WriteLine("SIZE: " + leftParentPanel.Height + " " + leftPanelResults.Height);
             
         }
         private void disableMarketButtons()
@@ -526,8 +510,10 @@ namespace BIS_Desktop
         {
             if (e.KeyCode == Keys.Enter)
             {
+                currentResultType = "list";
+                refreshContentPanels();
                 resetMenuButtons();
-                loadResult(leftPanelResults, "stocks", searchField.Text,"", this);
+                loadResult(leftPanelResults, "search", searchField.Text,"", this);
                 disableMarketButtons();
                 searchField.Text = "";
                 mainContentPanel.Focus();

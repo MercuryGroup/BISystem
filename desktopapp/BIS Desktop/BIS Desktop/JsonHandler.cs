@@ -170,7 +170,7 @@ namespace BIS_Desktop
             }            
             // build url
             string temp = Market.ToLower();
-            URL += "nyse" + "_stock?startkey=[\""+Symbol+ "\",\"" + c.getTimeStamp(pastDate) + "\"]&endkey=[\"" +Symbol + "," + c.getTimeStamp(now) + "\"]";
+            URL += temp + "_stock?startkey=[\""+Symbol+ "\",\"" + c.getTimeStamp(pastDate) + "\"]&endkey=[\"" +Symbol + "," + c.getTimeStamp(now) + "\"]";
             try
             {
                 using (var s = client.GetStreamAsync(URL).Result)
@@ -201,8 +201,8 @@ namespace BIS_Desktop
         public List<Stock> getAllStocks(){
             
             List<Stock> stocks = new List<Stock>();
-
-            String url = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22";
+            // in this case we do not have to build the url, since there are no symbols or periods involved etc. So we just use the below direct link
+            string url = "http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock";
             try
             {
                 using (var s = client.GetStreamAsync(url).Result)

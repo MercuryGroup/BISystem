@@ -1,6 +1,5 @@
 
 package com.example.mercbisandroid;
-import java.security.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,11 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-/*import org.afree.chart.ChartFactory;
-import org.afree.chart.plot.PlotOrientation;
-import org.afree.data.category.CategoryDataset;
-import org.afree.data.category.DefaultCategoryDataset;*/
 
 import org.afree.chart.ChartFactory;
 import org.afree.chart.plot.PlotOrientation;
@@ -22,13 +16,13 @@ import org.afree.data.xy.DefaultHighLowDataset;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +31,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
+/*import org.afree.chart.ChartFactory;
+import org.afree.chart.plot.PlotOrientation;
+import org.afree.data.category.CategoryDataset;
+import org.afree.data.category.DefaultCategoryDataset;*/
 
 /**
  * @author Rickard Bremer
@@ -533,7 +532,6 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			
 				highd[i] = high.get(i);
 				lowd[i] = low.get(i);
-				closed[i] = close.get(i);
 				opend[i] = open.get(i);
 				volumed[i] = volume.get(i);
 				dated[i] = date.get(i);
@@ -543,4 +541,28 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			DefaultHighLowDataset dataset = new DefaultHighLowDataset("Series 1 ", dated, highd, lowd, opend, closed, volumed);
 			return dataset;
 	}
+
+	public void addToPortfolio(View view) throws JSONException{
+		
+		//MainActivity.StockObject.getString("name");
+		
+		//Log.d("pressed", MainActivity.StockObject.getString("name"));
+		if (MainActivity.globalArrayTest.contains(MainActivity.StockObject.getString("name"))) {
+			Context context = getApplicationContext();
+			CharSequence text = "Portfolio already contains "+ MainActivity.StockObject.getString("name") + "!";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		} else {
+			Context context = getApplicationContext();
+			CharSequence text = MainActivity.StockObject.getString("name")+ " added to portfolio!";
+			int duration = Toast.LENGTH_SHORT;
+			MainActivity.globalArrayTest.add(MainActivity.StockObject.getString("name"));
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		}
+		
+	}
+
 } 

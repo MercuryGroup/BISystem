@@ -32,8 +32,9 @@ namespace BIS_Desktop
         private Boolean OpenValInfoClicked = false;
         private Boolean labelClicked = false; // boolean for controling the colors of the infoLabels when clicked
         private Boolean listsEmpty = false;  // boolean for checking if the lists are empty
-        private mercuryButton[] stockInfoButtons; // array of stock info buttons
-        private mercuryButton[] newsInfoButtons; // array of news info buttons
+        private Boolean setBlue = true; // boolean for keeping check of if the list items are to be set blue or not 
+        private MercuryButton[] stockInfoButtons; // array of stock info buttons
+        private MercuryButton[] newsInfoButtons; // array of news info buttons
         private Label[,] listLabels; // 2d Array of stockLabels
         private FlowLayoutPanel[] listPanels; // array for stockPanels with labels
         private FlowLayoutPanel nextPreviousPanel; // panel for holding the the list traverser 
@@ -305,7 +306,7 @@ namespace BIS_Desktop
                 latestLabel.Width = stockLabelWidth - 1;
                 Label changeLabel = createStockLabel(s.Change, s, j);
                 changeLabel.Width = stockLabelWidth - 1;
-                if (listItemClicked == j)
+                if (listItemClicked == j && setBlue == true)
                 {
                     changeLabel.ForeColor = Color.White;
                 }
@@ -324,7 +325,7 @@ namespace BIS_Desktop
                 Label percentLabel = createStockLabel(s.Percent, s, j);
                 percentLabel.Width = stockLabelWidth - 1;
                 // set colors on the percent label to green or red depending if the value is + or -
-                if (listItemClicked == j)
+                if (listItemClicked == j && setBlue == true)
                 {
                     percentLabel.ForeColor = Color.White;
                 }
@@ -361,7 +362,7 @@ namespace BIS_Desktop
                 FlowLayoutPanel stockPanel = new FlowLayoutPanel();
                 stockPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
                 stockPanel.Height = buttonHeight;
-                stockPanel.BackColor = Color.WhiteSmoke; 
+                stockPanel.BackColor = c.highlightWhite; 
                 stockPanel.Width = panelWidth -3;
                 for (int k = 0; k < listLabels.GetLength(1); k++)
                 {
@@ -409,7 +410,7 @@ namespace BIS_Desktop
                 newsPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
                 newsPanel.Height = buttonHeight;
                 newsPanel.Width = panelWidth;
-                newsPanel.BackColor = Color.WhiteSmoke;
+                newsPanel.BackColor = c.highlightWhite;
                 for (int k = 0; k < listLabels.GetLength(1); k++)
                 {
                     // loop rows and add the labels of the 2d array
@@ -455,7 +456,8 @@ namespace BIS_Desktop
                 numberStop = side + 10;
                 numberStart = side;
             }
-            numberOfNumLabel = numberStop; 
+            numberOfNumLabel = numberStop;
+ 
             // loop the number labels intervall
             for (int i = numberStart; i < numberStop; i++)
             {
@@ -533,7 +535,7 @@ namespace BIS_Desktop
         private void highlightList_MouseEnter(object sender, System.EventArgs e, int j)
         {
             // check if its not allready clicked
-            if (listItemClicked != j)
+            if (listItemClicked != j && setBlue == false)
             {
                 // loop rows
                 for (int k = 0; k < listLabels.GetLength(1); k++)
@@ -552,7 +554,7 @@ namespace BIS_Desktop
         private void highlightList_MouseLeave(object sender, System.EventArgs e, int j)
         {
             // check if its not allready clicked
-            if (listItemClicked != j)
+            if (listItemClicked != j && setBlue == false)
             {
                 // loop rows
                 for (int k = 0; k < listLabels.GetLength(1); k++)
@@ -596,6 +598,7 @@ namespace BIS_Desktop
             try
             {
                 var num = int.Parse(i);
+                setBlue = false; 
                 contentAdder(num);
             }
             catch (Exception ee) { }           
@@ -608,6 +611,7 @@ namespace BIS_Desktop
         private void last_clicked(object sender, System.EventArgs e)
         {
             // go to last side
+            setBlue = false; 
             contentAdder(maxNumberOfPages); 
         }
         /// <summary>
@@ -618,6 +622,7 @@ namespace BIS_Desktop
         private void first_clicked(object sender, System.EventArgs e)
         {
             // go to first side
+            setBlue = false; 
             contentAdder(1);
         }
         /// <summary>
@@ -628,6 +633,7 @@ namespace BIS_Desktop
         private void previous_clicked(object sender, System.EventArgs e)
         {
             // increse side by 1
+            setBlue = false; 
             contentAdder(currentSide - 1);
         }
         /// <summary>
@@ -638,6 +644,7 @@ namespace BIS_Desktop
         private void next_clicked(object sender, System.EventArgs e)
         {
             // decrese side by 1
+            setBlue = false; 
             contentAdder(currentSide + 1);
         }
         /// <summary>
@@ -760,7 +767,7 @@ namespace BIS_Desktop
                        NameInfoClicked = true;
                    }
                    break;
-               case "Latest":
+               case "Latest €":
                    if (LatestInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
@@ -772,7 +779,7 @@ namespace BIS_Desktop
                        LatestInfoClicked = true;
                    }
                    break;
-               case "Change":
+               case "Change €":
                    if (ChangeInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
@@ -796,7 +803,7 @@ namespace BIS_Desktop
                        PercentInfoClicked = true;
                    }
                    break;
-               case "Opening":
+               case "Opening €":
                    if (OpenValInfoClicked)
                    {
                        filteredStockList = c.sortStockList(filteredStockList, sortAfter, true);
@@ -828,6 +835,7 @@ namespace BIS_Desktop
                listLabels[num, k].BackColor = c.mercuryBlue;
                listLabels[num, k].ForeColor = Color.White;
            }
+           setBlue = true; 
            // load rightPanelResul as resultPanel
            listItemClicked = num;
            ResultPanel temp = mw.rightPanelResults as ResultPanel;
@@ -849,9 +857,10 @@ namespace BIS_Desktop
                 listLabels[num, k].ForeColor = Color.White;
             }
             listItemClicked = num;
+            setBlue = true; 
             // load rightPanelResul as resultPanel
             ResultPanel temp = mw.rightPanelResults as ResultPanel;
-            NewsPanel newsPanel = new NewsPanel(n, true);
+            NewsReader newsPanel = new NewsReader(n, true);
             temp.Controls.Clear();
             temp.setContent(newsPanel);
             temp.updateSize();
@@ -877,7 +886,7 @@ namespace BIS_Desktop
            {
                // the width of stock labels equals W / 6 since we have 6 labels
                stockLabelWidth = W / 6;
-               foreach (mercuryButton btn in stockInfoButtons)
+               foreach (MercuryButton btn in stockInfoButtons)
                {
                    // set their size -6 to fit the padding
                    btn.Width = stockLabelWidth - 6;            
@@ -886,9 +895,9 @@ namespace BIS_Desktop
                stockInfoPanel.Width = W;
                stockInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 4  < filteredStockList.Count)
+               if ((H / buttonHeight) - 5  < filteredStockList.Count)
                {   
-                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
+                   numberOfButtonsPerPage = (H / buttonHeight) - 5;
                }            
            }
            // check DataButtonClicked
@@ -896,7 +905,7 @@ namespace BIS_Desktop
            {
                // the width of news labels equals W / 3 since we have 3 labels
                newsLabelWidth = W / 3;
-               foreach (mercuryButton btn in newsInfoButtons)
+               foreach (MercuryButton btn in newsInfoButtons)
                {
                    // set their size -6 to fit the padding
                     btn.Width = newsLabelWidth - 6;
@@ -905,14 +914,22 @@ namespace BIS_Desktop
                newsInfoPanel.Width = W;
                newsInfoPanel.Height = buttonHeight; 
                // reset number of buttons per page
-               if ((H / buttonHeight) - 4 < newsList.Count)
+               if ((H / buttonHeight) - 5 < newsList.Count)
                {
-                   numberOfButtonsPerPage = (H / buttonHeight) - 4;
+                   numberOfButtonsPerPage = (H / buttonHeight) - 5;
                }
            }
            panelWidth = W;
            nextPreviousPanel.Width = panelWidth;
-           filler.Width = (panelWidth - (106 + (numberOfNumLabel * 35))) / 2;
+           //calculate filler depending on how many number labels are present in the side stepper
+           if (numberOfNumLabel > 10)
+           {
+               filler.Width = (panelWidth - (150 + (10 * 35))) / 2;
+           }
+           else
+           {
+               filler.Width = (panelWidth - (150 + (numberOfNumLabel * 35))) / 2;
+           }
            // if the lists aren´t empty we reload the panel
            if (!listsEmpty)
            {
@@ -926,44 +943,44 @@ namespace BIS_Desktop
        {          
            newsInfoPanel = new TableLayoutPanel();
            // create new mercuryButtons for the sorting the list of stocks
-           mercuryButton NewsNameButton = new mercuryButton("Symbol", "");
+           MercuryButton NewsNameButton = new MercuryButton("Symbol", "");
            NewsNameButton.Height = 35;
            NewsNameButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "symbol"); };
-           mercuryButton NewsTitleButton = new mercuryButton("Title", "");
+           MercuryButton NewsTitleButton = new MercuryButton("Title", "");
            NewsTitleButton.Height = 35;
            NewsTitleButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "title"); };
-           mercuryButton NewsUpdatedButton = new mercuryButton("Published", "");
+           MercuryButton NewsUpdatedButton = new MercuryButton("Published", "");
            NewsUpdatedButton.Height = 35;
            NewsUpdatedButton.Click += (sender, e) => { newsInfoButton_clicked(sender, e, "pubDate"); };
            // add them to panel
            newsInfoPanel.Controls.Add(NewsNameButton, 1, 1);
            newsInfoPanel.Controls.Add(NewsTitleButton, 2, 1);
            newsInfoPanel.Controls.Add(NewsUpdatedButton, 3, 1);
-           newsInfoButtons = new mercuryButton[3];   
+           newsInfoButtons = new MercuryButton[3];   
            // add the labels to the array
            newsInfoButtons[0] = NewsUpdatedButton;
            newsInfoButtons[1] = NewsTitleButton;
            newsInfoButtons[2] = NewsNameButton;
            // create the infoLabel for stocks list
            stockInfoPanel = new TableLayoutPanel();
-           stockInfoButtons = new mercuryButton[6];
+           stockInfoButtons = new MercuryButton[6];
            // create new mercuryButtons for the sorting the list of stocks
-           mercuryButton SymbolButton = new mercuryButton("Symbol", "");
+           MercuryButton SymbolButton = new MercuryButton("Symbol", "");
            SymbolButton.Height = 35;
            SymbolButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Symbol"); };
-           mercuryButton NameButton = new mercuryButton("Company", "");  
+           MercuryButton NameButton = new MercuryButton("Company", "");  
            NameButton.Height = 35;
            NameButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Name"); };
-           mercuryButton LatestButton = new mercuryButton("Latest €", "");
+           MercuryButton LatestButton = new MercuryButton("Latest €", "");
            LatestButton.Height = 35;
            LatestButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Latest"); };
-           mercuryButton ChangeButton = new mercuryButton("Change €", "");
+           MercuryButton ChangeButton = new MercuryButton("Change €", "");
            ChangeButton.Height = 35;
            ChangeButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Change"); };
-           mercuryButton PercentButton = new mercuryButton("Percent", "");
+           MercuryButton PercentButton = new MercuryButton("Percent", "");
            PercentButton.Height = 35;
            PercentButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "Percent"); };
-           mercuryButton OpenValueButton = new mercuryButton("Opening €", "");
+           MercuryButton OpenValueButton = new MercuryButton("Opening €", "");
            OpenValueButton.Height = 35;
            OpenValueButton.Click += (sender, e) => { stockInfoButton_clicked(sender, e, "OpenVal"); };
            // add the labels to the panel
@@ -1013,7 +1030,7 @@ namespace BIS_Desktop
            newsLabel.Height = buttonHeight;
            newsLabel.Width = newsLabelWidth - 2;
            newsLabel.Margin = new Padding(0);
-           if (listItemClicked == j)
+           if (listItemClicked == j && setBlue == true)
            {
                newsLabel.BackColor = c.mercuryBlue;
                newsLabel.ForeColor = Color.White;
@@ -1045,7 +1062,7 @@ namespace BIS_Desktop
            stockLabel.Height = buttonHeight;
            stockLabel.Width = stockLabelWidth;
            stockLabel.Margin = new Padding(0);
-           if (listItemClicked == j)
+           if (listItemClicked == j && setBlue == true)
            {
                stockLabel.BackColor = c.mercuryBlue;
                stockLabel.ForeColor = Color.White;
