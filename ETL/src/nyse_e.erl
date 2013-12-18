@@ -104,7 +104,7 @@ sendData({market,[{latest,currencyWrapper(re:replace(Latest,",","",[{return, lis
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% @doc
-%%% Responsible for finding the data between the tags, stops when </tr> is 
+%%% Responsible for finding the data between the tags, stops when "tr" is 
 %%% encountered.
 %%% @end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
