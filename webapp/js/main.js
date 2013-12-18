@@ -59,8 +59,8 @@ try {getStockData();
 catch (e) {
 	$.getJSON(
 		// 'tempj/nyse'
-		'/couchdb/mercury_latest/_design/bi/_view/stock'
-		// 'http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock'
+		// '/couchdb/mercury_latest/_design/bi/_view/stock'
+		'http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock'
 		, function(url_data) {
 			$.each(url_data, function (i,element) {
 				if ($.isArray(element) === true) {
@@ -118,15 +118,15 @@ function loadSingleStockList() {
 	$.each(getStockData(), function (i,value) {
 
 		if (getMarket() === value.value.market) {
-					console.log(getMarket() === value.value.market);
-		setFirstLetter(value.value.symbol.substr(0,1));
-		if(firstInList === null)  {
-			firstInList = getFirstLetter();
-		}
-		if (getFirstLetter() !== otherLetter) {
-			otherLetter = getFirstLetter();
-			addSearchLetters(getFirstLetter());
-		} 
+			console.log(getMarket() === value.value.market);
+			setFirstLetter(value.value.symbol.substr(0,1));
+			if(firstInList === null)  {
+				firstInList = getFirstLetter();
+			}
+			if (getFirstLetter() !== otherLetter) {
+				otherLetter = getFirstLetter();
+				addSearchLetters(getFirstLetter());
+			} 
 		}	
 	});
 	addPageNumbers(firstInList);
@@ -259,7 +259,6 @@ function addElement(Symbol,Name,Change,Value,Market) {
 		var cn = document.getElementById('companyname').innerHTML=Name;
 		getNewsItems('null');
 		portfolioController();
-		fillInDataTable();
 		paintlinechart();
 	}
 	for (var i = 0; i<cdata.length;i++) {
@@ -301,46 +300,53 @@ function gethistory(timeframe) {
 	}
 	console.log("Gethistory mode is "+mode);
 	if (getStockMode() === 'stock') {
-	
+
 		setURL(
-			 '/couchdb/mercury/_design/bi/_view/'
-			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 // '/couchdb/mercury/_design/bi/_view/'
+			 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
 			 +getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
 	} else if (getStockMode() === 'market') {
-					
-					setURL(
-			 '/couchdb/mercury/_design/bi/_view/'
-			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
-			 +getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
-				}
 
-				var tableRef = document.getElementById('resultList');
-				var date1 = null;
-				var date2 = null;
-				dailyValues = [];
-				datelist = [];
-				openVallist = [];
-				latestlist = [];
-				changelist = [];
-				percentlist = [];
-				dayLow = [];
-				dayHigh = [];
-				var Dat;
-				var OVal;
-				var Chan;
-				var Lat;
-				var nextDay = new Boolean();
-				var firstDay = new Boolean();
-				var i = 0;
-				diadata = [];
-				console.log("History url "+getURL());
-				$.getJSON(getURL(), function(url_data) {
+		setURL(
+			 // '/couchdb/mercury/_design/bi/_view/'
+			 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
+			 +getMarket().toLowerCase()+'_market?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22');
+	}
+
+	var tableRef = document.getElementById('resultList');
+	var date1 = null;
+	var date2 = null;
+	dailyValues = [];
+	datelist = [];
+	openVallist = [];
+	latestlist = [];
+	changelist = [];
+	percentlist = [];
+	dayLow = [];
+	dayHigh = [];
+	var Dat;
+	var OVal;
+	var Chan;
+	var Lat;
+	var nextDay = new Boolean();
+	var firstDay = new Boolean();
+	var i = 0;
+	diadata = [];
+	console.log("History url "+getURL());
+	$.getJSON(getURL(), function(url_data) {
 			// $.getJSON('tempj/ABXday', function(url_data) {
+
 				$.each(url_data, function (i,element) {
 					if ($.isArray(element) === true) {
 						sortArrayByTime(element);
 						element.reverse();
+							if (firstDataFill === true) {
+								fillInDataTable({date: element[0].value.updated,c: element[0].value.latest,o: element[0].value.openVal,cl: element[0].value.change,vol: element[0].value.volume,percent: element[0].value.percent});
+								firstDataFill = false;
+							}
+
 						$.each(element, function (i,value) {
+
 							dayLow = [];
 							dayHigh = [];
 							if (duration === "today") {
@@ -386,12 +392,15 @@ function gethistory(timeframe) {
 						});
 }
 });
-setDiadata(diadata.reverse());
-chartPaintSelector();
-if (firstDataFill === true) {
-	fillInDataTable();
-	firstDataFill = false;
+diadata3 = [];
+for (var i = 0;i<diadata.length;i++) {
+	if (diadata[i] !==  undefined) { 
+		diadata3.push(diadata[i]);
+	}
 }
+setDiadata(diadata3.reverse());
+chartPaintSelector();
+
 });
 
 }    
@@ -421,18 +430,17 @@ function getNewsItems(mode) {
 	if(mode === 'biglist') {
 		maxitems = 100;
 		document.getElementById('newsdisplay').style.height = '600px';
-				// '/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
-				setURL(
-			'/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
-			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'
+		setURL(
+			// '/couchdb/mercury/_design/bi/_view/news_list?startkey=%22'
+			'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'
 			+timeframe+'%22&endkey=%22'+today+'%22');
-			} else {
-				maxitems = 10;
+	} else {
+		maxitems = 10;
 					// '/couchdb/mercury/_design/bi/_view/news?key=[%22'+
 					setURL(
-						'/couchdb/mercury/_design/bi/_view/news?key=[%22'
-			// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
-			+getSymbol()+'%22,%22'+getMarket()+'%22]');
+						// '/couchdb/mercury/_design/bi/_view/news?key=[%22'
+						'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news?key=[%22'
+						+getSymbol()+'%22,%22'+getMarket()+'%22]');
 				}
 				console.log(getURL());
 				$.getJSON(getURL(), function(url_data) {
@@ -447,7 +455,6 @@ function getNewsItems(mode) {
 						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
 							nitem++;
-							console.log('getting biglist item');
 						}
 						if (nitem < maxitems && mode != 'biglist') {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
@@ -478,35 +485,29 @@ function addNewsListItem(newsitem) {
 }
 
 //Fills the table that displays todays data
-function fillInDataTable() {
-
+function fillInDataTable(diadata) {
+	var diadata = diadata
 	$(document).ready(function() {
 		$("#dailystats").find("tr:gt(0)").remove();
 	});
 
 	var ni = document.getElementById('dailystats');
 	var newrow = document.createElement('tr');
-	try  {
-		var cdata =[getSymbol(),
-		diadata[diadata.length-1].c,
-		diadata[diadata.length-1].cl,
-		diadata[diadata.length-1].percent,
-		diadata[diadata.length-1].o,
-		diadata[diadata.length-1].vol];
-		var Change = diadata[diadata.length-1].cl;
-		var Value = diadata[diadata.length-1].c;
-		var Percent = diadata[diadata.length-1].percent;
-		var Open = diadata[diadata.length-1].o;
-		var Volume = diadata[diadata.length-1].vol
+	console.log(dateConvert(Date.today().valueOf()) +" date2" + dateConvert(diadata.date));
+	if (dateConvert(Date.today().valueOf()) === dateConvert(diadata.date)) {
 
-	} catch (te) {
+
+
+		var cdata =[getSymbol(),
+		diadata.c,
+		diadata.cl,
+		diadata.percent,
+		diadata.o,
+		diadata.vol];
+
+	} else {
 
 		var cdata = [getSymbol(),"Market closed","Market closed","Market closed","Market closed","Market closed"];
-		Change = "Market closed";
-		Value = "Market closed";
-		Percent ="Market closed";
-		Open = "Market closed";
-		Volume ="Market closed";
 	}
 
 	for (var i = 0; i<cdata.length;i++) {
