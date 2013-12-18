@@ -41,6 +41,11 @@ function mainNavigator() {
 
 //Loads the JSON object from the middle layer
 function loadJSONList(mode) {
+	var tableRef = document.getElementById('resultList');
+	while ( tableRef.rows.length > 0 )
+	{
+		tableRef.deleteRow(0);
+	}
 	var target = document.getElementById('myDiv');
 
 	spinner = new Spinner(opts).spin(target);
@@ -53,13 +58,13 @@ try {getStockData();
 }
 catch (e) {
 	$.getJSON(
-		'tempj/nyse'
-
-		// 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse?startkey=%221384142400000%22&endkey=%221384172149000%22'
+		// 'tempj/nyse'
+		'/couchdb/mercury_latest/_design/bi/_view/stock'
+		// 'http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock'
 		, function(url_data) {
 			$.each(url_data, function (i,element) {
 				if ($.isArray(element) === true) {
-					sortArrayBySymbol(element);
+					// sortArrayBySymbol(element);
 					setStockData(element);
 					modeSelector(mode);
 				} 
@@ -81,7 +86,7 @@ function modeSelector(mode) {
 		firstDataFill = true;
 		setSymbol('NYSE');
 		setStockMode('market');
-		gethistory('today');
+		gethistory('month');
 		getNewsItems('biglist');
 	} else if (mode === 'list' && getTopic() === 'news') {
 
@@ -111,6 +116,9 @@ function loadSingleStockList() {
 	var firstInList = null;
 
 	$.each(getStockData(), function (i,value) {
+
+		if (getMarket() === value.value.market) {
+					console.log(getMarket() === value.value.market);
 		setFirstLetter(value.value.symbol.substr(0,1));
 		if(firstInList === null)  {
 			firstInList = getFirstLetter();
@@ -118,13 +126,15 @@ function loadSingleStockList() {
 		if (getFirstLetter() !== otherLetter) {
 			otherLetter = getFirstLetter();
 			addSearchLetters(getFirstLetter());
-		} 	
+		} 
+		}	
 	});
 	addPageNumbers(firstInList);
 }      
 
 //Searches through the array of stocks when the user uses the search function
 function search() {
+	document.getElementById('naviInfo').innerHTML = "Search Results";
 	var target = document.getElementById("letternavigator").innerHTML = '';
 	var target = document.getElementById("pagenavigator").innerHTML = '';
 	try {getStockData()}
@@ -190,7 +200,7 @@ function addPageNumbers(letter) {
 	var count = 0;
 	var pcount =1;
 	$.each(getStockData(), function (i,value) {
-		if (letter === value.value.symbol.substr(0,1) && count === 0) {
+		if (letter === value.value.symbol.substr(0,1) && count === 0 && getMarket() === value.value.market) {
 			setFirstLetter(letter);
 
 			var target = document.getElementById("pagenavigator");
@@ -201,10 +211,10 @@ function addPageNumbers(letter) {
 			target.appendChild(button);
 			pcount++;
 			count++;
-		} else if (letter === value.value.symbol.substr(0,1) && count === 20) {
+		} else if (letter === value.value.symbol.substr(0,1) && count === 20 && getMarket() === value.value.market) {
 			count = 0;
 
-		} else if (letter === value.value.symbol.substr(0,1)) {
+		} else if (letter === value.value.symbol.substr(0,1) && getMarket() === value.value.market) {
 			count++;
 		}
 
@@ -225,11 +235,10 @@ function addElementsForPage(pcount) {
 	var elementrange = pcount * 20;
 	var startvalue = elementrange - 20;
 	$.each(getStockData(), function (i,value) {
-		if (getFirstLetter() === value.value.symbol.substr(0,1) && count < startvalue+20 && count >= startvalue) {
+		if (getFirstLetter() === value.value.symbol.substr(0,1) && count < startvalue+20 && count >= startvalue && getMarket() === value.value.market) {
 			count++;
-			console.log(value);
 			addElement(value.value.symbol,value.value.name,value.value.change,value.value.latest,value.value.market); 
-		} else if(getFirstLetter() === value.value.symbol.substr(0,1)) {count++;}
+		} else if(getFirstLetter() === value.value.symbol.substr(0,1) && getMarket() === value.value.market) {count++;}
 	});
 }
 
@@ -246,7 +255,7 @@ function addElement(Symbol,Name,Change,Value,Market) {
 		setChartType("line");
 		firstDataFill = true;
 		setStockMode('stock');
-		gethistory('today');
+		gethistory('month');
 		var cn = document.getElementById('companyname').innerHTML=Name;
 		getNewsItems('null');
 		portfolioController();
@@ -292,13 +301,13 @@ function gethistory(timeframe) {
 	}
 	console.log("Gethistory mode is "+mode);
 	if (getStockMode() === 'stock') {
-		// '/couchdb/mercury/_design/bi/_view/'
+	
 		setURL(
 			 '/couchdb/mercury/_design/bi/_view/'
 			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
 			 +getMarket().toLowerCase()+'_stock?startkey=[%22'+getSymbol()+'%22,%22'+timeframe+'%22]&endkey=[%22'+getSymbol()+'%22,%22'+today+'%22]');
 	} else if (getStockMode() === 'market') {
-					// '/couchdb/mercury/_design/bi/_view/
+					
 					setURL(
 			 '/couchdb/mercury/_design/bi/_view/'
 			 // 'http://mercury.dyndns.org:5984/mercury/_design/bi/_view/'
@@ -435,9 +444,6 @@ function getNewsItems(mode) {
 					element.reverse();
 					setNewsArray(element);
 					$.each(getNewsArray(), function (i,value) {
-						console.log(mode==='biglist');
-						console.log(nitem < maxitems);
-						console.log(value.value.market === getMarket());
 						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
 							nitem++;
@@ -648,10 +654,6 @@ function paintlinechart() {
 
 //Paints a candlestick diagram
 function paintCandlestick() {
-	console.log("diadata length "+diadata.length);
-	for(var i = 0;i<diadata.length;i++) {
-		console.log(getDiadata()[i]);
-	}
 	$("#canvas").dxChart({
 		title: "Value",
 		dataSource: getDiadata(),
