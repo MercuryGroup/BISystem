@@ -21,7 +21,7 @@ namespace BIS_Desktop
         private int numberOfButtonsPerPage = 10; // number of buttons listet per page, change depening on screen size
         private int maxNumberOfPages; // maximum number of pages 
         private int currentSide;  // the current side we are standing on, used for previuos and next labels
-        private int numberOfNumLabel = 10;// holds the number of number labels on the page, used for calculation the with of the nextPreviousPanel
+        private int numberOfNumLabel;// holds the number of number labels on the page, used for calculation the with of the nextPreviousPanel
         private int listItemClicked = -1; // number of the list buttons currently selected
         // Boolean for controlling the infoButtons sort functions, ie sort decendeing or acending
         private Boolean SymbolInfoClicked = false;
@@ -362,7 +362,7 @@ namespace BIS_Desktop
                 FlowLayoutPanel stockPanel = new FlowLayoutPanel();
                 stockPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
                 stockPanel.Height = buttonHeight;
-                stockPanel.BackColor = Color.WhiteSmoke; 
+                stockPanel.BackColor = c.highlightWhite; 
                 stockPanel.Width = panelWidth -3;
                 for (int k = 0; k < listLabels.GetLength(1); k++)
                 {
@@ -410,7 +410,7 @@ namespace BIS_Desktop
                 newsPanel.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
                 newsPanel.Height = buttonHeight;
                 newsPanel.Width = panelWidth;
-                newsPanel.BackColor = Color.WhiteSmoke;
+                newsPanel.BackColor = c.highlightWhite;
                 for (int k = 0; k < listLabels.GetLength(1); k++)
                 {
                     // loop rows and add the labels of the 2d array
@@ -456,6 +456,7 @@ namespace BIS_Desktop
                 numberStop = side + 10;
                 numberStart = side;
             }
+            numberOfNumLabel = numberStop;
  
             // loop the number labels intervall
             for (int i = numberStart; i < numberStop; i++)
@@ -920,7 +921,15 @@ namespace BIS_Desktop
            }
            panelWidth = W;
            nextPreviousPanel.Width = panelWidth;
-           filler.Width = (panelWidth - (150 + (numberOfNumLabel * 35))) / 2;
+           //calculate filler depending on how many number labels are present in the side stepper
+           if (numberOfNumLabel > 10)
+           {
+               filler.Width = (panelWidth - (150 + (10 * 35))) / 2;
+           }
+           else
+           {
+               filler.Width = (panelWidth - (150 + (numberOfNumLabel * 35))) / 2;
+           }
            // if the lists aren´t empty we reload the panel
            if (!listsEmpty)
            {

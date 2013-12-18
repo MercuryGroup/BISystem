@@ -85,6 +85,7 @@ namespace BIS_Desktop
                     stockList.Add(tempStock);
                 }
             }
+            stockList = checkStock(stockList); 
             stockList = c.sortStockList(stockList, "Updated", false);
             Padding = new Padding(5, 3, 5, 3);
             this.BackColor = c.highlightWhite;
@@ -638,9 +639,9 @@ namespace BIS_Desktop
                     if (dates[dateCount].Date == currentStockDate.Date)
                     {
                         openVal_ = double.Parse(currentStock.OpenVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
-                        
+      
                         //Add value to current day
-                        dayValues.Add(double.Parse(stocks[s].Latest, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
+                        dayValues.Add(double.Parse(stocks[s].Latest, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));                  
                     }
                 }
                 //Create new array for candlestick information
@@ -757,6 +758,18 @@ namespace BIS_Desktop
             MercuryButton button = sender as MercuryButton;
             c.addToPortfolio(button.buttonType);
 
+        }
+        private List<Stock> checkStock(List<Stock> stockList)
+        {
+            List<Stock> checkedStocks = new List<Stock>();
+            foreach (Stock s in stockList)
+            {
+                if (!(s.Latest == "-" || s.OpenVal == "-"))
+                {
+                    checkedStocks.Add(s);
+                }
+            }
+            return checkedStocks; 
         }
     }
 }

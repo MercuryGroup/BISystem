@@ -478,7 +478,7 @@ namespace BIS_Desktop
             List<Stock> stocks = new List<Stock>();
             foreach (Stock s in allStocks)
             {
-                if (s.Market == "NYSE") // nyse couse we get it from db, later change to Market
+                if (s.Market.ToLower() == Market) // nyse couse we get it from db, later change to Market
                 {
                     stocks.Add(s);
                 }
