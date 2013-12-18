@@ -1,7 +1,19 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% File: ETL.erl
+%%% @author Niklas Larsson
+%%% @doc
+%%%	Load module for the database that holds onky the latest values.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -module(load_latest).
 -compile(export_all).
 -include("../include/ETL.hrl").
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% start/0 - Starts the scheduler.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start() ->
 	case whereis(?LOAD_LATEST) of
 		undefined ->
@@ -11,6 +23,11 @@ start() ->
 			{ok, PID}
 	end.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% stop/0 - Stops the scheduler.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 stop() ->
 	case whereis(?LOAD_LATEST) of
 		undefined ->
@@ -20,6 +37,11 @@ stop() ->
 			stopped
 	end.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% init/0 - Initilaization of the scheduler.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 init() ->
 	application:start(sasl),
 	application:start(ibrowse),
@@ -33,7 +55,11 @@ init() ->
 	State = ets:new(rev, [set, named_table]),
 	loop(State).
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% @doc
+%%% loop/1 - The loops that handles everything.
+%%% @end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 loop(State) ->
 	receive
 		{action, stop} ->
@@ -118,6 +144,7 @@ get_rev([_ | Tail]) ->
 %%% @doc
 %%% Turn List into a Bin.
 %%% @end
+%%% Written by Rickard Bremer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 listToBin([]) -> [];
