@@ -22,8 +22,9 @@ import android.os.AsyncTask;
 
 /**
  * @author Rickard Bremer
- *
+ * This class downloads the detailed stock data when entering the detailed stock overview.
  */
+
 public class DetailedStockThread extends AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> {
 
 protected void onProgressUpdate(Integer... progress) {

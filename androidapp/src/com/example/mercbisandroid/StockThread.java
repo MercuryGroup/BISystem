@@ -16,7 +16,7 @@ import android.os.AsyncTask;
 
 /**
  * @author Rickard Bremer
- *
+ * This class initially downloads all the latest stocks and there data.
  */
 
 public class StockThread extends AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> {

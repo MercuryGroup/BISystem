@@ -13,8 +13,8 @@ import android.widget.ImageView;
 
 
 /**
- * @author 
- *
+ * @author Unknown
+ * This is standard class for creating a frame for graphs to build within.
  */
 
 public class ChartView extends ImageView {

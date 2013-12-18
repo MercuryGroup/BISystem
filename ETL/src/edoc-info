@@ -1,0 +1,3 @@
+{packages,[]}.
+{modules,[currency,etl,load,load_latest,lse_e,newsrss_e,nyse_e,omx_e,
+          scheduler,starter]}.

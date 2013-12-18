@@ -17,7 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
+ * @author Rickard Bremer
+ * This fragment displays a List of all possible stocks.
  * 
  */
 

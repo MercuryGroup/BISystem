@@ -67,7 +67,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
 		checkInternetConnection();	
 		
-		//Justin Inácio
+		//Justin Inï¿½cio
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
 		viewPager.setAdapter(new adapter(getSupportFragmentManager()));
 		viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -179,7 +179,10 @@ public class MainActivity extends FragmentActivity implements TabListener {
 
 
 
-	//Rickard Bremer
+	/**
+	 * @author Rickard Bremer
+	 * Check if there is a internet connection
+	 */
 
 	private void checkInternetConnection() {
     	ConnectivityManager connMgr = (ConnectivityManager) 
@@ -195,6 +198,11 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	        System.exit(0);
     	    }
     	}
+	
+	/**
+	 * @author Rickard Bremer
+	 * Change what happens when you change value in the radiobutton group.
+	 */
 	
 	public void onRadioButtonChart(View view) throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 	    // Is the button now checked?
@@ -221,6 +229,12 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	            break;
 	    }
 	}
+	
+	/**
+	 * @author Rickard Bremer
+	 * Change what happens when you change value in the radiobutton group.
+	 */
+	
 	public void onRadioButtonTime(View view) throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
@@ -321,6 +335,10 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	            break;
 	    }
 	}
+	/**
+	 * @author Rickard Bremer
+	 * method for market buttons in market fragment.
+	 */
 public void onClick(View view) throws JSONException, InterruptedException, ExecutionException {
 	    switch(view.getId()){
 	        case R.id.button:
@@ -341,6 +359,10 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 	    }   
 	}
 
+/**
+ * @author Rickard Bremer
+ * method for market buttons in market fragment.
+ */
 
 	public void onClick1(View view) throws JSONException, InterruptedException, ExecutionException {
 	    switch(view.getId()){
@@ -361,6 +383,11 @@ public void onClick(View view) throws JSONException, InterruptedException, Execu
 	    }   
 	}
 
+	/**
+	 * @author Rickard Bremer
+	 * method for market buttons in market fragment.
+	 */
+	
 	public void onClick2(View view) throws JSONException, InterruptedException, ExecutionException {
 	    switch(view.getId()){
 	        case R.id.button2:

@@ -1,7 +1,7 @@
 package com.example.mercbisandroid;
 /**
  * @author Rickard Bremer
- *
+ * This class downloads all news for the specific stock. It stores them in an array.
  */
 import java.io.BufferedReader;
 import java.io.IOException;

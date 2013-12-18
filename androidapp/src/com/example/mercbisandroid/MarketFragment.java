@@ -22,7 +22,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
+ * @author Rickard Bremer
+ * This class displays the market data overview in the Market fragment.
  * 
  */
 
@@ -78,7 +79,11 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
     	
 }
      
-
+/**
+ * @author Rickard Bremer
+ * Build a dataset to display a graph.
+ * 
+ */
  static CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -97,7 +102,11 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
         return dataset;
 
     }
-    
+ /**
+  * @author Rickard Bremer
+  * Build a dataset to display a graph.
+  */  
+ 
     static CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -116,6 +125,10 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sa
         return dataset;
 
     }
+    /**
+	 * @author Rickard Bremer
+	 * Build a dataset to display a graph.
+	 */
    
 static DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException, java.text.ParseException {
 		

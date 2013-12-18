@@ -39,7 +39,9 @@ import org.afree.data.category.DefaultCategoryDataset;*/
 
 /**
  * @author Rickard Bremer
- *
+ * This activity download a detailed stock list, presents the diffrent graph's in the detailed stock view.
+ * It also displays the diffrent new available for the stock. There is also a portfolio button, which you can sue
+ * to add a stock to the portfolio.
  */
 
 public class StockActivity extends Activity {
@@ -162,6 +164,10 @@ protected void onCreate(Bundle savedInstanceState){
 
 	    listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 	    
+	    	/**
+	    	 * @author Rickard Bremer
+	    	 * This is an anonymous listener for the news list. Opens a webbrowser.
+	    	 */
 	    @Override  
 	    public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
 	    	Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(links[position]));
@@ -178,6 +184,11 @@ protected void onCreate(Bundle savedInstanceState){
 		return true;
  	}
 	
+	/**
+	 * @author Rickard Bremer
+	 * Method onRadioButtonTime : These methods define what will happen when the radio buttons in the amrket view change 
+	 * position
+	 */
 	public void onRadioButtonTime(View view) throws JSONException, InterruptedException, ExecutionException, ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
@@ -274,7 +285,11 @@ protected void onCreate(Bundle savedInstanceState){
 	    }
 	}
 	
-	
+	/**
+	 * @author Rickard Bremer
+	 * Method onRadioButtonChart : These methods define what will happen when the radio buttons in the amrket view change 
+	 * position
+	 */
 	public void onRadioButtonChart(View view) throws JSONException, InterruptedException, ExecutionException, ParseException {
 	    // Is the button now checked?
 	    boolean checked = ((RadioButton) view).isChecked();
@@ -334,6 +349,10 @@ protected void onCreate(Bundle savedInstanceState){
 
 	  }
 	
+	/**
+	 * @author Rickard Bremer
+	 * Build a dataset to display a graph.
+	 */
 	
  private  CategoryDataset createDatasetLineChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -354,7 +373,10 @@ protected void onCreate(Bundle savedInstanceState){
         return dataset;
 
     }
-	
+ 	/**
+	 * @author Rickard Bremer
+	 * Build a dataset to display a graph.
+	 */
 	private  CategoryDataset createDatasetBarChart() throws JSONException, InterruptedException, ExecutionException {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -376,6 +398,11 @@ protected void onCreate(Bundle savedInstanceState){
         return dataset;
 
     }
+	
+	/**
+	 * @author Rickard Bremer
+	 * Build a dataset to display a graph.
+	 */
 
 private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException {
 			
@@ -544,10 +571,12 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 
 		
 		/**
+		 * @author Justin Inácio
 		 * Method which is executed when the specified button is pressed. 
 		 * Used to add the stock (being shown in detailed view) to the user's portfolio.
 		 * @throws JSONException
 		 */
+
 	public void addToPortfolio(View view) throws JSONException{
 		if (MainActivity.globalArrayTest.contains(MainActivity.StockObject.getString("name"))) {
 			Context context = getApplicationContext();

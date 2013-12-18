@@ -23,7 +23,7 @@ import android.os.AsyncTask;
 
 /**
  * @author Rickard Bremer
- *
+ * This class donwloads the overview data for each market.
  */
 public class MarketThread extends AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> {
 

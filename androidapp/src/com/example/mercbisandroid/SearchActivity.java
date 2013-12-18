@@ -26,7 +26,7 @@ import android.widget.Toast;
 /**
  * Search activity which takes care of all the search queries. 
  * Search results can be clicked on to show a detailed view of the stock.
- * @author Justin Inácio
+ * @author Justin Inï¿½cio
  */
 public class SearchActivity extends ListActivity {
 	ListView l;
