@@ -12,7 +12,7 @@ import android.widget.ListView;
 
 /**
  * Portfolio fragment/tab class.
- * @author Justin Inácio
+ * @author Justin Inacio
  * 
  */
 public class PortfolioFragment extends ListFragment {
