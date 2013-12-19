@@ -10,21 +10,22 @@ namespace BIS_Desktop
 {
     class NewsReader :  Panel
     {
-
         private News n; // The current news instance displayed
-        private Controller c; 
-
-        private int panelHeight; 
-        private int panelWidth;
-
-        private RichTextBox titleRichTextBox; 
-        private RichTextBox descritionRichTextBox;
-        private Label linkLabel;
-        private Label line;
-        private Label filler;
-        private Boolean fromNewsList; 
-        private FlowLayoutPanel panel; 
-
+        private Controller c; // class controller
+        private int panelHeight; // the height of the panel, used when setting the height of content
+        private int panelWidth;// the width of the panel, used when setting the widht of content
+        private RichTextBox titleRichTextBox; // RichTextBox used for the news title
+        private RichTextBox descritionRichTextBox;// RichTextBox used for the news description
+        private Label linkLabel; // clickable label used for the link to the news web page
+        private Label line; // label used as a seperating line
+        private Label filler; // a filler label
+        private Boolean fromNewsList; // boolean checking from where this panel is built 
+        private FlowLayoutPanel panel; // panel for holding the content
+        /// <summary>
+        /// NewsReader class, a panel class that will build a panel for containing the the news title, descrition and link
+        /// </summary>
+        /// <param name="news"></param>
+        /// <param name="b"></param>
         public NewsReader(News news, Boolean b)
         {
             n = news;
@@ -36,7 +37,9 @@ namespace BIS_Desktop
             InitializeComponents();
  
         }
-
+        /// <summary>
+        /// Initilize all the components
+        /// </summary>
         private void InitializeComponents()
         {
 
@@ -93,6 +96,11 @@ namespace BIS_Desktop
             panel.Controls.Add(line); 
         
         }
+        /// <summary>
+        /// Create a new RichTextBox
+        /// </summary>
+        /// <param name="text">String representing the text of the RichTextBox</param>
+        /// <returns>Returns a RichtextBox</returns>
         private RichTextBox createTextBox(String text)
         {
             RichTextBox rtb = new RichTextBox();
@@ -106,13 +114,16 @@ namespace BIS_Desktop
             rtb.ReadOnly = true;
             rtb.WordWrap = true;
             rtb.ScrollBars = RichTextBoxScrollBars.None;
-
             return rtb; 
-
         }
-
+        /// <summary>
+        /// Method triggered when the link label is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void linkLabel_clicked(object sender, EventArgs e)
         {
+            // try to redirect the user to the web page
             try
             {
                 System.Diagnostics.Process.Start(n.link);
@@ -121,22 +132,20 @@ namespace BIS_Desktop
             catch(Exception ee) { }
         }
 
-
+        /// <summary>
+        /// Method for setting the size of the panel
+        /// </summary>
+        /// <param name="W"></param>
+        /// <param name="H"></param>
         public void setSize(int W, int H)
-        {
-            
+        {       
             panelHeight = H;
             panelWidth = W-10;
-
             this.Width = panelWidth;
             this.Height = panelHeight;
-
             this.Controls.Clear(); 
-
             InitializeComponents();
-
             this.Controls.Add(panel);             
-
         }
     }
 }
