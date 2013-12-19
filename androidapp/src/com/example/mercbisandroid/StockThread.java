@@ -40,7 +40,9 @@ protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
         
         try {
                  URL url = new URL(" http://mercury.dyndns.org:5984/mercury_latest/_design/bi/_view/stock");
-                
+        		
+        	
+        	    // URL url = new URL("http://mercury.dyndns.org:5984/mercury/_design/bi/_view/lse?startkey=\"1384142400000\"&endkey=\"1384172149000\"");
                  HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 
                  try {

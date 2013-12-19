@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
+import android.telephony.CellIdentityCdma;
 
 
 /**
@@ -27,6 +28,9 @@ import android.os.AsyncTask;
 
 public class DetailedStockThread extends AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> {
 
+	
+	String market = null;
+	
 protected void onProgressUpdate(Integer... progress) {
    // setProgressPercent(progress[0]);
 }
@@ -37,13 +41,16 @@ protected void onPostExecute(Long result) {
 
 @Override
 protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
-        
+		 
+		 checkMarket(MainActivity.StockMarket);
+		 
          ArrayList<Object> JSONLIST = new ArrayList<Object>();
          BufferedReader reader = null;
          StringBuffer jsonBuffer = new StringBuffer();
          String jsonLine = "";
          String line = "";
-         String RealUrl = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/nyse_stock?startkey=[%22"+MainActivity.StockSymbol+"%22,%22" + MainActivity.StockTime + "%22]&endkey=[%22"+MainActivity.StockSymbol+"%22,%22"+ System.currentTimeMillis() +"%22]";
+  
+         String RealUrl = "http://mercury.dyndns.org:5984/mercury/_design/bi/_view/"+ market +"_stock?startkey=[%22"+MainActivity.StockSymbol+"%22,%22" + MainActivity.StockTime + "%22]&endkey=[%22"+MainActivity.StockSymbol+"%22,%22"+ System.currentTimeMillis() +"%22]";
     
        //  System.out.println(RealUrl);
          
@@ -112,5 +119,17 @@ protected ArrayList<Object> doInBackground(ArrayList<Object>... params) {
         
         return null;
 
+}
+public void checkMarket(String Check){
+	
+	if(Check.equals("LSE"))
+		this.market = "lse";
+	if(Check.equals("OMX"))
+		this.market = "omx";
+	if(Check.equals("NYSE"))
+		this.market = "nyse";
+	
+	return;
+		
 }
 }
