@@ -11,6 +11,9 @@ using System.Collections;
 
 namespace BIS_Desktop
 {
+    /// <summary>
+    /// Controller that contains helper functions and variables.
+    /// </summary>
     class Controller
     {
         public Font mercuryFont;
@@ -22,10 +25,11 @@ namespace BIS_Desktop
            loading;
 
         private string filePath; 
-        
+        /// <summary>
+        /// Controller constructor.
+        /// </summary>
         public Controller()
-        {           
-
+        {
             //Set color for different buttons
             mercuryGrey = System.Drawing.ColorTranslator.FromHtml("#374140");
             mercuryBlue = System.Drawing.ColorTranslator.FromHtml("#354A69");
@@ -43,12 +47,19 @@ namespace BIS_Desktop
             filePath = dir + "\\portfolio.txt"; 
 
         }
+        /// <summary>
+        /// Returns 
+        /// </summary>
+        /// <param name="stocks_"></param>
+        /// <param name="minMax"></param>
+        /// <returns></returns>
         public double getStockMinMaxValue(List<Stock> stocks_, String minMax)
         {
             List<double> values_ = new List<double>();
             foreach (Stock s in stocks_)
             {
                 values_.Add(double.Parse(s.Latest, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
+                values_.Add(double.Parse(s.OpenVal, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture));
             }
             if (minMax == "max")
             {
@@ -60,6 +71,13 @@ namespace BIS_Desktop
             }
             return 0.0; 
         }
+        /// <summary>
+        /// Returns a sorted list based on type and in either descending or ascending order.
+        /// </summary>
+        /// <param name="list_"></param>
+        /// <param name="type_"></param>
+        /// <param name="descending_"></param>
+        /// <returns></returns>
         public List<Stock> sortStockList(List<Stock> list_, String type_, Boolean descending_)
         {
             
@@ -72,7 +90,13 @@ namespace BIS_Desktop
             } 
             return null;
         }
-
+        /// <summary>
+        /// Quicksort method used for sorting list of stocks.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="type_"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
         private List<Stock> quickSort(List<Stock> list, String type_, Boolean descending){
             Console.Write("");
             //Return list if size is 1 or less
@@ -148,6 +172,13 @@ namespace BIS_Desktop
             
             return newList;
         }
+        /// <summary>
+        /// Sorts a list of news based on type and returns it in either ascending or descending order.
+        /// </summary>
+        /// <param name="list_"></param>
+        /// <param name="type_"></param>
+        /// <param name="descending_"></param>
+        /// <returns></returns>
         public List<News> sortNewsList(List<News> list_, String type_, Boolean descending_)
         {
 
@@ -160,7 +191,13 @@ namespace BIS_Desktop
             }
             return null;
         }
-
+        /// <summary>
+        /// Quicksort method used for sorting news.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="type_"></param>
+        /// <param name="descending"></param>
+        /// <returns></returns>
         private List<News> newsQuickSort(List<News> list, String type_, Boolean descending)
         {
             Console.Write("");
@@ -238,42 +275,18 @@ namespace BIS_Desktop
             }
             return newList;
         }
-
-        public List<Stock> getFilteredList2(List<Stock> list, DateTime date, int days)
-        {
-            try
-            {
-                
-                for (int i = 0; i < list.Count(); i++)
-                {
-                    DateTime stockDate_ = getDate(list.ElementAt(i).Updated);
-                    Console.WriteLine("Current date: " + stockDate_);
-                    int difference = (date-stockDate_).Days;
-                    Console.WriteLine("Difference: " + difference);
-                    if (difference < 0){
-                        difference *=-1;
-                    }
-                    if (difference <= days)
-                    {
-                        {
-                            return list.GetRange((list.Count-difference), list.Count-1);
-                        }
-                    }
-                    
-                }
-                return list;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("adasdasasd " + e.Message);
-            }
-            return null;
-        }
+        /// <summary>
+        /// Trims and returns a list, based on the amount of days back it should go.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="date"></param>
+        /// <param name="days"></param>
+        /// <returns></returns>
         public List<Stock> getFilteredList(List<Stock> list, DateTime date, int days)
         {
+            List<Stock> newList = new List<Stock>();
             try
             {
-
                 for (int i = 0; i < list.Count(); i++)
                 {
                     DateTime stockDate_ = getDate(list.ElementAt(i).Updated);
@@ -284,22 +297,27 @@ namespace BIS_Desktop
                     {
                         difference *= -1;
                     }
-                    if (difference <= days)
+                    if (difference < days)
                     {
                         {
-                            return list.GetRange(i, list.Count - i);
+                            newList.Add(list.ElementAt(i));
                         }
                     }
-
                 }
-                return list;
+                newList = sortStockList(newList, "Updated", false);
+                return newList;
             }
             catch (Exception e)
             {
                 Console.WriteLine("adasdasasd " + e.Message);
             }
-            return null;
+            return newList;
         } 
+        /// <summary>
+        /// Returns a DateTime value based on time stamp.
+        /// </summary>
+        /// <param name="microSec"></param>
+        /// <returns></returns>
         public DateTime getDate(String microSec)
         {
             long milliSec = (long.Parse(microSec));
@@ -323,6 +341,37 @@ namespace BIS_Desktop
             long timeStamp = (long)time.TotalMilliseconds; 
             return timeStamp; 
         }
+        /// <summary>
+        /// Returns all stocks that with time stamps later than today at midnight.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public List<Stock> getValuesFromMidnight(List<Stock> list)
+        {
+            List<Stock> newList = new List<Stock>();
+            DateTime midnight = DateTime.Today;
+            long midnightMilliseconds = getTimeStamp(midnight);
+            Console.WriteLine("MIDNIGHT: " + midnight + " " + midnightMilliseconds);
+            try
+            {
+                for (int i = 0; i < list.Count(); i++)
+                {
+                    long stockTimeStamp = long.Parse(list.ElementAt(i).Updated, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture);
+
+                    if (stockTimeStamp >= midnightMilliseconds)
+                    {
+                        newList.Add(list.ElementAt(i));
+                    }
+                }
+                newList = sortStockList(newList, "Updated", false);
+                return newList;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("adasdasasd " + e.Message);
+            }
+            return newList;
+        } 
         /// <summary>
         /// Method for searching the list for a search input
         /// </summary>
@@ -505,6 +554,9 @@ namespace BIS_Desktop
             return news;
         }        
     }
+    /// <summary>
+    /// Custom button with preset customizations and a stored variable that can be changed.
+    /// </summary>
     public class MercuryButton : Button
     {
         //Boolean to check if button is clicked
@@ -542,9 +594,10 @@ namespace BIS_Desktop
                 clicked = true;
             }
         }
-        
     }
-
+    /// <summary>
+    /// Search algorithm that is used whenever a user searches for a certain stock.
+    /// </summary>
     public static class SearchAlgorithm
     {
         /// <summary>
@@ -590,6 +643,7 @@ namespace BIS_Desktop
                 return -1;
 
             }
+
         }
         /// <summary>
         /// Method for comparing two objects 
