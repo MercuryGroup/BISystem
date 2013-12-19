@@ -60,7 +60,11 @@ public void onActivityCreated(Bundle savedInstanceState) {
 	}
 
 
-  
+/**
+ * @author Rickard Bremer
+ * Display the graph in the fragment
+ * 
+ */
 @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		

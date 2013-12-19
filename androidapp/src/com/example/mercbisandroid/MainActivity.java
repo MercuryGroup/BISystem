@@ -29,8 +29,15 @@ import android.widget.RadioButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+/**
+ * @author Rickard Bremer & Justin Inacio
+ * The main class for the application.
+ * 
+ */
 
 public class MainActivity extends FragmentActivity implements TabListener {
+	
+	// Rickard Bremer
 	
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> MarketArray;
 	public static AsyncTask<ArrayList<Object>, Void, ArrayList<Object>> stockArray;
@@ -38,6 +45,8 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	String chart;
 	
 	long thirtyDays;
+	
+	// Rickard Bremer
 	
 	public static String StockSymbol , StockName, StockMarket, Market;
 	public static int stockPos;
