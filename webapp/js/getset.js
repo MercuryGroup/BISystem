@@ -5,39 +5,6 @@ function setFirstLetter(letter) {
 function getFirstLetter() {
 	return letter;
 }
-
-function setDateList(datalist) {
-	dali = datalist;
-}
-
-function getDateList() {
-	return dali;
-}
-
-function setOpenVallist(datalist) {
-	datli = datalist;
-}
-
-function getOpenVallist() {
-	return datli;
-}
-function setLatestList(datalist) {
-	lali = datalist;
-}
-
-function getLatestList() {
-	return lali;
-}
-function setChangeList(datalist) {
-	chali = datalist;
-}
-
-function getChangeList() {
-	return chali;
-}
-
-
-
 function getMarket() {
 	return Market;
 }
@@ -56,33 +23,6 @@ function getStockData() {
 	return astockdata;
 }
 
-function setName(name) {
-	this.name = name;
-}
-
-function getName() {
-	return name;
-}
-
-function setValue(value) {
-	this.value = value;
-}
-
-function getValue() {
-	return value;
-}
-
-function setNewsArray(narray) {
-	newsarray = narray;
-}
-
-function getNewsArray() {
-	return newsarray;
-}
-
-
-
-//new since 15/12
 function setURL(url) {
 	this.url = url;
 }
