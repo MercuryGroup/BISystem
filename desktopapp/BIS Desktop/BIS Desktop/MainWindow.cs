@@ -12,23 +12,22 @@ using System.Runtime.InteropServices;
 
 namespace BIS_Desktop
 {
-
+    /// <summary>
+    /// Main window for the application.
+    /// </summary>
     public partial class MainWindow : Form
     {
-        /**
-         * TODO:
-         * [X] Add label "beneath" move window
-         * [X] Reset market buttons
-         * [X] Info display
-         * [X] Market info display
-         * [ ] Portfolio
-         */
+        //Initial point for drag panel
         private Point startPoint = new Point(0, 0);
-        //Booleans that checks clicks
-        public Boolean maximized;
-        private Boolean dragging, searchFieldHasText;
+        //Boolean that checks if window is maximized
+        public Boolean maximized; //Check if window is maximized
+        private Boolean dragging; //Check if window can be dragged
+        private Boolean searchFieldHasText;//Check if searchfield has text
+        //Panel heights
         private int marketPanelHeight, dragPanelHeight;
-        private String currentMarket, currentResultType;
+        private String currentMarket; //Currently selected market
+        private String currentResultType; //Currently selected result type
+
         private Controller c;
         /*
          * Inner panels that will handle the parsed results 
@@ -50,7 +49,6 @@ namespace BIS_Desktop
             //Initialize left and right parent panels
             leftPanel = new Panel();
             rightPanel = new Panel();
-            
             //Initialize component
             InitializeComponent();
             //Initialize result panels
@@ -59,9 +57,6 @@ namespace BIS_Desktop
             //Add result panels to left and right parent panels
             leftPanel.Controls.Add(leftPanelResults);
             rightPanel.Controls.Add(rightPanelResults);
-
-            //currentMarket = "lse";
-            
             //Set custom color for controls
             leftPanel.BackColor = Color.Gray;
             rightPanel.BackColor = Color.Gray;
@@ -82,12 +77,11 @@ namespace BIS_Desktop
             dragPanel.MouseDown += new MouseEventHandler(dragPanel_MouseDown);
             dragPanel.MouseMove += new MouseEventHandler(dragPanel_MouseMove);
             dragPanel.MouseUp += new MouseEventHandler(dragPanel_MouseUp);
-
-            
             this.SizeChanged += MainWindow_SizeChanged;
-
+            //Set size of drag panel
             dragPanelHeight = dragPanel.Height;
         }
+
         //Create backdrop for window
         protected override CreateParams CreateParams
         {
@@ -120,10 +114,14 @@ namespace BIS_Desktop
                 refreshContentPanels();
             }
         }
-        
+
+        /// <summary>
+        /// Event that triggers whenever a menu button is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="resultType_"></param>
         private void menuClick(Object sender, String resultType_)
         {
-            
             Button button_ = sender as Button;
             resetMenuButtons();
             button_.BackColor = c.mercuryBlue;
@@ -137,15 +135,18 @@ namespace BIS_Desktop
                 lseButton.ForeColor = Color.White;
             }
             loadResult(leftPanelResults, currentResultType, currentMarket, currentMarket, this);
-            
         }
 
+        /// <summary>
+        /// Event that triggers whenever a market buttons is clicked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="market_"></param>
         private void marketClick(Object sender, String market_)
         {
             Button button_ = sender as Button;
             resetMarketButtons();
             button_.BackColor = c.mercuryBlue;
-            //button_.ForeColor = Color.White;
             currentMarket = market_;
             loadResult(leftPanelResults, currentResultType, currentMarket, currentMarket, this);
         }
@@ -205,9 +206,14 @@ namespace BIS_Desktop
                 th.fetchResult(panel, resultType, resultSource, Market, mainWindow);
                 refreshContentPanels();
             }
-            
-            
         }
+        /// <summary>
+        /// Loads news results to the loading panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="resultType"></param>
+        /// <param name="mainWindow"></param>
+        /// <param name="n"></param>
         public void loadNewsResult(object sender, String resultType, object mainWindow, News n)
         {
             //Instantiate current panel
@@ -255,12 +261,10 @@ namespace BIS_Desktop
                 th = new ThreadHandler();
                 th.fetchNewsResult(panel, resultType, mainWindow, n);
             }
-
-
         }
 
         /// <summary>
-        /// Sets all menu buttons to unclicked
+        /// Sets all menu buttons to unclicked.
         /// </summary>
         private void resetMenuButtons()
         {
@@ -271,7 +275,9 @@ namespace BIS_Desktop
             stocksButton.BackColor = c.mercuryGrey;
             portfolioButton.BackColor = c.mercuryGrey;
         }
-
+        /// <summary>
+        /// Sets all market buttons to unclicked.
+        /// </summary>
         private void resetMarketButtons()
         {
             marketPanel.Height = marketPanelHeight;
@@ -357,6 +363,11 @@ namespace BIS_Desktop
                 Location = new Point(p.X - this.startPoint.X, p.Y - this.startPoint.Y);
             }
         }
+        /// <summary>
+        /// Exits the program.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void closeLabel_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -389,6 +400,7 @@ namespace BIS_Desktop
             }
             refreshContentPanels();
         }
+
         /// <summary>
         /// Mouse listener for maximize label (click).
         /// </summary>
@@ -398,6 +410,7 @@ namespace BIS_Desktop
         {
             toggleMaximize();
         }
+
         /// <summary>
         /// Mouse listener for minimize label (click).
         /// </summary>
@@ -407,6 +420,7 @@ namespace BIS_Desktop
         {
             WindowState = FormWindowState.Minimized;
         }
+
         /// <summary>
         /// Mouse listener for control label (mouse enter).
         /// </summary>
@@ -464,9 +478,10 @@ namespace BIS_Desktop
             leftPanel.Height = mainContentPanel.Height - marketPanel.Height;
             //Set height and width of right and left content.
             leftPanelResults.updateSize();
-            Console.WriteLine("SIZE: " + leftParentPanel.Height + " " + leftPanelResults.Height);
-            
         }
+        /// <summary>
+        /// Disables all market buttons and hides the market button panel.
+        /// </summary>
         private void disableMarketButtons()
         {
             leftPanel.Height = leftParentPanel.Height;
@@ -475,6 +490,9 @@ namespace BIS_Desktop
             nyseButton.Enabled = false;
             omxButton.Enabled = false;
         }
+        /// <summary>
+        /// Enables all market buttons and shows the market button panel.
+        /// </summary>
         private void enableMarketButtons()
         {
             lseButton.Enabled = true;
@@ -483,22 +501,42 @@ namespace BIS_Desktop
             marketPanel.Height = marketPanelHeight;
             leftPanel.Height = leftParentPanel.Height - marketPanel.Height;
         }
-        
 
+        /// <summary>
+        /// Event handler for market button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void lseButton_Click(object sender, EventArgs e)
         {
             marketClick(sender, "lse");
         }
 
+        /// <summary>
+        /// Event handler for market button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void nyseButton_Click(object sender, EventArgs e)
         {
             marketClick(sender, "nyse");
         }
 
+        /// <summary>
+        /// Event handler for market button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void omxButton_Click(object sender, EventArgs e)
         {
             marketClick(sender, "omx");
         }
+
+        /// <summary>
+        /// Changes parameters of the search field when it is focused.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void searchField_Focus(object sender, EventArgs e){
             if (!searchFieldHasText)
             {
@@ -506,6 +544,12 @@ namespace BIS_Desktop
                 searchField.Text = "";
             }
         }
+
+        /// <summary>
+        /// Triggers whenver a key i pressed when searchfield is focused.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void searchField_KeyPressed(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -525,6 +569,12 @@ namespace BIS_Desktop
             }
             
         }
+
+        /// <summary>
+        /// Triggers whenever focused is removed from the earch field.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void searchField_Exit(object sender, EventArgs e)
         {
             

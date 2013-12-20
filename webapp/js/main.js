@@ -1,3 +1,13 @@
+
+/**
+ * @author Magnus Hernegren
+ */
+
+
+/**
+ * options for the Spinner
+ * @type {Object}
+ */
 var opts = {
   lines: 11, // The number of lines to draw
   length: 22, // The length of each line
@@ -17,7 +27,12 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 };
 
-
+/**
+ * Whenever a navigation button is pressed
+ * among the main nav buttons this method
+ * is called to determine the action to be performed
+ * based on the cominations of buttons that is pressed
+ */
 function mainNavigator() {
 	if(getTopic() === 'market') {
 		hide('stocklist');
@@ -39,7 +54,12 @@ function mainNavigator() {
 
 
 
-//Loads the JSON object from the middle layer
+
+/**
+ * Loads the JSON object with all the
+ * latest data from the middle layer
+ * @param  {String} mode is transported to modeselector
+ */
 function loadJSONList(mode) {
 	var tableRef = document.getElementById('resultList');
 	while ( tableRef.rows.length > 0 )
@@ -49,9 +69,6 @@ function loadJSONList(mode) {
 	var target = document.getElementById('myDiv');
 
 	spinner = new Spinner(opts).spin(target);
-
-	// $.ajaxSetup( { "async": false } );
-// $('#myDiv').after(new Spinner(opts).spin().el);
 try {getStockData();
 
 	modeSelector(mode);
@@ -73,7 +90,11 @@ catch (e) {
 }
 }
 
-//Navigates to the correct mode 
+ 
+/**
+ * Navigates to the correct mode 
+ * @param  {String} mode determines the method to be invoked
+ */
 function modeSelector(mode) {
 	if (mode === 'search') {
 		search();
@@ -97,9 +118,10 @@ function modeSelector(mode) {
 }
 
 
-//Loads all the overview market data
-
-//Loads all stocks for the selected market
+/**
+ * Runs through the stock array and filters
+ * out the stocks for the market that is selected
+ */
 function loadSingleStockList() {
 	try {getStockData()}
 	catch (e) {
@@ -132,7 +154,9 @@ function loadSingleStockList() {
 	addPageNumbers(firstInList);
 }      
 
-//Searches through the array of stocks when the user uses the search function
+/**
+ * Searches through the array of stocks when the user uses the search function
+ */
 function search() {
 	document.getElementById('naviInfo').innerHTML = "Search Results";
 	var target = document.getElementById("letternavigator").innerHTML = '';
@@ -161,7 +185,11 @@ function search() {
 	});
 }    
 
-//Builds a portfolio with only saved stocks
+/**
+ * Builds a portfolio with only saved stocks, checks the array
+ * of stocks and compares them to the localstorage saved ones,
+ * if one is found, it adds it to a table via addElement.
+ */
 function portfoliobuilder() {
 	var target = document.getElementById("letternavigator").innerHTML = '';
 	var target = document.getElementById("pagenavigator").innerHTML = '';
@@ -182,7 +210,10 @@ function portfoliobuilder() {
 	});
 }      
 
-//Adds alphabet letters to the letter navigator
+/**
+ * Adds a button with a letter for the letternavigation
+ * @param {String} letter The letter which will be the button
+ */
 function addSearchLetters(letter) {
 
 	var target = document.getElementById("letternavigator");
@@ -193,7 +224,11 @@ function addSearchLetters(letter) {
 	target.appendChild(button);
 }
 
-//Adds the appropriate number of pages to the page number navigator
+/**
+ * Adds the appropriate number of pages to the pagenavigator
+ * for the selected letter
+ * @param {String} letter The letter for which pages should be created
+ */
 function addPageNumbers(letter) {
 	var target = document.getElementById("pagenavigator");
 	document.getElementById("pagenavigator").innerHTML = "";
@@ -223,7 +258,11 @@ function addPageNumbers(letter) {
 
 }
 
-//Adds table row elements for the selected page number
+/**
+ * Traverses the stock list and checks for stocks
+ * which start with the getFirstLetter() and belongs to the page number
+ * @param {Integer} pcount Is the specific page for which to add stocks
+ */
 function addElementsForPage(pcount) {
 	var tableRef = document.getElementById('resultList');
 	var otherLetter = null;
@@ -241,8 +280,14 @@ function addElementsForPage(pcount) {
 		} else if(getFirstLetter() === value.value.symbol.substr(0,1) && getMarket() === value.value.market) {count++;}
 	});
 }
-
-//Adds a clickable row for each stock
+/**
+ * Adds a clickable row for each stock it is passed
+ * @param {String} Symbol Symbol of the stock
+ * @param {String} Name   Name of the company
+ * @param {String} Change Change value
+ * @param {String} Value  Value of the stock
+ * @param {String} Market Market for the stock
+ */
 function addElement(Symbol,Name,Change,Value,Market) {
 	var cdata = [Symbol,Name,Change,Value];
 	var ni = document.getElementsByTagName('tbody').item(0);
@@ -267,7 +312,11 @@ function addElement(Symbol,Name,Change,Value,Market) {
 	ni.appendChild(newrow);
 }
 
-//Cell creator for tables
+/**
+ * Cell creator for tables
+ * @param  {String} cdata String to be placed in textnode in cell
+ * @return {td}      a td element with a appended textnode
+ */
 function makecells(cdata) {
 	cell = document.createElement("td");
 	textnode = document.createTextNode(cdata);
@@ -278,7 +327,12 @@ function makecells(cdata) {
 
 
 
-//This method gets the selected history for a specific stock
+/**
+ * This method gets the selected history for a specific stock
+ * The stocks that match the symbol, market and time selected are 
+ * added to an array.
+ * @param  {String} timeframe Decides which timeframe to get for the stock
+ */
 function gethistory(timeframe) {
 	duration = timeframe;
 	today = Date.now().valueOf();
@@ -317,11 +371,6 @@ function gethistory(timeframe) {
 	var date1 = null;
 	var date2 = null;
 	dailyValues = [];
-	datelist = [];
-	openVallist = [];
-	latestlist = [];
-	changelist = [];
-	percentlist = [];
 	dayLow = [];
 	dayHigh = [];
 	var Dat;
@@ -407,16 +456,25 @@ chartPaintSelector();
 }    
 
 
-//Converts miliseconds to a date
+/**
+ * Converts miliseconds to a date
+ * @param  {String} timeString date in milliseconds
+ * @return {String}            date in "MMM dd" format
+ */
 function dateConvert(timeString) {
 	var date = new Date(parseInt(timeString));
 	date=date.toString("MMM dd");
 	return date;
 }
 
-//Gets news item for the selected stock
-function getNewsItems(mode) {
 
+
+/**
+ * Gets news items for the selected stock or for a market
+ * @param  {string} mode determines if the method should get 
+ * a big list for a market or a small list for a specific stock
+ */
+function getNewsItems(mode) {
 
 	var today = Date.now().valueOf();
 	var timeframe = Date.now().add(-48).hours();
@@ -444,14 +502,12 @@ function getNewsItems(mode) {
 				}
 				console.log(getURL());
 				$.getJSON(getURL(), function(url_data) {
-		// $.getJSON('tempj/abxnews.txt', function(url_data) {
 		// $.getJSON('http://mercury.dyndns.org:5984/mercury/_design/bi/_view/news_list?startkey=%22'+timeframe+'%22&endkey=%22'+today+'%22', function(url_data) {
 			$.each(url_data, function (i,element) {
 				if ($.isArray(element) === true) {
 					sortNewsArrayByTime(element);
 					element.reverse();
-					setNewsArray(element);
-					$.each(getNewsArray(), function (i,value) {
+					$.each(element, function (i,value) {
 						if(mode==='biglist' && nitem < maxitems && value.value.market === getMarket()) {
 							addNewsListItem({title: value.value.title,link: value.value.link,description: value.value.description,date: value.value.pubDate});
 							nitem++;
@@ -466,7 +522,10 @@ function getNewsItems(mode) {
 		});
 			}
 
-//Adds a header and date to the news table
+/**
+ * Adds a header and date as a tr element to the news table
+ * @param {Object} newsitem Is an news object containing news information
+ */
 function addNewsListItem(newsitem) {
 	var date2 = new Date(parseInt(newsitem.date));
 	date2 = date2.toString("MMM dd HH:mm");
@@ -484,7 +543,10 @@ function addNewsListItem(newsitem) {
 	newstable.appendChild(newrow);
 }
 
-//Fills the table that displays todays data
+/**
+ * Fills the table that displays todays data
+ * @param  {Object} diadata An object containing todays data
+ */
 function fillInDataTable(diadata) {
 	var diadata = diadata
 	$(document).ready(function() {
@@ -515,8 +577,10 @@ function fillInDataTable(diadata) {
 
 
 
-//Checks wether the stock is already saved or not upon loading a stock,
-//also deletes and saves stocks upon pressing the save button.
+/**
+ * Checks wether the stock is already saved or not upon loading a stock,
+ * also deletes and saves stocks upon pressing the save button.
+ */
 function portfolioController() {
 	var sb = document.getElementById('save');
 	if (localStorage[getSymbol()] !== undefined) {
@@ -537,7 +601,11 @@ function portfolioController() {
 
 
 
-//Hides irrelevant items,menus,etc
+/**
+ * Hides irrelevant items,menus,etc
+ * and makes sure only what is supposed to be displayed is.
+ * @param  {String} item A keyword on what element should be hidden
+ */
 function hide(item) {
 	var nitem = document.querySelector("#newsdisplay");
 	var slist = document.querySelector("#listdisp");
@@ -563,10 +631,7 @@ function hide(item) {
 		slist.className = 'visuallyhidden';
 		nitem.className = 'visuallyhidden';
 		nlist.className = 'visible';
-		// nlist.className = 'largenews';
 		chart.className = 'visuallyhidden';
-		// var nheadline = document.getElementById('newsheadline').innerHTML = getNewsItem().title;
-		// var newsdisplay = document.getElementById('newstext').innerHTML = getNewsItem().description;
 	} else if (item === 'stock') {
 		chart.className = 'visuallyhidden';
 		slist.className = 'visible';
@@ -576,7 +641,11 @@ function hide(item) {
 }
 
 
-//Sorting functions for the JSON object
+/**
+ * Sorting functions for the JSON object
+ * @param  {Array} data Array of JSON objects to be sorted
+ * @return {Array} Array Sorted array
+ */
 function sortArrayBy(data) {
 	data.sort(function (a, b) {
 		a = a.value.updated;
@@ -610,7 +679,10 @@ function sortNewsArrayByTime(data) {
 	});
 }
 
-//Paints a line chart showing closing values
+/**
+ * Paints a line chart showing closing values,
+ * uses getDiadata() for chart data
+ */
 function paintlinechart() {
 	{
 		$("#canvas").dxChart({
@@ -648,7 +720,11 @@ function paintlinechart() {
 	}
 }
 
-//Paints a candlestick diagram
+
+/**
+ * Paints a candlestick diagram,
+ * uses getDiadata() for chart data
+ */
 function paintCandlestick() {
 	$("#canvas").dxChart({
 		title: "Value",
@@ -686,8 +762,11 @@ function paintCandlestick() {
 	});
 }
 
-//Paints a bar chart showing the change over the selected time.
-function paintbarchart() {
+/**
+ * Paints a bar chart showing the change over the selected time,
+ * uses getDiadata() for chart data
+ */
+ function paintbarchart() {
 	{
 		$("#canvas").dxChart({
 			title: {
@@ -713,7 +792,10 @@ function paintbarchart() {
 	}
 }
 
-
+/**
+ * Paints a chart depending on what getChartType() currently is
+ * 
+ */
 function chartPaintSelector() {
 	console.log("chartPaintSelector "+getChartType());
 	if(getChartType() === "bar") {
