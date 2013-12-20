@@ -204,25 +204,28 @@ protected void onCreate(Bundle savedInstanceState){
 	      
 	            		
 	            		if(chart.equals("linechart")){
-	    	    			
+	            			System.out.println(this.stockArray.get().size());
+	            			if(this.stockArray.get().size() > 0){
 	            			dataset = createDatasetLineChart();
 	    	    			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
-	            		
+	            			}
 	            		}
 	            		
 	            		
 	            		if(chart.equals("barchart")){
-	            			
+	            			System.out.println(this.stockArray.get().size());
+	            			if(this.stockArray.get().size() > 0){
 	            			dataset = createDatasetBarChart();
 	            			chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));    
-	            		
+	            			}
 	            		}
 	            		
 	            		if(chart.equals("candlestick")){
-	            			
+	            			System.out.println(this.stockArray.get().size());
+	            			if(this.stockArray.get().size() > 1){
 	            			datasetCandle = createCandleStickDataset();
 	            			chartView.drawChart(ChartFactory.createCandlestickChart(MainActivity.StockSymbol, "Time", "Value", datasetCandle, false));
-	            		
+	            			}
 	            		}
 	            			
 	            		
@@ -412,10 +415,189 @@ protected void onCreate(Bundle savedInstanceState){
 	 * @author Rickard Bremer
 	 * Build a dataset to display a graph.
 	 */
+/*	private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException {
+		
+		ArrayList<JSONObject> jobjList = new ArrayList<JSONObject>();
+		ArrayList<JSONObject> newList = new ArrayList<JSONObject>();
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		
+		ArrayList<Double> high = new ArrayList<Double>();
+		ArrayList<Double> low = new ArrayList<Double>();
+		ArrayList<Double> open = new ArrayList<Double>();
+		ArrayList<Double> close = new ArrayList<Double>();
+		ArrayList<Date> date = new ArrayList<Date>();
+		ArrayList<Double> volume = new ArrayList<Double>();
+		
+		String dateTemp1 = null; 
+		String dateTemp2 = null;
+		
+		java.sql.Timestamp timestamp1 = null;
+		java.sql.Timestamp timestamp2 = null;
+					
+	//	System.out.println("stockArray : " + stockArray.get().size());
+		
+		for(int i = 0; i < MainActivity.MarketArray.get().size(); i++){
+				
+				JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
+                jobjList.add(JOBJ);
+                System.out.println(jobjList.get(i));
+			
+			}
+		
+		System.out.println("jobjList : " + jobjList.size());
+		for(int i = 0; i < jobjList.size(); i++){
+			if(jobjList.get(i).getString("latest").equals("-")){
+				System.out.println("Fel i värde");
+			}
+			else if(jobjList.get(i).getString("openVal").equals("-")){
+				System.out.println("Fel i värde");
+			}
+			else{
+				newList.add(jobjList.get(i));
+			}
+			
+		}
+		
+		
+		for(int i = 0; i < newList.size(); i++){
+    	
+    	ArrayList<JSONObject> tempJsonObjects = new ArrayList<JSONObject>();
+    	
+    	tempJsonObjects.add(newList.get(i));
+    	
+    		for(int j = i + 1; j < newList.size(); j++){
+    			
+    			System.out.println(newList.get(i).getString("updated"));
+    			
+    			timestamp1 = new java.sql.Timestamp(Long.parseLong(newList.get(i).getString("updated")));
+    			timestamp2 = new java.sql.Timestamp(Long.parseLong(newList.get(j).getString("updated")));
+    			
+    		 dateTemp1 = simpleDateFormat.format(timestamp1);
+    		 dateTemp2 = simpleDateFormat.format(timestamp2);
+    	
+    			System.out.println(dateTemp1 + " : " + dateTemp2 );
+    			
+    			if(dateTemp1.equals(dateTemp2)) {
+    			//	System.out.println("dateTemp2 : " + dateTemp2);
+    				tempJsonObjects.add(newList.get(j));
+    		//		System.out.println("newList after remove 1 : " + newList.size());
+    		//		System.out.println("tempJsonObj after add 1 : " + tempJsonObjects.size());
+    				i++;
+    			}
+    	
+    		
+    		}
+    	
+    		// Sort and get opening value and closing value
+    		//
+    		
+    		for(int k = 0; k < tempJsonObjects.size(); k++){
+    			for (int l = 1; l < tempJsonObjects.size(); l++) {
 
+    				long o1 = Long.parseLong(tempJsonObjects.get(k).getString("updated"));
+    				long o2 = Long.parseLong(tempJsonObjects.get(l).getString("updated"));
+
+//    				String ao1 = o1;
+//    				String ao2 = o2;
+
+    					if (o1 < o2) {
+    						
+    						JSONObject temp = new JSONObject(); 
+    						temp = tempJsonObjects.get(k);
+    						tempJsonObjects.set(k, tempJsonObjects.get(l));
+    						tempJsonObjects.set(l, temp);
+    					}
+    			}
+    		}
+    		
+    		open.add(Double.parseDouble(tempJsonObjects.get(0).getString("openVal")));
+    		close.add(Double.parseDouble(tempJsonObjects.get(0).getString("latest")));
+
+    		// Open and closing value is set
+    		// ****
+    		
+    		
+    		// Sort to get highest and lowest value
+    		//
+    		
+    				for(int m = 0; m < tempJsonObjects.size(); m++){
+    					for (int n = m + 1; n < tempJsonObjects.size(); n++) {
+
+    						float o1 = Float.parseFloat(tempJsonObjects.get(m).getString("latest"));
+    						float o2 = Float.parseFloat(tempJsonObjects.get(n).getString("latest"));
+    							
+
+
+    						if (o1 < o2) {
+    								JSONObject temp = new JSONObject(); 
+    								temp = tempJsonObjects.get(m);
+    								tempJsonObjects.set(m, tempJsonObjects.get(n));
+    								tempJsonObjects.set(n, temp);
+    						}             
+    					}
+    		
+    				}			
+    				
+    		high.add(Double.parseDouble(tempJsonObjects.get(0).getString("latest")));
+        	low.add(Double.parseDouble(tempJsonObjects.get(tempJsonObjects.size()-1).getString("latest")));
+        	
+        	for(int ig = 0; ig < tempJsonObjects.size(); ig++){
+        	
+        		String temp12 = tempJsonObjects.get(ig).getString("latest");
+        		System.out.println(temp12);
+        	}
+        	
+    		//	Done with highest and lowest value.
+    		//
+    		
+        	//
+        	// Convert date
+        	//
+        	
+        	String tempDate = simpleDateFormat.format(timestamp1);
+        	System.out.println("TempDate : " + tempDate);
+        	
+        	// Add volume and date
+        	//
+        	
+        	date.add(simpleDateFormat.parse(tempDate));
+        	volume.add((double) 10);			
+    
+		}
+    		
+		
+	
+		//
+		// Move arraylists to Double[] 
+		
+		double[] highd = new double[high.size()];
+		double[] lowd = new double[low.size()];
+		double[] closed = new double[close.size()];
+		double[] opend = new double[open.size()];
+		double[] volumed = new double[volume.size()];
+		Date[] dated = new Date[date.size()];
+		
+		for(int i = 0; i < date.size(); i++){
+			
+			System.out.println(date.get(i)+ " : High ->: " + high.get(i) + ":  low -> : " + low.get(i) + " : open -> : " + open.get(i) + " :  close ->: " + close.get(i) + " : " + volume.get(i));
+		
+			highd[i] = high.get(i);
+			lowd[i] = low.get(i);
+			closed[i] = close.get(i);
+			opend[i] = open.get(i);
+			volumed[i] = volume.get(i);
+			dated[i] = date.get(i);
+		
+		}
+		
+		DefaultHighLowDataset dataset = new DefaultHighLowDataset("Series 1 ", dated, highd, lowd, opend, closed, volumed);
+		return dataset;
+}*/
 private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, InterruptedException, ExecutionException, ParseException {
 			
 			ArrayList<JSONObject> jobjList = new ArrayList<JSONObject>();
+			ArrayList<JSONObject> newList = new ArrayList<JSONObject>();
 			
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			
@@ -445,17 +627,30 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			System.out.println("jobjList : " + jobjList.size());
 			
 			for(int i = 0; i < jobjList.size(); i++){
+				if(jobjList.get(i).getString("latest").equals("-")){
+					System.out.println("Fel i värde");
+				}
+				else if(jobjList.get(i).getString("openVal").equals("-")){
+					System.out.println("Fel i värde");
+				}
+				else{
+					newList.add(jobjList.get(i));
+				}
+				
+			}
+			
+			for(int i = 0; i < newList.size(); i++){
         	
         	ArrayList<JSONObject> tempJsonObjects = new ArrayList<JSONObject>();
         	
-        	tempJsonObjects.add(jobjList.get(i));
+        	tempJsonObjects.add(newList.get(i));
         	
-        		for(int j = i + 1; j < jobjList.size(); j++){
+        		for(int j = i + 1; j < newList.size(); j++){
         			
-        			System.out.println(jobjList.get(i).getString("updated"));
+        			System.out.println(newList.get(i).getString("updated"));
         			
-        			timestamp1 = new java.sql.Timestamp(Long.parseLong(jobjList.get(i).getString("updated")));
-        			timestamp2 = new java.sql.Timestamp(Long.parseLong(jobjList.get(j).getString("updated")));
+        			timestamp1 = new java.sql.Timestamp(Long.parseLong(newList.get(i).getString("updated")));
+        			timestamp2 = new java.sql.Timestamp(Long.parseLong(newList.get(j).getString("updated")));
         			
         		 dateTemp1 = simpleDateFormat.format(timestamp1);
         		 dateTemp2 = simpleDateFormat.format(timestamp2);
@@ -464,8 +659,8 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
         			
         			if(dateTemp1.equals(dateTemp2)) {
         			//	System.out.println("dateTemp2 : " + dateTemp2);
-        				tempJsonObjects.add(jobjList.get(j));
-        		//		System.out.println("jObjList after remove 1 : " + jobjList.size());
+        				tempJsonObjects.add(newList.get(j));
+        		//		System.out.println("newList after remove 1 : " + jobjList.size());
         		//		System.out.println("tempJsonObj after add 1 : " + tempJsonObjects.size());
         				i++;
         			}
@@ -494,19 +689,22 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
         					}
         			}
         		}
-        		 String tempOpenVal = tempJsonObjects.get(0).getString("openVal");
-        		 String tempClose = tempJsonObjects.get(0).getString("latest");
-        		 
-        		 if(tempOpenVal.equals("-")){
-        			 tempOpenVal = "0";
-        		 }
-        		 
-        		 if(tempClose.equals("-")){
-        			 tempClose = "0";
-        		 }
-        		 
-        		open.add(Double.parseDouble(tempOpenVal));
-        		close.add(Double.parseDouble(tempClose));
+			open.add(Double.parseDouble(tempJsonObjects.get(0).getString("openVal")));
+    		close.add(Double.parseDouble(tempJsonObjects.get(0).getString("latest")));
+        		
+//        		 String tempOpenVal = tempJsonObjects.get(0).getString("openVal");
+//        		 String tempClose = tempJsonObjects.get(0).getString("latest");
+//        		 
+//        		 if(tempOpenVal.equals("-")){
+//        			 tempOpenVal = "0";
+//        		 }
+//        		 
+//        		 if(tempClose.equals("-")){
+//        			 tempClose = "0";
+//        		 }
+//        		 
+//        		open.add(Double.parseDouble(tempOpenVal));
+//        		close.add(Double.parseDouble(tempClose));
 
         		// Open and closing value is set
         		// ****
@@ -515,46 +713,68 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
         		// Sort to get highest and lowest value
         		//
         		
-        				for(int m = 0; m < tempJsonObjects.size(); m++){
-        					for (int n = m + 1; n < tempJsonObjects.size(); n++) {
+//        				for(int m = 0; m < tempJsonObjects.size(); m++){
+//        					for (int n = m + 1; n < tempJsonObjects.size(); n++) {
+//
+//        						String o1 = tempJsonObjects.get(m).getString("latest");
+//        						String o2 = tempJsonObjects.get(n).getString("latest");
+//        							
+//        						if(o1.equals("-")){
+//        	                       o1 = "0";
+//        	                    }
+//        						
+//        						if(o2.equals("-")){
+//        	                    	o2 = "0";
+//        	                    }
+//        						
+//        						Double fo1 = Double.parseDouble(o1);
+//        						Double fo2 = Double.parseDouble(o2);
+//
+//        						if (fo1 < fo2) {
+//        								JSONObject temp = new JSONObject(); 
+//        								temp = tempJsonObjects.get(m);
+//        								tempJsonObjects.set(m, tempJsonObjects.get(n));
+//        								tempJsonObjects.set(n, temp);
+//        						}             
+//        					}
+//        		
+//        				}	
+						
+						
+    				for(int m = 0; m < tempJsonObjects.size(); m++){
+    					for (int n = m + 1; n < tempJsonObjects.size(); n++) {
 
-        						String o1 = tempJsonObjects.get(m).getString("latest");
-        						String o2 = tempJsonObjects.get(n).getString("latest");
-        							
-        						if(o1.equals("-")){
-        	                       o1 = "0";
-        	                    }
-        						
-        						if(o2.equals("-")){
-        	                    	o2 = "0";
-        	                    }
-        						
-        						Double fo1 = Double.parseDouble(o1);
-        						Double fo2 = Double.parseDouble(o2);
+    						float o1 = Float.parseFloat(tempJsonObjects.get(m).getString("latest"));
+    						float o2 = Float.parseFloat(tempJsonObjects.get(n).getString("latest"));
+    							
 
-        						if (fo1 < fo2) {
-        								JSONObject temp = new JSONObject(); 
-        								temp = tempJsonObjects.get(m);
-        								tempJsonObjects.set(m, tempJsonObjects.get(n));
-        								tempJsonObjects.set(n, temp);
-        						}             
-        					}
-        		
-        				}			
+
+    						if (o1 < o2) {
+    								JSONObject temp = new JSONObject(); 
+    								temp = tempJsonObjects.get(m);
+    								tempJsonObjects.set(m, tempJsonObjects.get(n));
+    								tempJsonObjects.set(n, temp);
+    						}             
+    					}
+    		
+    				}			
         				
-        				String tempHigh = tempJsonObjects.get(0).getString("latest");
-        				String tempLow = tempJsonObjects.get(tempJsonObjects.size()-1).getString("latest");
-        						
-        				if(tempHigh.equals("-")){
-        					tempHigh = "0";
-        				}
-        				if(tempLow.equals("-")){
-        					tempLow = "0";
-        				}
+        				high.add(Double.parseDouble(tempJsonObjects.get(0).getString("latest")));
+        	            low.add(Double.parseDouble(tempJsonObjects.get(tempJsonObjects.size()-1).getString("latest")));		
         				
-        		high.add(Double.parseDouble(tempHigh));
-        		
-            	low.add(Double.parseDouble(tempLow));
+//        				String tempHigh = tempJsonObjects.get(0).getString("latest");
+//        				String tempLow = tempJsonObjects.get(tempJsonObjects.size()-1).getString("latest");
+//        						
+//        				if(tempHigh.equals("-")){
+//        					tempHigh = "0";
+//        				}
+//        				if(tempLow.equals("-")){
+//        					tempLow = "0";
+//        				}
+//        				
+//        		high.add(Double.parseDouble(tempHigh));
+//        		
+//            	low.add(Double.parseDouble(tempLow));
             	
             	for(int ig = 0; ig < tempJsonObjects.size(); ig++){
             	
@@ -607,8 +827,6 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			DefaultHighLowDataset dataset = new DefaultHighLowDataset("Series 1 ", dated, highd, lowd, opend, closed, volumed);
 			return dataset;
 	}
-
-		
 		/**
 		 * @author Justin Inácio
 		 * Method which is executed when the specified button is pressed. 
