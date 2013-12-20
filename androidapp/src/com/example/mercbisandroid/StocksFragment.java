@@ -23,6 +23,7 @@ import android.widget.ListView;
  */
 
 public class StocksFragment extends ListFragment implements OnItemClickListener {
+	
 	// Rickard Bremer
 
 	JSONObject JOBJ = new JSONObject();
