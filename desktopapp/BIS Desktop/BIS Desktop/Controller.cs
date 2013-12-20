@@ -43,7 +43,6 @@ namespace BIS_Desktop
             //string dir = Directory.GetParent(Environment.CurrentDirectory).Parent.ToString();
             //string dir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
             string dir = AppDomain.CurrentDomain.BaseDirectory;
-            //Console.WriteLine(dir); 
             filePath = dir + "\\portfolio.txt"; 
 
         }
@@ -80,8 +79,6 @@ namespace BIS_Desktop
         /// <returns></returns>
         public List<Stock> sortStockList(List<Stock> list_, String type_, Boolean descending_)
         {
-            
-            Console.WriteLine("Size of list entered: " + list_.Count);
             Object sTemp = list_[0];
             if (sTemp.GetType().GetProperty(type_) != null)
             {
@@ -98,7 +95,6 @@ namespace BIS_Desktop
         /// <param name="descending"></param>
         /// <returns></returns>
         private List<Stock> quickSort(List<Stock> list, String type_, Boolean descending){
-            Console.Write("");
             //Return list if size is 1 or less
             if (list.Count() == 1)
             {
@@ -181,8 +177,6 @@ namespace BIS_Desktop
         /// <returns></returns>
         public List<News> sortNewsList(List<News> list_, String type_, Boolean descending_)
         {
-
-            Console.WriteLine("Size of list entered: " + list_.Count);
             Object sTemp = list_[0];
             if (sTemp.GetType().GetProperty(type_) != null)
             {
@@ -200,7 +194,6 @@ namespace BIS_Desktop
         /// <returns></returns>
         private List<News> newsQuickSort(List<News> list, String type_, Boolean descending)
         {
-            Console.Write("");
             //Return list if size is 1 or less
             if (list.Count() == 1)
             {
@@ -290,9 +283,7 @@ namespace BIS_Desktop
                 for (int i = 0; i < list.Count(); i++)
                 {
                     DateTime stockDate_ = getDate(list.ElementAt(i).Updated);
-                    Console.WriteLine("Current date: " + stockDate_);
                     int difference = (date - stockDate_).Days;
-                    Console.WriteLine("Difference: " + difference);
                     if (difference < 0)
                     {
                         difference *= -1;
@@ -309,7 +300,7 @@ namespace BIS_Desktop
             }
             catch (Exception e)
             {
-                Console.WriteLine("adasdasasd " + e.Message);
+                Console.WriteLine(e.Message);
             }
             return newList;
         } 
@@ -351,7 +342,6 @@ namespace BIS_Desktop
             List<Stock> newList = new List<Stock>();
             DateTime midnight = DateTime.Today;
             long midnightMilliseconds = getTimeStamp(midnight);
-            Console.WriteLine("MIDNIGHT: " + midnight + " " + midnightMilliseconds);
             try
             {
                 for (int i = 0; i < list.Count(); i++)
@@ -368,7 +358,7 @@ namespace BIS_Desktop
             }
             catch (Exception e)
             {
-                Console.WriteLine("adasdasasd " + e.Message);
+                Console.WriteLine(e.Message);
             }
             return newList;
         } 
