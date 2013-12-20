@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace BIS_Desktop
 {
-   /// <summary>
-   /// Stock get set class
-   /// </summary>
    public class Stock
     {     
         public String Id { get; set; } // String for holding the identification number of the stock
