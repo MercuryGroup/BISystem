@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author Rickard Bremer & Justin Inacio
@@ -74,7 +75,12 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		chart = "linechart";
 		thirtyDays = System.currentTimeMillis()/10;
 		MarketTime = thirtyDays - 3 * 24 * 60 * 60 * 1000;
-		checkInternetConnection();	
+		try {
+			checkInternetConnection();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 		
 		//Justin In�cio
 		viewPager=(ViewPager) this.findViewById(R.id.tabs);
@@ -191,9 +197,10 @@ public class MainActivity extends FragmentActivity implements TabListener {
 	/**
 	 * @author Rickard Bremer
 	 * Check if there is a internet connection
+	 * @throws InterruptedException 
 	 */
 
-	private void checkInternetConnection() {
+	private void checkInternetConnection() throws InterruptedException {
     	ConnectivityManager connMgr = (ConnectivityManager) 
     	        getSystemService(Context.CONNECTIVITY_SERVICE);
     	    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -203,7 +210,12 @@ public class MainActivity extends FragmentActivity implements TabListener {
     	    	
     	    } else {
     	    	
-    	        System.out.println("A Internet connection is not available!");
+    	    	Context context = getApplicationContext();
+    			CharSequence text = "There's no internet connection available, application shutting down.";
+    			int duration = Toast.LENGTH_SHORT;
+    			Toast toast = Toast.makeText(context, text, duration);
+    			toast.show();
+    			android.os.SystemClock.sleep(5000);
     	        System.exit(0);
     	    }
     	}

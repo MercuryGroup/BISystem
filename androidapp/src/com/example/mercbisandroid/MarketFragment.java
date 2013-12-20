@@ -159,11 +159,11 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
 				
 				JSONObject JOBJ = new JSONObject(MainActivity.MarketArray.get().get(i).toString());
                 jobjList.add(JOBJ);
-                System.out.println(jobjList.get(i));
+      //          System.out.println(jobjList.get(i));
 			
 			}
 		
-		System.out.println("jobjList : " + jobjList.size());
+	//	System.out.println("jobjList : " + jobjList.size());
 		
 		for(int i = 0; i < jobjList.size(); i++){
     	
@@ -173,7 +173,7 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
     	
     		for(int j = i + 1; j < jobjList.size(); j++){
     			
-    			System.out.println(jobjList.get(i).getString("updated"));
+    		//	System.out.println(jobjList.get(i).getString("updated"));
     			
     			timestamp1 = new java.sql.Timestamp(Long.parseLong(jobjList.get(i).getString("updated")));
     			timestamp2 = new java.sql.Timestamp(Long.parseLong(jobjList.get(j).getString("updated")));
@@ -181,7 +181,7 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
     		 dateTemp1 = simpleDateFormat.format(timestamp1);
     		 dateTemp2 = simpleDateFormat.format(timestamp2);
     	
-    			System.out.println(dateTemp1 + " : " + dateTemp2 );
+    	//		System.out.println(dateTemp1 + " : " + dateTemp2 );
     			
     			if(dateTemp1.equals(dateTemp2)) {
     			//	System.out.println("dateTemp2 : " + dateTemp2);
@@ -250,7 +250,7 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
         	for(int ig = 0; ig < tempJsonObjects.size(); ig++){
         	
         		String temp12 = tempJsonObjects.get(ig).getString("latest");
-        		System.out.println(temp12);
+        		//System.out.println(temp12);
         	}
         	
     		//	Done with highest and lowest value.
@@ -261,7 +261,7 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
         	//
         	
         	String tempDate = simpleDateFormat.format(timestamp1);
-        	System.out.println("TempDate : " + tempDate);
+        	//System.out.println("TempDate : " + tempDate);
         	
         	// Add volume and date
         	//
@@ -285,7 +285,7 @@ static DefaultHighLowDataset createCandleStickDataset() throws JSONException, In
 		
 		for(int i = 0; i < date.size(); i++){
 			
-			System.out.println(date.get(i)+ " : High ->: " + high.get(i) + ":  low -> : " + low.get(i) + " : open -> : " + open.get(i) + " :  close ->: " + close.get(i) + " : " + volume.get(i));
+		//	System.out.println(date.get(i)+ " : High ->: " + high.get(i) + ":  low -> : " + low.get(i) + " : open -> : " + open.get(i) + " :  close ->: " + close.get(i) + " : " + volume.get(i));
 		
 			highd[i] = high.get(i);
 			lowd[i] = low.get(i);

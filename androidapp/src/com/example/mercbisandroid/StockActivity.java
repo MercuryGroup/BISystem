@@ -204,7 +204,7 @@ protected void onCreate(Bundle savedInstanceState){
 	      
 	            		
 	            		if(chart.equals("linechart")){
-	            			System.out.println(this.stockArray.get().size());
+	            		//	System.out.println(this.stockArray.get().size());
 	            			if(this.stockArray.get().size() > 0){
 	            			dataset = createDatasetLineChart();
 	    	    			chartView.drawChart(ChartFactory.createLineChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));	
@@ -213,7 +213,7 @@ protected void onCreate(Bundle savedInstanceState){
 	            		
 	            		
 	            		if(chart.equals("barchart")){
-	            			System.out.println(this.stockArray.get().size());
+	            		//	System.out.println(this.stockArray.get().size());
 	            			if(this.stockArray.get().size() > 0){
 	            			dataset = createDatasetBarChart();
 	            			chartView.drawChart(ChartFactory.createBarChart(MainActivity.StockSymbol,"Time", "Value", dataset, PlotOrientation.VERTICAL, true, true, false));    
@@ -221,7 +221,7 @@ protected void onCreate(Bundle savedInstanceState){
 	            		}
 	            		
 	            		if(chart.equals("candlestick")){
-	            			System.out.println(this.stockArray.get().size());
+	            		//	System.out.println(this.stockArray.get().size());
 	            			if(this.stockArray.get().size() > 1){
 	            			datasetCandle = createCandleStickDataset();
 	            			chartView.drawChart(ChartFactory.createCandlestickChart(MainActivity.StockSymbol, "Time", "Value", datasetCandle, false));
@@ -614,24 +614,24 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			java.sql.Timestamp timestamp1 = null;
 			java.sql.Timestamp timestamp2 = null;
 						
-			System.out.println("stockArray : " + stockArray.get().size());
+		//	System.out.println("stockArray : " + stockArray.get().size());
 			
 			for(int i = 0; i < stockArray.get().size(); i++){
 					
 					JSONObject JOBJ = new JSONObject(stockArray.get().get(i).toString());
                     jobjList.add(JOBJ);
-                    System.out.println(jobjList.get(i));
+          //          System.out.println(jobjList.get(i));
 				
 				}
 			
-			System.out.println("jobjList : " + jobjList.size());
+	//		System.out.println("jobjList : " + jobjList.size());
 			
 			for(int i = 0; i < jobjList.size(); i++){
 				if(jobjList.get(i).getString("latest").equals("-")){
-					System.out.println("Fel i värde");
+		//			System.out.println("Fel i värde");
 				}
 				else if(jobjList.get(i).getString("openVal").equals("-")){
-					System.out.println("Fel i värde");
+			//		System.out.println("Fel i värde");
 				}
 				else{
 					newList.add(jobjList.get(i));
@@ -647,7 +647,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
         	
         		for(int j = i + 1; j < newList.size(); j++){
         			
-        			System.out.println(newList.get(i).getString("updated"));
+        		//	System.out.println(newList.get(i).getString("updated"));
         			
         			timestamp1 = new java.sql.Timestamp(Long.parseLong(newList.get(i).getString("updated")));
         			timestamp2 = new java.sql.Timestamp(Long.parseLong(newList.get(j).getString("updated")));
@@ -655,7 +655,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
         		 dateTemp1 = simpleDateFormat.format(timestamp1);
         		 dateTemp2 = simpleDateFormat.format(timestamp2);
         	
-        			System.out.println(dateTemp1 + " : " + dateTemp2 );
+        		//	System.out.println(dateTemp1 + " : " + dateTemp2 );
         			
         			if(dateTemp1.equals(dateTemp2)) {
         			//	System.out.println("dateTemp2 : " + dateTemp2);
@@ -779,7 +779,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
             	for(int ig = 0; ig < tempJsonObjects.size(); ig++){
             	
             		String temp12 = tempJsonObjects.get(ig).getString("latest");
-            		System.out.println(temp12);
+            	//	System.out.println(temp12);
             	}
             	
         		//	Done with highest and lowest value.
@@ -790,7 +790,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
             	//
             	
             	String tempDate = simpleDateFormat.format(timestamp1);
-            	System.out.println("TempDate : " + tempDate);
+            //	System.out.println("TempDate : " + tempDate);
             	
             	// Add volume and date
             	//
@@ -814,7 +814,7 @@ private  DefaultHighLowDataset createCandleStickDataset() throws JSONException, 
 			
 			for(int i = 0; i < date.size(); i++){
 				
-				System.out.println(date.get(i)+ " : High ->: " + high.get(i) + ":  low -> : " + low.get(i) + " : open -> : " + open.get(i) + " :  close ->: " + close.get(i) + " : " + volume.get(i));
+			//	System.out.println(date.get(i)+ " : High ->: " + high.get(i) + ":  low -> : " + low.get(i) + " : open -> : " + open.get(i) + " :  close ->: " + close.get(i) + " : " + volume.get(i));
 			
 				highd[i] = high.get(i);
 				lowd[i] = low.get(i);
